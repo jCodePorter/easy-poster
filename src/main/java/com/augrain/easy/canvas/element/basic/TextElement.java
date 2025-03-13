@@ -2,6 +2,7 @@ package com.augrain.easy.canvas.element.basic;
 
 import com.augrain.easy.canvas.element.AbstractElement;
 import com.augrain.easy.canvas.element.IElement;
+import com.augrain.easy.canvas.enums.BaseLine;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.utils.RotateUtils;
@@ -12,7 +13,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 /**
- * 文本元素
+ * 文本元素，java中文本字符串在绘制时，按照字体排印学中原则，坐标点 y 值，即绘制文本的base line
  *
  * @author biaoy
  * @since 2025/02/21
@@ -46,6 +47,11 @@ public class TextElement extends AbstractElement implements IElement {
      * 自定义字体
      */
     private Font font;
+
+    /**
+     * 文本对齐方式，默认居中对齐
+     */
+    private BaseLine baseLine = BaseLine.CENTER;
 
     public TextElement(String text) {
         this.text = text;
@@ -83,6 +89,11 @@ public class TextElement extends AbstractElement implements IElement {
         return this;
     }
 
+    public TextElement setBaseLine(BaseLine baseLine) {
+        this.baseLine = baseLine;
+        return this;
+    }
+
     public Font getFont() {
         if (this.font != null) {
             return this.font;
@@ -105,7 +116,7 @@ public class TextElement extends AbstractElement implements IElement {
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width((int) textBounds.getWidth())
                 .height((int) textBounds.getHeight())
-                .yOffset(fm.getAscent())
+                .yOffset(baseLine.getOffset(fm))
                 .point(point);
         if (this.getRotate() != 0) {
             int[] newBounds = RotateUtils.newBounds(width, height, this.getRotate());
