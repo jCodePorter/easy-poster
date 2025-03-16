@@ -1,6 +1,6 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractElement;
+import com.augrain.easy.canvas.element.AbstractTileableElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.enums.ZoomMode;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
@@ -18,7 +18,7 @@ import java.awt.image.BufferedImage;
  * @since 2025/02/20
  */
 @Getter
-public class ImageElement extends AbstractElement implements IElement {
+public class ImageElement extends AbstractTileableElement implements IElement {
 
     /**
      * 图片缩放方式
@@ -64,7 +64,7 @@ public class ImageElement extends AbstractElement implements IElement {
     }
 
     @Override
-    public Dimension calDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
         ZoomMode zoomMode = this.getZoomMode();
         BufferedImage image = this.getImage();
         int width = 0;
@@ -100,12 +100,7 @@ public class ImageElement extends AbstractElement implements IElement {
 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        CoordinatePoint point;
-        if (isPositionUpdated()) {
-            point = getPosition().calculate(canvasWidth, canvasHeight, dimension.getWidth(), dimension.getHeight());
-        } else {
-            point = dimension.getPoint();
-        }
+        CoordinatePoint point = dimension.getPoint();
         BufferedImage image = this.getImage();
         g.drawImage(image, point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
         return point;

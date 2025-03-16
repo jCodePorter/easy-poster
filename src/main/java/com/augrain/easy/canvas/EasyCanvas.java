@@ -2,6 +2,7 @@ package com.augrain.easy.canvas;
 
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
+import com.augrain.easy.canvas.element.basic.RectangleElement;
 import com.augrain.easy.canvas.element.basic.TextElement;
 
 import javax.imageio.ImageIO;
@@ -46,6 +47,7 @@ public class EasyCanvas {
 
     /**
      * Canvas构造方法
+     *
      * @param canvasWidth  画布宽
      * @param canvasHeight 画布高
      */
@@ -79,6 +81,12 @@ public class EasyCanvas {
         ImageElement textElement = new ImageElement(input);
         renderedElements.add(textElement);
         return textElement;
+    }
+
+    public RectangleElement addRectangleElement(int width, int height) {
+        RectangleElement rectElement = new RectangleElement(width, height);
+        renderedElements.add(rectElement);
+        return rectElement;
     }
 
     /**

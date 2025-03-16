@@ -139,7 +139,7 @@ public class TextElement extends AbstractElement implements IElement {
     }
 
     @Override
-    public Dimension calDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
         FontMetrics fm = g.getFontMetrics();
 
         int width;
@@ -174,15 +174,7 @@ public class TextElement extends AbstractElement implements IElement {
 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        String text = this.getText();
-
-        CoordinatePoint point;
-        if (isPositionUpdated()) {
-            point = getPosition().calculate(canvasWidth, canvasHeight, dimension.getWidth(), dimension.getHeight());
-        } else {
-            point = dimension.getPoint();
-        }
-
+        CoordinatePoint point  = dimension.getPoint();;
         for (int i = 0; i < this.splitText.size(); i++) {
             int startX = point.getX() + dimension.getXOffset();
             int startY = point.getY() + dimension.getYOffset() + i * dimension.getHeight();

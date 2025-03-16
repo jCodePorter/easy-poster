@@ -30,11 +30,6 @@ public abstract class AbstractElement implements IElement {
      */
     protected Position position;
 
-    /**
-     * 位置是否被更新，有可能在初始计算之后，被更高级的元素修改位置信息了
-     */
-    protected boolean positionUpdated = false;
-
     public AbstractElement setAlpha(float alpha) {
         this.alpha = alpha;
         return this;
@@ -50,15 +45,10 @@ public abstract class AbstractElement implements IElement {
         return this;
     }
 
-    public AbstractElement updatePosition() {
-        this.positionUpdated = true;
-        return this;
-    }
-
     @Override
     public CoordinatePoint render(Graphics2D g, int canvasWidth, int canvasHeight) throws Exception {
         beforeRender(g);
-        Dimension elementInfo = calDimension(g, canvasWidth, canvasHeight);
+        Dimension elementInfo = calculateDimension(g, canvasWidth, canvasHeight);
         CoordinatePoint coordinatePoint = doRender(g, elementInfo, canvasWidth, canvasHeight);
         afterRender(g);
         return coordinatePoint;
@@ -67,7 +57,7 @@ public abstract class AbstractElement implements IElement {
     /**
      * 计算元素尺寸
      */
-    public abstract Dimension calDimension(Graphics2D g, int canvasWidth, int canvasHeight);
+    public abstract Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight);
 
     /**
      * 执行渲染

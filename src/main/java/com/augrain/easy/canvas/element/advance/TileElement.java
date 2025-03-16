@@ -1,9 +1,9 @@
 package com.augrain.easy.canvas.element.advance;
 
-import com.augrain.easy.canvas.element.AbstractElement;
+import com.augrain.easy.canvas.element.AbstractTileableElement;
 import com.augrain.easy.canvas.element.IElement;
-import com.augrain.easy.canvas.geometry.*;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.geometry.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,7 +20,7 @@ public class TileElement implements IElement {
     /**
      * 待平铺的图片
      */
-    private final AbstractElement basicElement;
+    private final AbstractTileableElement basicElement;
 
     /**
      * 水平间隔
@@ -37,7 +37,7 @@ public class TileElement implements IElement {
      */
     private Layout layout;
 
-    public TileElement(AbstractElement basicElement) {
+    public TileElement(AbstractTileableElement basicElement) {
         this.basicElement = basicElement;
     }
 
@@ -63,10 +63,10 @@ public class TileElement implements IElement {
     }
 
     @Override
-    public CoordinatePoint render(Graphics2D g, int canvasWidth, int canvasHeight) throws Exception {
+    public CoordinatePoint render(Graphics2D g, int canvasWidth, int canvasHeight) {
         basicElement.beforeRender(g);
 
-        Dimension dimension = basicElement.calDimension(g, canvasWidth, canvasHeight);
+        Dimension dimension = basicElement.calculateDimension(g, canvasWidth, canvasHeight);
         int elementWidth = Math.max(dimension.getRotateWidth(), dimension.getWidth());
         int elementHeight = Math.max(dimension.getRotateHeight(), dimension.getHeight());
 
@@ -98,7 +98,8 @@ public class TileElement implements IElement {
                 elementMargin.setMarginLeft(x);
                 elementMargin.setMarginTop(y);
                 basicElement.setPosition(RelativePosition.of(Positions.TOP_LEFT, elementMargin));
-                basicElement.updatePosition();
+                CoordinatePoint coordinatePoint = basicElement.reCalculatePosition(canvasWidth, canvasHeight, dimension);
+                dimension.setPoint(coordinatePoint);
                 basicElement.doRender(g, dimension, canvasWidth, canvasHeight);
             }
         }
@@ -119,11 +120,10 @@ public class TileElement implements IElement {
                 int x = i * (elementWidth + this.xPadding) + xOffset;
                 int y = j * (elementHeight + this.yPadding) + yOffset;
 
-                Margin margin = Margin.of(0);
-                margin.setMarginLeft(x);
-                margin.setMarginTop(y);
+                Margin margin = Margin.of().setMarginLeft(x).setMarginTop(y);
                 basicElement.setPosition(RelativePosition.of(Positions.TOP_LEFT, margin));
-                basicElement.updatePosition();
+                CoordinatePoint coordinatePoint = basicElement.reCalculatePosition(canvasWidth, canvasHeight, dimension);
+                dimension.setPoint(coordinatePoint);
                 basicElement.doRender(g, dimension, canvasWidth, canvasHeight);
             }
         }
