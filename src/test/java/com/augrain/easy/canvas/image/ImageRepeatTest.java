@@ -1,14 +1,11 @@
 package com.augrain.easy.canvas.image;
 
 import com.augrain.easy.canvas.EasyCanvas;
-import com.augrain.easy.canvas.element.advance.TileElement;
+import com.augrain.easy.canvas.element.advance.RepeatElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
-import com.augrain.easy.canvas.element.basic.RectangleElement;
-import com.augrain.easy.canvas.geometry.Margin;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
@@ -18,7 +15,7 @@ import java.io.InputStream;
  * @author biaoy
  * @since 2025/03/16
  */
-public class ImageTileTest {
+public class ImageRepeatTest {
 
     @Test
     public void testBasicImage() throws Exception {
@@ -27,9 +24,9 @@ public class ImageTileTest {
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage input = ImageIO.read(inputStream);
 
-        TileElement tileElement = new TileElement(new ImageElement(input)).setPadding(20, 20);
+        RepeatElement repeatElement = new RepeatElement(new ImageElement(input)).setPadding(20, 20);
 
-        canvas.addElement(tileElement);
+        canvas.addElement(repeatElement);
         canvas.asFile("png", "image_tile.png");
     }
 }

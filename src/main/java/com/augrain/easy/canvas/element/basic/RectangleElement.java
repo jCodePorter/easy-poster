@@ -1,6 +1,6 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractTileableElement;
+import com.augrain.easy.canvas.element.AbstractRepeatableElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
@@ -15,7 +15,7 @@ import java.awt.*;
  * @since 2025/03/16
  */
 @Getter
-public class RectangleElement extends AbstractTileableElement implements IElement {
+public class RectangleElement extends AbstractRepeatableElement implements IElement {
 
     private final int width;
 

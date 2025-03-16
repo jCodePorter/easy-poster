@@ -1,6 +1,6 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractElement;
+import com.augrain.easy.canvas.element.AbstractRepeatableElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.enums.BaseLine;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
@@ -24,7 +24,7 @@ import java.util.Optional;
  * @since 2025/02/21
  */
 @Getter
-public class TextElement extends AbstractElement implements IElement {
+public class TextElement extends AbstractRepeatableElement implements IElement {
 
     /**
      * 待绘制的文本
@@ -174,7 +174,7 @@ public class TextElement extends AbstractElement implements IElement {
 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        CoordinatePoint point  = dimension.getPoint();;
+        CoordinatePoint point = dimension.getPoint();
         for (int i = 0; i < this.splitText.size(); i++) {
             int startX = point.getX() + dimension.getXOffset();
             int startY = point.getY() + dimension.getYOffset() + i * dimension.getHeight();

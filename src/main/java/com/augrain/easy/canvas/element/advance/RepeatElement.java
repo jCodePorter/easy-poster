@@ -1,6 +1,6 @@
 package com.augrain.easy.canvas.element.advance;
 
-import com.augrain.easy.canvas.element.AbstractTileableElement;
+import com.augrain.easy.canvas.element.AbstractRepeatableElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.geometry.*;
@@ -15,12 +15,12 @@ import java.awt.*;
  * @author biaoy
  * @since 2025/03/05
  */
-public class TileElement implements IElement {
+public class RepeatElement implements IElement {
 
     /**
      * 待平铺的图片
      */
-    private final AbstractTileableElement basicElement;
+    private final AbstractRepeatableElement basicElement;
 
     /**
      * 水平间隔
@@ -37,27 +37,27 @@ public class TileElement implements IElement {
      */
     private Layout layout;
 
-    public TileElement(AbstractTileableElement basicElement) {
+    public RepeatElement(AbstractRepeatableElement basicElement) {
         this.basicElement = basicElement;
     }
 
-    public TileElement setXPadding(int xPadding) {
+    public RepeatElement setXPadding(int xPadding) {
         this.xPadding = xPadding;
         return this;
     }
 
-    public TileElement setYPadding(int yPadding) {
+    public RepeatElement setYPadding(int yPadding) {
         this.yPadding = yPadding;
         return this;
     }
 
-    public TileElement setPadding(int xPadding, int yPadding) {
+    public RepeatElement setPadding(int xPadding, int yPadding) {
         this.xPadding = xPadding;
         this.yPadding = yPadding;
         return this;
     }
 
-    public TileElement setLayout(int rows, int cols, Margin margin) {
+    public RepeatElement setLayout(int rows, int cols, Margin margin) {
         this.layout = new Layout(rows, cols, margin);
         return this;
     }

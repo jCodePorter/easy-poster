@@ -1,6 +1,6 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractTileableElement;
+import com.augrain.easy.canvas.element.AbstractRepeatableElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.enums.ZoomMode;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
@@ -18,7 +18,7 @@ import java.awt.image.BufferedImage;
  * @since 2025/02/20
  */
 @Getter
-public class ImageElement extends AbstractTileableElement implements IElement {
+public class ImageElement extends AbstractRepeatableElement implements IElement {
 
     /**
      * 图片缩放方式
