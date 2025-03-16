@@ -11,6 +11,7 @@ import lombok.Getter;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Optional;
 
 /**
  * 文本元素，java中文本字符串在绘制时，按照字体排印学中原则，坐标点 y 值，即绘制文本的base line
@@ -53,6 +54,11 @@ public class TextElement extends AbstractElement implements IElement {
      */
     private BaseLine baseLine = BaseLine.CENTER;
 
+    /**
+     * 行高
+     */
+    private Integer lineHeight;
+
     public TextElement(String text) {
         this.text = text;
     }
@@ -94,6 +100,11 @@ public class TextElement extends AbstractElement implements IElement {
         return this;
     }
 
+    public TextElement setLineHeight(Integer lineHeight) {
+        this.lineHeight = lineHeight;
+        return this;
+    }
+
     public Font getFont() {
         if (this.font != null) {
             return this.font;
@@ -106,7 +117,7 @@ public class TextElement extends AbstractElement implements IElement {
         FontMetrics fm = g.getFontMetrics();
         Rectangle2D textBounds = fm.getStringBounds(text, g);
         int width = (int) textBounds.getWidth();
-        int height = (int) textBounds.getHeight();
+        int height = Optional.ofNullable(this.lineHeight).orElse((int) textBounds.getHeight());
 
         CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
         if (position != null) {
@@ -114,9 +125,9 @@ public class TextElement extends AbstractElement implements IElement {
         }
 
         Dimension.DimensionBuilder builder = Dimension.builder()
-                .width((int) textBounds.getWidth())
-                .height((int) textBounds.getHeight())
-                .yOffset(baseLine.getOffset(fm))
+                .width(width)
+                .height(height)
+                .yOffset(baseLine.getOffset(fm, height))
                 .point(point);
         if (this.getRotate() != 0) {
             int[] newBounds = RotateUtils.newBounds(width, height, this.getRotate());

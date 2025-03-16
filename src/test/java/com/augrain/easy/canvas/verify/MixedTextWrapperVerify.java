@@ -1,9 +1,13 @@
 package com.augrain.easy.canvas.verify;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 多语种文本拆分验证
@@ -13,58 +17,47 @@ import java.util.List;
  */
 public class MixedTextWrapperVerify {
 
+    private static final Map<Character, Integer> charSizeMap = new HashMap<>();
+
     public static List<String> wrapText(String text, int width, FontMetrics fontMetrics) {
         List<String> lines = new ArrayList<>();
-
-        char[] charArray = text.toCharArray();
-        StringBuilder currentText = new StringBuilder();
-        int currentSize = 0;
-
-        // 全角字体宽度与字体大小一致
         int size = fontMetrics.getFont().getSize();
 
-        int currentIndex = 0;
-        int endIndex = 0;
+        char[] charArray = text.toCharArray();
+        int index = 0;
+        int currentSize = 0;
+        StringBuilder builder = new StringBuilder();
+
         while (true) {
-            if (isFullWidthChar(charArray[currentIndex])) {
-                endIndex = lookUpMoreFullChar(currentIndex, charArray);
-
-                int charNum = width / size;
-                int temp = currentIndex;
-                while (temp < endIndex) {
-                    String sub = text.substring(temp, Math.min(temp + charNum, endIndex));
-                    int tempSize = sub.length() * size;
-
-                    if (currentSize + tempSize >= width) {
-                        lines.add(sub);
-                    } else {
-                        currentText.append(sub);
-                        currentSize = tempSize;
-                    }
-                    temp += charNum;
-                }
-                currentIndex = endIndex;
-            } else {
-
-            }
-            if (endIndex == charArray.length) {
+            if (index >= charArray.length) {
                 break;
             }
+
+            int cSize = getCharSize(charArray[index], size, fontMetrics);
+            if (currentSize + cSize > width) {
+                String string = builder.toString();
+                System.out.println(fontMetrics.stringWidth(string));
+                lines.add(string);
+                builder.setLength(0);
+                currentSize = 0;
+            } else {
+                currentSize += cSize;
+                builder.append(charArray[index]);
+            }
+            index++;
         }
 
-        if (currentText.length() > 0) {
-            lines.add(currentText.toString());
+        if (builder.length() > 0) {
+            lines.add(builder.toString());
         }
         return lines;
     }
 
-    private static int lookUpMoreFullChar(int current, char[] charArray) {
-        for (int i = current; i < charArray.length; i++) {
-            if (!isFullWidthChar(charArray[i])) {
-                return i;
-            }
+    private static int getCharSize(char c, int defaultSize, FontMetrics fm) {
+        if (isFullWidthChar(c)) {
+            return defaultSize;
         }
-        return charArray.length;
+        return charSizeMap.computeIfAbsent(c, k -> fm.charWidth(c));
     }
 
     /**
@@ -91,22 +84,28 @@ public class MixedTextWrapperVerify {
         return p.indexOf(c) >= 0;
     }
 
-    public static void main(String[] args) {
-        // String text = "这是一个混合文本示例，包含中文、English、日本語等多种语言。This is a mixed text example with 中文, English, and 日本語.";
-        String text = "这是一段中文基本测试文本没有标点符号没有特殊字符！！";
-        int width = 100;
-
-        BufferedImage baseImg = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+    public static void main(String[] args) throws Exception {
+        BufferedImage baseImg = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = baseImg.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setColor(Color.white);
+        g.fillRect(0, 0, 500, 500);
 
         Font font = new Font("微软雅黑", Font.PLAIN, 25);
         g.setFont(font);
-
+        g.setColor(Color.red);
         FontMetrics fontMetrics = g.getFontMetrics(font);
 
+        String text = "这是一个混合文本示例，包含中文、English、日本語等多种语言。This is a mixed text example with 中文, English, and 日本語.";
+        int width = 200;
         List<String> wrappedText = wrapText(text, width, fontMetrics);
+        int lineNumber = 0;
         for (String line : wrappedText) {
             System.out.println(line);
+
+            g.drawString(line, 30, 30 * ++lineNumber);
         }
+
+        ImageIO.write(baseImg, "png", new File("text_line.png"));
     }
 }
