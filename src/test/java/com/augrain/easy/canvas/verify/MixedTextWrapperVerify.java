@@ -28,15 +28,10 @@ public class MixedTextWrapperVerify {
         int currentSize = 0;
         StringBuilder builder = new StringBuilder();
 
-        while (true) {
-            if (index >= charArray.length) {
-                break;
-            }
-
+        while (index < charArray.length) {
             int cSize = getCharSize(charArray[index], size, fontMetrics);
             if (currentSize + cSize > width) {
                 String string = builder.toString();
-                System.out.println(fontMetrics.stringWidth(string));
                 lines.add(string);
                 builder.setLength(0);
                 currentSize = 0;

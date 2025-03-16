@@ -16,7 +16,7 @@ import java.io.File;
  * @author biaoy
  * @since 2025/03/14
  */
-public class TestBaseLine {
+public class BaseLineTest {
 
     @Test
     public void testAbsoluteBaseLine() throws Exception {

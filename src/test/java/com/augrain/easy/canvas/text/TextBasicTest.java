@@ -14,7 +14,7 @@ import java.awt.*;
  * @author biaoy
  * @since 2025/03/12
  */
-public class TestText {
+public class TextBasicTest {
 
     @Test
     public void testBasic() {

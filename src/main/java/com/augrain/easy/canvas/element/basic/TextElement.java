@@ -5,12 +5,16 @@ import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.enums.BaseLine;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.text.ITextSplitter;
+import com.augrain.easy.canvas.text.TextSplitterSimpleImpl;
 import com.augrain.easy.canvas.utils.RotateUtils;
 import lombok.Getter;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -22,6 +26,9 @@ import java.util.Optional;
 @Getter
 public class TextElement extends AbstractElement implements IElement {
 
+    /**
+     * 待绘制的文本
+     */
     private final String text;
 
     /**
@@ -58,6 +65,19 @@ public class TextElement extends AbstractElement implements IElement {
      * 行高
      */
     private Integer lineHeight;
+
+    /**
+     * 是否自动换行
+     */
+    private boolean autoWordWrap = false;
+
+    /**
+     * 最大文本宽度
+     */
+    private int maxTextWidth;
+
+    // 程序处理过程中所需数据
+    private List<String> splitText;
 
     public TextElement(String text) {
         this.text = text;
@@ -105,6 +125,12 @@ public class TextElement extends AbstractElement implements IElement {
         return this;
     }
 
+    public TextElement setAutoWrapText(int maxTextWidth) {
+        this.autoWordWrap = true;
+        this.maxTextWidth = maxTextWidth;
+        return this;
+    }
+
     public Font getFont() {
         if (this.font != null) {
             return this.font;
@@ -115,9 +141,18 @@ public class TextElement extends AbstractElement implements IElement {
     @Override
     public Dimension calDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
         FontMetrics fm = g.getFontMetrics();
-        Rectangle2D textBounds = fm.getStringBounds(text, g);
-        int width = (int) textBounds.getWidth();
-        int height = Optional.ofNullable(this.lineHeight).orElse((int) textBounds.getHeight());
+
+        int width;
+        int height = Optional.ofNullable(this.lineHeight).orElse(fm.getHeight());
+        if (autoWordWrap) {
+            ITextSplitter splitter = new TextSplitterSimpleImpl();
+            this.splitText = splitter.splitText(text, maxTextWidth, fm);
+            width = maxTextWidth;
+        } else {
+            Rectangle2D textBounds = fm.getStringBounds(text, g);
+            width = (int) textBounds.getWidth();
+            this.splitText = Collections.singletonList(this.text);
+        }
 
         CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
         if (position != null) {
@@ -148,22 +183,23 @@ public class TextElement extends AbstractElement implements IElement {
             point = dimension.getPoint();
         }
 
-        int startX = point.getX() + dimension.getXOffset();
-        int startY = point.getY() + dimension.getYOffset();
-        if (this.getRotate() != 0) {
-            double rotateX = point.getX() + dimension.getWidth() / 2.0;
-            double rotateY = point.getY() + dimension.getHeight() / 2.0;
+        for (int i = 0; i < this.splitText.size(); i++) {
+            int startX = point.getX() + dimension.getXOffset();
+            int startY = point.getY() + dimension.getYOffset() + i * dimension.getHeight();
+            if (this.getRotate() != 0) {
+                double rotateX = point.getX() + dimension.getWidth() / 2.0;
+                double rotateY = point.getY() + dimension.getHeight() / 2.0 + i * dimension.getHeight();
 
-            AffineTransform rotateTransform = AffineTransform.getRotateInstance(Math.toRadians(rotate), rotateX, rotateY);
-            AffineTransform savedTransform = g.getTransform();
-            g.setTransform(rotateTransform);
-            g.drawString(text, startX, startY);
-            g.setTransform(savedTransform);
-        } else {
-            g.drawString(text, startX, startY);
+                AffineTransform rotateTransform = AffineTransform.getRotateInstance(Math.toRadians(rotate), rotateX, rotateY);
+                AffineTransform savedTransform = g.getTransform();
+                g.setTransform(rotateTransform);
+                g.drawString(splitText.get(i), startX, startY);
+                g.setTransform(savedTransform);
+            } else {
+                g.drawString(splitText.get(i), startX, startY);
+            }
         }
-        return CoordinatePoint.of(startX, startY);
-
+        return dimension.getPoint();
     }
 
     @Override
