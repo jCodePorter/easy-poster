@@ -1,6 +1,7 @@
 package com.augrain.easy.canvas;
 
 import com.augrain.easy.canvas.element.IElement;
+import com.augrain.easy.canvas.element.basic.CircleElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
 import com.augrain.easy.canvas.element.basic.RectangleElement;
 import com.augrain.easy.canvas.element.basic.TextElement;
@@ -24,22 +25,18 @@ public class EasyCanvas {
      * 待绘制的元素集合
      */
     private final List<IElement> renderedElements = new ArrayList<>();
-
-    /**
-     * 底图
-     */
-    private BufferedImage baseImg;
-
     /**
      * 画布宽度
      */
     private final int canvasWidth;
-
     /**
      * 画布高度
      */
     private final int canvasHeight;
-
+    /**
+     * 底图
+     */
+    private BufferedImage baseImg;
     /**
      * 是否已完成渲染
      */
@@ -67,26 +64,68 @@ public class EasyCanvas {
         addImageElement(backgroundImg);
     }
 
+    /**
+     * 添加元素
+     */
     public void addElement(IElement element) {
         renderedElements.add(element);
     }
 
+    /**
+     * 添加文本
+     *
+     * @param text 文本
+     */
     public TextElement addTextElement(String text) {
         TextElement textElement = new TextElement(text);
         renderedElements.add(textElement);
         return textElement;
     }
 
+    /**
+     * 添加图片
+     *
+     * @param input 输入的图片
+     */
     public ImageElement addImageElement(BufferedImage input) {
         ImageElement textElement = new ImageElement(input);
         renderedElements.add(textElement);
         return textElement;
     }
 
+    /**
+     * 添加矩形
+     *
+     * @param width  宽度
+     * @param height 高度
+     */
     public RectangleElement addRectangleElement(int width, int height) {
         RectangleElement rectElement = new RectangleElement(width, height);
         renderedElements.add(rectElement);
         return rectElement;
+    }
+
+    /**
+     * 添加圆形
+     *
+     * @param radius 半径
+     */
+    public CircleElement addCircleElement(int radius) {
+        CircleElement circleElement = new CircleElement(radius);
+        renderedElements.add(circleElement);
+        return circleElement;
+    }
+
+    /**
+     * 添加椭圆
+     *
+     * @param width  宽度
+     * @param height 高度
+     */
+    public CircleElement addOvalElement(int width, int height) {
+        CircleElement circleElement = new CircleElement(width, height);
+        renderedElements.add(circleElement);
+        return circleElement;
     }
 
     /**

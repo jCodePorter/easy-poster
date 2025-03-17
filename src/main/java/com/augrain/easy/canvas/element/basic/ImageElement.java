@@ -101,8 +101,7 @@ public class ImageElement extends AbstractRepeatableElement implements IElement 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
         CoordinatePoint point = dimension.getPoint();
-        BufferedImage image = this.getImage();
-        g.drawImage(image, point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
+        g.drawImage(this.getImage(), point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
         return point;
     }
 }
