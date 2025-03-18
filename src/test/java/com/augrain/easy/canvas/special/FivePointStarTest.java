@@ -22,7 +22,8 @@ public class FivePointStarTest {
 
         FivePointedStarElement fivePointedStarElement = new FivePointedStarElement(100);
         fivePointedStarElement.setColor(Color.red);
-        fivePointedStarElement.setPosition(RelativePosition.of(Positions.TOP_LEFT));
+        fivePointedStarElement.setBorderSize(10);
+        fivePointedStarElement.setPosition(RelativePosition.of(Positions.CENTER));
 
         canvas.addElement(fivePointedStarElement);
 

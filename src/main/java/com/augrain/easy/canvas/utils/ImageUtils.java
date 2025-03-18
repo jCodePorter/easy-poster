@@ -3,6 +3,7 @@ package com.augrain.easy.canvas.utils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
@@ -62,5 +63,40 @@ public class ImageUtils {
         g2d.drawImage(src, (newWidth - src.getWidth()) / 2, (newHeight - src.getHeight()) / 2, null);
         g2d.dispose();
         return outImg;
+    }
+
+    public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = output.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+        g2.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
+        g2.setComposite(AlphaComposite.SrcIn);
+
+        g2.drawImage(image, 0, 0, w, h, null);
+        g2.dispose();
+        return output;
+    }
+
+    public static BufferedImage makeCircleCorner(BufferedImage image) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        if (w != h) {
+            throw new RuntimeException("请使用宽高相等的图片");
+        }
+        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = output.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+        Ellipse2D.Double shape = new Ellipse2D.Double(0, 0, w, h);
+        g2.setClip(shape);
+
+        g2.drawImage(image, 0, 0, w, h, null);
+        g2.dispose();
+        return output;
     }
 }

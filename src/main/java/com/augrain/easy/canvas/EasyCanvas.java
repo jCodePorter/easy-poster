@@ -132,7 +132,7 @@ public class EasyCanvas {
      * 渲染图片，返回图片对象
      */
     public BufferedImage render() throws Exception {
-        baseImg = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        baseImg = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = baseImg.createGraphics();
         // 抗锯齿
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
