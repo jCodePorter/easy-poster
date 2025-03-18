@@ -1,4 +1,4 @@
-package com.augrain.easy.canvas.text;
+package com.augrain.easy.canvas.basic.text;
 
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.geometry.AbsolutePosition;

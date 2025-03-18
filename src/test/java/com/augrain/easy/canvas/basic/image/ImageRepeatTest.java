@@ -1,4 +1,4 @@
-package com.augrain.easy.canvas.image;
+package com.augrain.easy.canvas.basic.image;
 
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.element.advance.RepeatElement;

@@ -1,4 +1,4 @@
-package com.augrain.easy.canvas.rectangle;
+package com.augrain.easy.canvas.basic.circle;
 
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.geometry.Positions;
@@ -8,23 +8,23 @@ import org.junit.Test;
 import java.awt.*;
 
 /**
- * 矩形基本测试
+ * 圆形基本测试
  *
  * @author biaoy
- * @since 2025/03/16
+ * @since 2025/03/17
  */
-public class RectangleBasicTest {
+public class CircleBasicTest {
 
     @Test
-    public void testBasicRectangle() {
+    public void testBasicCircle() {
         EasyCanvas canvas = new EasyCanvas(500, 500);
 
-        canvas.addRectangleElement(100, 100)
+        canvas.addCircleElement(100)
                 .setColor(Color.PINK)
-                .setRoundCorner(30)
+                .setBorderSize(40)
                 .setPosition(RelativePosition.of(Positions.CENTER));
 
-        canvas.asFile("png" ,"rectangle_basic.png");
+        canvas.asFile("png", "circle_basic.png");
     }
 
 }
