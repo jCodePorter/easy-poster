@@ -1,5 +1,7 @@
 package com.augrain.easy.canvas.utils;
 
+import com.augrain.easy.canvas.enums.ZoomMode;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -54,14 +56,15 @@ public class ImageUtils {
         int newHeight = bounds[1];
 
         // 创建新的图像对象
-        BufferedImage outImg = new BufferedImage(newWidth, newHeight, src.getType());
+        BufferedImage outImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 
         // 在新的图像上绘制旋转后的图像
-        Graphics2D g2d = outImg.createGraphics();
-        AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(angle), newWidth / 2, newHeight / 2);
-        g2d.setTransform(transform);
-        g2d.drawImage(src, (newWidth - src.getWidth()) / 2, (newHeight - src.getHeight()) / 2, null);
-        g2d.dispose();
+        Graphics2D g = outImg.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(angle), newWidth / 2.0D, newHeight / 2.0D);
+        g.setTransform(transform);
+        g.drawImage(src, (newWidth - src.getWidth()) / 2, (newHeight - src.getHeight()) / 2, null);
+        g.dispose();
         return outImg;
     }
 
@@ -98,5 +101,43 @@ public class ImageUtils {
         g2.drawImage(image, 0, 0, w, h, null);
         g2.dispose();
         return output;
+    }
+
+    /**
+     * 缩放
+     */
+    public static BufferedImage scale(BufferedImage image, Integer outWidth, Integer outHeight, ZoomMode zoomMode) {
+        int width = 0;
+        int height = 0;
+        switch (zoomMode) {
+            case ORIGIN:
+                width = image.getWidth();
+                height = image.getHeight();
+                break;
+            case WIDTH:
+                width = outWidth;
+                height = image.getHeight() * width / image.getWidth();
+                break;
+            case HEIGHT:
+                height = outHeight;
+                width = image.getWidth() * height / image.getHeight();
+                break;
+            case WIDTH_HEIGHT:
+                height = outHeight;
+                width = outWidth;
+                break;
+        }
+        Graphics2D graphics = null;
+        try {
+            Image scaledInstance = image.getScaledInstance(outWidth, outHeight, Image.SCALE_SMOOTH);
+            BufferedImage scaleImg = new BufferedImage(width, height, image.getType());
+            graphics = scaleImg.createGraphics();
+            graphics.drawImage(scaledInstance, 0, 0, null);
+            return scaleImg;
+        } finally {
+            if (null != graphics) {
+                graphics.dispose();
+            }
+        }
     }
 }

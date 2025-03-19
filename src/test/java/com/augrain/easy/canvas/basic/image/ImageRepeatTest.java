@@ -3,6 +3,7 @@ package com.augrain.easy.canvas.basic.image;
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.element.advance.RepeatElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
+import com.augrain.easy.canvas.enums.ZoomMode;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -24,7 +25,11 @@ public class ImageRepeatTest {
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage input = ImageIO.read(inputStream);
 
-        RepeatElement repeatElement = new RepeatElement(new ImageElement(input)).setPadding(20, 20);
+        RepeatElement repeatElement = new RepeatElement(
+                new ImageElement(input)
+                        .scale(50, 50, ZoomMode.WIDTH_HEIGHT)
+                        .rotate(-45)
+        ).setPadding(20, 20);
 
         canvas.addElement(repeatElement);
         canvas.asFile("png", "image_tile.png");

@@ -1,6 +1,6 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractRepeatableElement;
+import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.enums.ZoomMode;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
@@ -18,84 +18,40 @@ import java.awt.image.BufferedImage;
  * @since 2025/02/20
  */
 @Getter
-public class ImageElement extends AbstractRepeatableElement implements IElement {
-
-    /**
-     * 图片缩放方式
-     */
-    private final ZoomMode zoomMode;
-
-    /**
-     * 设置的待输出的图片宽度
-     */
-    private int width;
-
-    /**
-     * 设置的待输出的图片高度
-     */
-    private int height;
-
+public class ImageElement extends AbstractDimensionElement implements IElement {
     /**
      * 输入的图片对象
      */
-    private final BufferedImage image;
+    private BufferedImage image;
 
     public ImageElement(BufferedImage image) {
-        this.zoomMode = ZoomMode.ORIGIN;
         this.image = image;
+        handleDimension();
+    }
+
+    private void handleDimension() {
+        this.width = image.getWidth();
+        this.height = image.getHeight();
     }
 
     /**
      * @param httpUrl 图片url
      */
     public ImageElement(String httpUrl) {
-        this.zoomMode = ZoomMode.ORIGIN;
         this.image = ImageUtils.loadUrl(httpUrl);
+        handleDimension();
     }
 
-    /**
-     * @param image 图片对象
-     */
-    public ImageElement(BufferedImage image, int width, int height, ZoomMode zoom) {
-        this.image = image;
-        this.width = width;
-        this.height = height;
-        this.zoomMode = zoom;
+    public ImageElement scale(int width, int height, ZoomMode zoomMode) {
+        this.image = ImageUtils.scale(image, width, height, zoomMode);
+        handleDimension();
+        return this;
     }
 
-    @Override
-    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
-        ZoomMode zoomMode = this.getZoomMode();
-        BufferedImage image = this.getImage();
-        int width = 0;
-        int height = 0;
-        switch (zoomMode) {
-            case ORIGIN:
-                width = image.getWidth();
-                height = image.getHeight();
-                break;
-            case WIDTH:
-                width = this.getWidth();
-                height = image.getHeight() * width / image.getWidth();
-                break;
-            case HEIGHT:
-                height = this.getHeight();
-                width = image.getWidth() * height / image.getHeight();
-                break;
-            case WIDTH_HEIGHT:
-                height = this.getHeight();
-                width = this.getWidth();
-                break;
-        }
-        CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
-        if (position != null) {
-            point = position.calculate(canvasWidth, canvasHeight, width, height);
-        }
-        return Dimension.builder()
-                .width(width)
-                .height(height)
-                .point(point)
-                .build();
+    public ImageElement rotate(int angel) {
+        this.image = ImageUtils.rotate(image, angel);
+        handleDimension();
+        return this;
     }
 
     @Override
