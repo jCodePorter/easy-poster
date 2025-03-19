@@ -56,7 +56,7 @@ public class FivePointedStarElement extends AbstractDimensionElement {
         int[] point5 = new int[]{centerX, centerX};
 
         if (this.borderSize > 0) {
-            g.setStroke(new BasicStroke(this.borderSize));
+            g.setStroke(new BasicStroke(this.borderSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             drawLine(g, point0, point1, point2, point3, point4, point5);
         } else {
             drawPolygon(g, point0, point1, point2, point3, point4, point5);
@@ -104,39 +104,19 @@ public class FivePointedStarElement extends AbstractDimensionElement {
 
     private static void drawPolygon(Graphics2D g, int[] point0, int[] point1, int[] point2, int[] point3, int[] point4, int[] point5) {
         // 绘制5个四边形
+        doDrawPolygon(g, point0, point2, point3, point5);
+        doDrawPolygon(g, point1, point3, point5, point4);
+        doDrawPolygon(g, point2, point4, point5, point0);
+        doDrawPolygon(g, point3, point0, point5, point1);
+        doDrawPolygon(g, point4, point2, point5, point1);
+    }
+
+    private static void doDrawPolygon(Graphics2D g, int[] point0, int[] point2, int[] point3, int[] point5) {
         Polygon polygon = new Polygon();
         polygon.addPoint(point0[0], point0[1]);
         polygon.addPoint(point2[0], point2[1]);
         polygon.addPoint(point5[0], point5[1]);
         polygon.addPoint(point3[0], point3[1]);
-        g.fillPolygon(polygon);
-
-        polygon = new Polygon();
-        polygon.addPoint(point1[0], point1[1]);
-        polygon.addPoint(point3[0], point3[1]);
-        polygon.addPoint(point5[0], point5[1]);
-        polygon.addPoint(point4[0], point4[1]);
-        g.fillPolygon(polygon);
-
-        polygon = new Polygon();
-        polygon.addPoint(point2[0], point2[1]);
-        polygon.addPoint(point4[0], point4[1]);
-        polygon.addPoint(point5[0], point5[1]);
-        polygon.addPoint(point0[0], point0[1]);
-        g.fillPolygon(polygon);
-
-        polygon = new Polygon();
-        polygon.addPoint(point3[0], point3[1]);
-        polygon.addPoint(point0[0], point0[1]);
-        polygon.addPoint(point5[0], point5[1]);
-        polygon.addPoint(point1[0], point1[1]);
-        g.fillPolygon(polygon);
-
-        polygon = new Polygon();
-        polygon.addPoint(point4[0], point4[1]);
-        polygon.addPoint(point2[0], point2[1]);
-        polygon.addPoint(point5[0], point5[1]);
-        polygon.addPoint(point1[0], point1[1]);
         g.fillPolygon(polygon);
     }
 
