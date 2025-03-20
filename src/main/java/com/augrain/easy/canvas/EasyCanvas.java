@@ -5,6 +5,7 @@ import com.augrain.easy.canvas.element.basic.CircleElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
 import com.augrain.easy.canvas.element.basic.RectangleElement;
 import com.augrain.easy.canvas.element.basic.TextElement;
+import com.augrain.easy.canvas.exception.CanvasException;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -156,7 +157,7 @@ public class EasyCanvas {
             }
             ImageIO.write(this.baseImg, format, new File(filePath));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CanvasException(e);
         }
     }
 
@@ -169,7 +170,7 @@ public class EasyCanvas {
             ImageIO.write(this.baseImg, format, output);
             return output.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CanvasException(e);
         }
     }
 }

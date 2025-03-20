@@ -27,7 +27,8 @@ public class ImageRepeatTest {
 
         RepeatElement repeatElement = new RepeatElement(
                 new ImageElement(input)
-                        .scale(50, 50, ZoomMode.WIDTH_HEIGHT)
+                        .crop("1:1")
+                        .scale(100, 100, ZoomMode.WIDTH)
                         .rotate(-45)
         ).setPadding(20, 20);
 

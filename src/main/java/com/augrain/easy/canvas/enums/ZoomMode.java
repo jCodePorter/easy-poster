@@ -8,8 +8,6 @@ package com.augrain.easy.canvas.enums;
  */
 public enum ZoomMode {
 
-    ORIGIN("按图片原始大小"),
-
     WIDTH("按宽度等比例缩放"),
 
     HEIGHT("按高度等比例缩放"),

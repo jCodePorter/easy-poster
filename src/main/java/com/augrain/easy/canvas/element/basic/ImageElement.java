@@ -10,6 +10,7 @@ import lombok.Getter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  * 图片元素
@@ -29,17 +30,22 @@ public class ImageElement extends AbstractDimensionElement implements IElement {
         handleDimension();
     }
 
-    private void handleDimension() {
-        this.width = image.getWidth();
-        this.height = image.getHeight();
-    }
-
     /**
      * @param httpUrl 图片url
      */
     public ImageElement(String httpUrl) {
         this.image = ImageUtils.loadUrl(httpUrl);
         handleDimension();
+    }
+
+    public ImageElement(File file) {
+        this.image = ImageUtils.loadFile(file);
+        handleDimension();
+    }
+
+    private void handleDimension() {
+        this.width = image.getWidth();
+        this.height = image.getHeight();
     }
 
     public ImageElement scale(int width, int height, ZoomMode zoomMode) {
@@ -50,6 +56,17 @@ public class ImageElement extends AbstractDimensionElement implements IElement {
 
     public ImageElement rotate(int angel) {
         this.image = ImageUtils.rotate(image, angel);
+        handleDimension();
+        return this;
+    }
+
+    /**
+     * 裁剪
+     *
+     * @param ratio 裁剪比例，如"1:1", "4:3"
+     */
+    public ImageElement crop(String ratio) {
+        this.image = ImageUtils.crop(image, ratio);
         handleDimension();
         return this;
     }

@@ -1,6 +1,7 @@
 package com.augrain.easy.canvas.utils;
 
 import com.augrain.easy.canvas.enums.ZoomMode;
+import com.augrain.easy.canvas.exception.CanvasException;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -32,7 +33,7 @@ public class ImageUtils {
         try {
             return ImageIO.read(new URL(httpUrl));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CanvasException(e);
         }
     }
 
@@ -46,26 +47,38 @@ public class ImageUtils {
         try {
             return ImageIO.read(file);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CanvasException(e);
         }
     }
 
-    public static BufferedImage rotate(BufferedImage src, int angle) {
-        int[] bounds = RotateUtils.newBounds(src.getWidth(), src.getHeight(), angle);
+    public static BufferedImage rotate(BufferedImage image, int angle) {
+        int[] bounds = RotateUtils.newBounds(image.getWidth(), image.getHeight(), angle);
         int newWidth = bounds[0];
         int newHeight = bounds[1];
 
-        // 创建新的图像对象
-        BufferedImage outImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        // 创建旋转后的图片
+        BufferedImage rotatedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = rotatedImage.createGraphics();
 
-        // 在新的图像上绘制旋转后的图像
-        Graphics2D g = outImg.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(angle), newWidth / 2.0D, newHeight / 2.0D);
-        g.setTransform(transform);
-        g.drawImage(src, (newWidth - src.getWidth()) / 2, (newHeight - src.getHeight()) / 2, null);
-        g.dispose();
-        return outImg;
+        // 启用抗锯齿
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        // 计算旋转中心点
+        int x = (newWidth - image.getWidth()) / 2;
+        int y = (newHeight - image.getHeight()) / 2;
+
+        // 进行旋转
+        double radians = Math.toRadians(angle);
+        AffineTransform transform = new AffineTransform();
+        transform.translate(x, y);
+        transform.rotate(radians, image.getWidth() / 2.0, image.getHeight() / 2.0);
+        g2d.setTransform(transform);
+
+        // 绘制旋转后的图片
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+        return rotatedImage;
     }
 
     public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
@@ -88,7 +101,7 @@ public class ImageUtils {
         int w = image.getWidth();
         int h = image.getHeight();
         if (w != h) {
-            throw new RuntimeException("请使用宽高相等的图片");
+            throw new CanvasException("请使用宽高相等的图片");
         }
         BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = output.createGraphics();
@@ -110,10 +123,6 @@ public class ImageUtils {
         int width = 0;
         int height = 0;
         switch (zoomMode) {
-            case ORIGIN:
-                width = image.getWidth();
-                height = image.getHeight();
-                break;
             case WIDTH:
                 width = outWidth;
                 height = image.getHeight() * width / image.getWidth();
@@ -139,5 +148,43 @@ public class ImageUtils {
                 graphics.dispose();
             }
         }
+    }
+
+    /**
+     * 按照指定比例裁剪图片
+     *
+     * @param image 输入的源文件BufferedImage
+     * @param ratio 裁剪比例，格式为 "width:height"，例如 "1:1", "3:4", "4:3"
+     */
+    public static BufferedImage crop(BufferedImage image, String ratio) {
+        int srcWidth = image.getWidth();
+        int srcHeight = image.getHeight();
+
+        // 解析比例
+        String[] ratioParts = ratio.split(":");
+        if (ratioParts.length != 2) {
+            throw new CanvasException("比例格式不正确，应为 'width:height'，例如 '1:1'");
+        }
+        double targetRatio = Double.parseDouble(ratioParts[0]) / Double.parseDouble(ratioParts[1]);
+
+        // 计算裁剪区域的宽度和高度
+        int cropWidth;
+        int cropHeight;
+        if (srcWidth / (double) srcHeight > targetRatio) {
+            // 图片宽度过大，按照高度裁剪
+            cropHeight = srcHeight;
+            cropWidth = (int) (cropHeight * targetRatio);
+        } else {
+            // 图片高度过大，按照宽度裁剪
+            cropWidth = srcWidth;
+            cropHeight = (int) (cropWidth / targetRatio);
+        }
+
+        // 计算裁剪区域的起始坐标（居中裁剪）
+        int x = (srcWidth - cropWidth) / 2;
+        int y = (srcHeight - cropHeight) / 2;
+
+        // 裁剪图片
+        return image.getSubimage(x, y, cropWidth, cropHeight);
     }
 }
