@@ -1,7 +1,7 @@
 package com.augrain.easy.canvas.utils;
 
-import com.augrain.easy.canvas.enums.ZoomMode;
 import com.augrain.easy.canvas.exception.CanvasException;
+import com.augrain.easy.canvas.model.Scale;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -119,35 +119,33 @@ public class ImageUtils {
     /**
      * 缩放
      */
-    public static BufferedImage scale(BufferedImage image, Integer outWidth, Integer outHeight, ZoomMode zoomMode) {
+    public static BufferedImage scale(BufferedImage image, Scale scale) {
         int width = 0;
         int height = 0;
-        switch (zoomMode) {
+        switch (scale.getZoomMode()) {
             case WIDTH:
-                width = outWidth;
+                width = scale.getWidth();
                 height = image.getHeight() * width / image.getWidth();
                 break;
             case HEIGHT:
-                height = outHeight;
+                height = scale.getHeight();
                 width = image.getWidth() * height / image.getHeight();
                 break;
             case WIDTH_HEIGHT:
-                height = outHeight;
-                width = outWidth;
+                height = scale.getWidth();
+                width = scale.getHeight();
+                break;
+            case RATIO:
+                height = (int) (scale.getRatio() * image.getHeight());
+                width = (int) (scale.getRatio() * image.getWidth());
                 break;
         }
-        Graphics2D graphics = null;
-        try {
-            Image scaledInstance = image.getScaledInstance(outWidth, outHeight, Image.SCALE_SMOOTH);
-            BufferedImage scaleImg = new BufferedImage(width, height, image.getType());
-            graphics = scaleImg.createGraphics();
-            graphics.drawImage(scaledInstance, 0, 0, null);
-            return scaleImg;
-        } finally {
-            if (null != graphics) {
-                graphics.dispose();
-            }
-        }
+        Image scaledInstance = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage scaleImg = new BufferedImage(width, height, image.getType());
+        Graphics2D graphics = scaleImg.createGraphics();
+        graphics.drawImage(scaledInstance, 0, 0, null);
+        graphics.dispose();
+        return scaleImg;
     }
 
     /**

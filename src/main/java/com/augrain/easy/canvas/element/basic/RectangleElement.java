@@ -14,7 +14,7 @@ import java.awt.*;
  * @since 2025/03/16
  */
 @Getter
-public class RectangleElement extends AbstractDimensionElement {
+public class RectangleElement extends AbstractDimensionElement<CircleElement> {
 
     private int borderSize = 0;
 

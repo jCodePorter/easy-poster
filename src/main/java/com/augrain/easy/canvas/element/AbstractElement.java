@@ -1,5 +1,6 @@
 package com.augrain.easy.canvas.element;
 
+import com.augrain.easy.canvas.exception.CanvasException;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.geometry.Position;
@@ -14,7 +15,7 @@ import java.awt.*;
  * @since 2025/02/20
  */
 @Getter
-public abstract class AbstractElement implements IElement {
+public abstract class AbstractElement<T extends AbstractElement> implements IElement {
     /**
      * 透明度
      */
@@ -30,19 +31,22 @@ public abstract class AbstractElement implements IElement {
      */
     protected Position position;
 
-    public AbstractElement setAlpha(float alpha) {
+    public T setAlpha(float alpha) {
+        if (alpha < 0 || alpha > 1) {
+            throw new CanvasException("alpha must be between 0 and 1");
+        }
         this.alpha = alpha;
-        return this;
+        return (T) this;
     }
 
-    public AbstractElement setRotate(int rotate) {
+    public T setRotate(int rotate) {
         this.rotate = rotate;
-        return this;
+        return (T) this;
     }
 
-    public AbstractElement setPosition(Position position) {
+    public T setPosition(Position position) {
         this.position = position;
-        return this;
+        return (T) this;
     }
 
     @Override
@@ -68,7 +72,8 @@ public abstract class AbstractElement implements IElement {
      * 渲染之前，做一些默认配置
      */
     public void beforeRender(Graphics2D g) {
-
+        AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
+        g.setComposite(alphaComposite);
     }
 
     public void afterRender(Graphics2D g) {

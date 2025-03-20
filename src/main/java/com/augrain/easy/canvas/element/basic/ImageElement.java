@@ -2,9 +2,9 @@ package com.augrain.easy.canvas.element.basic;
 
 import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.element.IElement;
-import com.augrain.easy.canvas.enums.ZoomMode;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.Scale;
 import com.augrain.easy.canvas.utils.ImageUtils;
 import lombok.Getter;
 
@@ -19,7 +19,7 @@ import java.io.File;
  * @since 2025/02/20
  */
 @Getter
-public class ImageElement extends AbstractDimensionElement implements IElement {
+public class ImageElement extends AbstractDimensionElement<ImageElement> implements IElement {
     /**
      * 输入的图片对象
      */
@@ -48,12 +48,22 @@ public class ImageElement extends AbstractDimensionElement implements IElement {
         this.height = image.getHeight();
     }
 
-    public ImageElement scale(int width, int height, ZoomMode zoomMode) {
-        this.image = ImageUtils.scale(image, width, height, zoomMode);
+    /**
+     * 缩放
+     *
+     * @param scale 缩放参数
+     */
+    public ImageElement scale(Scale scale) {
+        this.image = ImageUtils.scale(image, scale);
         handleDimension();
         return this;
     }
 
+    /**
+     * 旋转
+     *
+     * @param angel 角度
+     */
     public ImageElement rotate(int angel) {
         this.image = ImageUtils.rotate(image, angel);
         handleDimension();

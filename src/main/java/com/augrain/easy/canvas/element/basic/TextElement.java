@@ -2,9 +2,9 @@ package com.augrain.easy.canvas.element.basic;
 
 import com.augrain.easy.canvas.element.AbstractRepeatableElement;
 import com.augrain.easy.canvas.element.IElement;
-import com.augrain.easy.canvas.enums.BaseLine;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.BaseLine;
 import com.augrain.easy.canvas.text.ITextSplitter;
 import com.augrain.easy.canvas.text.TextSplitterSimpleImpl;
 import com.augrain.easy.canvas.utils.RotateUtils;
@@ -24,7 +24,7 @@ import java.util.Optional;
  * @since 2025/02/21
  */
 @Getter
-public class TextElement extends AbstractRepeatableElement implements IElement {
+public class TextElement extends AbstractRepeatableElement<TextElement> implements IElement {
 
     /**
      * 待绘制的文本

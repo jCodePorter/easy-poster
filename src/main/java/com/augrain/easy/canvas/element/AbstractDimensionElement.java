@@ -11,7 +11,8 @@ import java.awt.*;
  * @author biaoy
  * @since 2025/03/17
  */
-public abstract class AbstractDimensionElement extends AbstractRepeatableElement implements IElement {
+public abstract class AbstractDimensionElement<T extends AbstractDimensionElement>
+        extends AbstractRepeatableElement<AbstractDimensionElement> implements IElement {
 
     /**
      * 宽度

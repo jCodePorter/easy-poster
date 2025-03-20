@@ -3,7 +3,8 @@ package com.augrain.easy.canvas.basic.image;
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.element.advance.RepeatElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
-import com.augrain.easy.canvas.enums.ZoomMode;
+import com.augrain.easy.canvas.model.Scale;
+import com.augrain.easy.canvas.model.ZoomMode;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -28,8 +29,9 @@ public class ImageRepeatTest {
         RepeatElement repeatElement = new RepeatElement(
                 new ImageElement(input)
                         .crop("1:1")
-                        .scale(100, 100, ZoomMode.WIDTH)
+                        .scale(Scale.byWidth(80))
                         .rotate(-45)
+                        .setAlpha(0.5f)
         ).setPadding(20, 20);
 
         canvas.addElement(repeatElement);

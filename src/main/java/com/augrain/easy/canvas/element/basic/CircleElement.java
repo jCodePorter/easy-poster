@@ -12,7 +12,7 @@ import java.awt.*;
  * @author biaoy
  * @since 2025/03/17
  */
-public class CircleElement extends AbstractDimensionElement {
+public class CircleElement extends AbstractDimensionElement<CircleElement> {
 
     private int borderSize = 0;
 
