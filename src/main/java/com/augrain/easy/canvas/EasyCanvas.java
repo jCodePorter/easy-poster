@@ -6,6 +6,8 @@ import com.augrain.easy.canvas.element.basic.ImageElement;
 import com.augrain.easy.canvas.element.basic.RectangleElement;
 import com.augrain.easy.canvas.element.basic.TextElement;
 import com.augrain.easy.canvas.exception.CanvasException;
+import com.augrain.easy.canvas.model.CanvasListener;
+import lombok.Setter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -26,22 +28,22 @@ public class EasyCanvas {
      * 待绘制的元素集合
      */
     private final List<IElement> renderedElements = new ArrayList<>();
+
     /**
      * 画布宽度
      */
     private final int canvasWidth;
+
     /**
      * 画布高度
      */
     private final int canvasHeight;
+
     /**
-     * 底图
+     * canvas监听
      */
-    private BufferedImage baseImg;
-    /**
-     * 是否已完成渲染
-     */
-    private boolean finished;
+    @Setter
+    private CanvasListener canvasListener;
 
     /**
      * Canvas构造方法
@@ -132,8 +134,8 @@ public class EasyCanvas {
     /**
      * 渲染图片，返回图片对象
      */
-    public BufferedImage render() throws Exception {
-        baseImg = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+    private BufferedImage render() throws Exception {
+        BufferedImage baseImg = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = baseImg.createGraphics();
         // 抗锯齿
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -146,16 +148,16 @@ public class EasyCanvas {
             element.render(g, canvasWidth, canvasHeight);
         }
         g.dispose();
-        this.finished = true;
         return baseImg;
     }
 
     public void asFile(String format, String filePath) {
         try {
-            if (!finished) {
-                this.render();
+            BufferedImage image = this.render();
+            if (canvasListener != null) {
+                image = canvasListener.beforeOut(image);
             }
-            ImageIO.write(this.baseImg, format, new File(filePath));
+            ImageIO.write(image, format, new File(filePath));
         } catch (Exception e) {
             throw new CanvasException(e);
         }
@@ -163,11 +165,12 @@ public class EasyCanvas {
 
     public byte[] asBytes(String format) {
         try {
-            if (!finished) {
-                this.render();
+            BufferedImage image = this.render();
+            if (canvasListener != null) {
+                image = canvasListener.beforeOut(image);
             }
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            ImageIO.write(this.baseImg, format, output);
+            ImageIO.write(image, format, output);
             return output.toByteArray();
         } catch (Exception e) {
             throw new CanvasException(e);

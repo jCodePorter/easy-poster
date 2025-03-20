@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>com.augrain</groupId>
     <artifactId>easy-canvas</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>简易画板工具，可以用于海报制作，图片添加水印等</description>
