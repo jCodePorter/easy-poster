@@ -1,7 +1,6 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractRepeatableElement;
-import com.augrain.easy.canvas.element.IElement;
+import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import lombok.Getter;
@@ -15,11 +14,7 @@ import java.awt.*;
  * @since 2025/03/16
  */
 @Getter
-public class RectangleElement extends AbstractRepeatableElement implements IElement {
-
-    private final int width;
-
-    private final int height;
+public class RectangleElement extends AbstractDimensionElement<CircleElement> {
 
     private int borderSize = 0;
 
@@ -55,23 +50,10 @@ public class RectangleElement extends AbstractRepeatableElement implements IElem
     }
 
     @Override
-    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
-        CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
-        if (position != null) {
-            point = position.calculate(canvasWidth, canvasHeight, width, height);
-        }
-        return Dimension.builder()
-                .width(width)
-                .height(height)
-                .point(point)
-                .build();
-    }
-
-    @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
         CoordinatePoint point = dimension.getPoint();
-        if (this.getBorderSize() > 0) {
-            g.setStroke(new BasicStroke(this.getBorderSize()));
+        if (this.borderSize > 0) {
+            g.setStroke(new BasicStroke(this.borderSize));
             if (this.getRoundCorner() != 0) {
                 g.drawRoundRect(point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(),
                         this.getRoundCorner(), this.getRoundCorner());

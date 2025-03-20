@@ -1,4 +1,4 @@
-package com.augrain.easy.canvas.enums;
+package com.augrain.easy.canvas.model;
 
 /**
  * 图片缩放方式
@@ -8,13 +8,13 @@ package com.augrain.easy.canvas.enums;
  */
 public enum ZoomMode {
 
-    ORIGIN("按图片原始大小"),
-
     WIDTH("按宽度等比例缩放"),
 
     HEIGHT("按高度等比例缩放"),
 
-    WIDTH_HEIGHT("指定宽高");
+    WIDTH_HEIGHT("指定宽高"),
+
+    RATIO("按比例");
 
     private String text;
 

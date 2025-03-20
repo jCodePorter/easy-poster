@@ -1,15 +1,16 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractRepeatableElement;
+import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.element.IElement;
-import com.augrain.easy.canvas.enums.ZoomMode;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.Scale;
 import com.augrain.easy.canvas.utils.ImageUtils;
 import lombok.Getter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  * 图片元素
@@ -18,91 +19,72 @@ import java.awt.image.BufferedImage;
  * @since 2025/02/20
  */
 @Getter
-public class ImageElement extends AbstractRepeatableElement implements IElement {
-
-    /**
-     * 图片缩放方式
-     */
-    private final ZoomMode zoomMode;
-
-    /**
-     * 设置的待输出的图片宽度
-     */
-    private int width;
-
-    /**
-     * 设置的待输出的图片高度
-     */
-    private int height;
-
+public class ImageElement extends AbstractDimensionElement<ImageElement> implements IElement {
     /**
      * 输入的图片对象
      */
-    private final BufferedImage image;
+    private BufferedImage image;
 
     public ImageElement(BufferedImage image) {
-        this.zoomMode = ZoomMode.ORIGIN;
         this.image = image;
+        handleDimension();
     }
 
     /**
      * @param httpUrl 图片url
      */
     public ImageElement(String httpUrl) {
-        this.zoomMode = ZoomMode.ORIGIN;
         this.image = ImageUtils.loadUrl(httpUrl);
+        handleDimension();
+    }
+
+    public ImageElement(File file) {
+        this.image = ImageUtils.loadFile(file);
+        handleDimension();
+    }
+
+    private void handleDimension() {
+        this.width = image.getWidth();
+        this.height = image.getHeight();
     }
 
     /**
-     * @param image 图片对象
+     * 缩放
+     *
+     * @param scale 缩放参数
      */
-    public ImageElement(BufferedImage image, int width, int height, ZoomMode zoom) {
-        this.image = image;
-        this.width = width;
-        this.height = height;
-        this.zoomMode = zoom;
+    public ImageElement scale(Scale scale) {
+        this.image = ImageUtils.scale(image, scale);
+        handleDimension();
+        return this;
     }
 
-    @Override
-    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
-        ZoomMode zoomMode = this.getZoomMode();
-        BufferedImage image = this.getImage();
-        int width = 0;
-        int height = 0;
-        switch (zoomMode) {
-            case ORIGIN:
-                width = image.getWidth();
-                height = image.getHeight();
-                break;
-            case WIDTH:
-                width = this.getWidth();
-                height = image.getHeight() * width / image.getWidth();
-                break;
-            case HEIGHT:
-                height = this.getHeight();
-                width = image.getWidth() * height / image.getHeight();
-                break;
-            case WIDTH_HEIGHT:
-                height = this.getHeight();
-                width = this.getWidth();
-                break;
-        }
-        CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
-        if (position != null) {
-            point = position.calculate(canvasWidth, canvasHeight, width, height);
-        }
-        return Dimension.builder()
-                .width(width)
-                .height(height)
-                .point(point)
-                .build();
+    /**
+     * 旋转
+     *
+     * @param angel 角度
+     */
+    public ImageElement rotate(int angel) {
+        this.image = ImageUtils.rotate(image, angel);
+        handleDimension();
+        return this;
+    }
+
+    /**
+     * 裁剪
+     *
+     * @param ratio 裁剪比例，如"1:1", "4:3"
+     */
+    public ImageElement crop(String ratio) {
+        this.image = ImageUtils.crop(image, ratio);
+        handleDimension();
+        return this;
     }
 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
         CoordinatePoint point = dimension.getPoint();
-        BufferedImage image = this.getImage();
-        g.drawImage(image, point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
+        g.drawImage(this.getImage(), point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
         return point;
     }
 }

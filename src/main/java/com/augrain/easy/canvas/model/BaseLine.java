@@ -1,4 +1,4 @@
-package com.augrain.easy.canvas.enums;
+package com.augrain.easy.canvas.model;
 
 import java.awt.*;
 import java.util.function.BiFunction;

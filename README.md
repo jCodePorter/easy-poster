@@ -80,8 +80,16 @@ canvas.asFile("png", "text_basic.png");
 
 ## 3.2 更新记录
 
-
-
+### 0.0.2
+- 元素支持
+  - 矩形
+  - 圆形
+  - 五角星
+- 文本
+  - 增加自动换行（alpha）
+  - 支持行高
+- 代码优化
+  - 增加抽象类[AbstractDimensionElement.java](src%2Fmain%2Fjava%2Fcom%2Faugrain%2Feasy%2Fcanvas%2Felement%2FAbstractDimensionElement.java)完成具有明确宽高的元素的尺寸计算
 
 
 # 4. 联系作者

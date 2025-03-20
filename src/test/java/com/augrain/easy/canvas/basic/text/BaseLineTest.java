@@ -1,7 +1,7 @@
-package com.augrain.easy.canvas.text;
+package com.augrain.easy.canvas.basic.text;
 
 import com.augrain.easy.canvas.EasyCanvas;
-import com.augrain.easy.canvas.enums.BaseLine;
+import com.augrain.easy.canvas.model.BaseLine;
 import com.augrain.easy.canvas.geometry.*;
 import org.junit.Test;
 
