@@ -1,14 +1,11 @@
 package com.augrain.easy.canvas.basic.text;
 
 import com.augrain.easy.canvas.EasyCanvas;
-import com.augrain.easy.canvas.model.BaseLine;
 import com.augrain.easy.canvas.geometry.*;
+import com.augrain.easy.canvas.model.BaseLine;
 import org.junit.Test;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 
 /**
  * 测试文本基线
@@ -47,13 +44,10 @@ public class BaseLineTest {
                 .setBaseLine(BaseLine.BASE_LINE)
                 .setPosition(AbsolutePosition.of(CoordinatePoint.of(360, 250), Positions.LEFT_CENTER));
 
-        BufferedImage combine = canvas.render();
+        canvas.addLineElement(CoordinatePoint.of(0, 250), CoordinatePoint.of(500, 250))
+                .setColor(Color.BLUE);
 
-        Graphics2D g = combine.createGraphics();
-        g.setColor(Color.BLUE);
-        g.drawLine(0, 250, 500, 250);
-        g.dispose();
-        ImageIO.write(combine, "png", new File("text_absolute_base_line.png"));
+        canvas.asFile("png", "text_absolute_base_line.png");
     }
 
     @Test
@@ -65,7 +59,7 @@ public class BaseLineTest {
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.CENTER)
-                .setPosition(RelativePosition.of(Positions.LEFT_CENTER,  Margin.of().setMarginLeft(0)));
+                .setPosition(RelativePosition.of(Positions.LEFT_CENTER, Margin.of().setMarginLeft(0)));
 
         canvas.addTextElement("顶部对齐")
                 .setFont(font)
@@ -85,12 +79,10 @@ public class BaseLineTest {
                 .setBaseLine(BaseLine.BASE_LINE)
                 .setPosition(RelativePosition.of(Positions.LEFT_CENTER, Margin.of().setMarginLeft(360)));
 
-        BufferedImage combine = canvas.render();
+        canvas.addLineElement(CoordinatePoint.of(0, 250), CoordinatePoint.of(500, 250))
+                .setPosition(RelativePosition.of(Positions.CENTER))
+                .setColor(Color.BLUE);
 
-        Graphics2D g = combine.createGraphics();
-        g.setColor(Color.BLUE);
-        g.drawLine(0, 250, 500, 250);
-        g.dispose();
-        ImageIO.write(combine, "png", new File("text_relative_base_line.png"));
+        canvas.asFile("png", "text_relative_base_line.png");
     }
 }

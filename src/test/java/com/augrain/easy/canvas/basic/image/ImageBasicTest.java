@@ -27,9 +27,7 @@ public class ImageBasicTest {
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage read = ImageIO.read(inputStream);
         canvas.addImageElement(read);
-
-        BufferedImage combine = canvas.render();
-        ImageIO.write(combine, "png", new File("img_basic.png"));
+        canvas.asFile("png", "img_basic.png");
     }
 
     @Test
@@ -43,9 +41,7 @@ public class ImageBasicTest {
             canvas.addImageElement(read)
                     .setPosition(RelativePosition.of(position, Margin.of(10)));
         }
-
-        BufferedImage combine = canvas.render();
-        ImageIO.write(combine, "png", new File("img_position.png"));
+        canvas.asFile("png", "img_position.png");
     }
 
     @Test
@@ -55,6 +51,15 @@ public class ImageBasicTest {
 
         BufferedImage rotate = ImageUtils.rotate(read, -45);
         ImageIO.write(rotate, "png", new File("img_rotate.png"));
+    }
+
+    @Test
+    public void testRoundCorner() throws Exception {
+        InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("lotus.png");
+        BufferedImage read = ImageIO.read(inputStream);
+
+        BufferedImage roundedCorner = ImageUtils.roundedCorner(read, 1000);
+        ImageIO.write(roundedCorner, "png", new File("img_round_corner.png"));
     }
 
 }

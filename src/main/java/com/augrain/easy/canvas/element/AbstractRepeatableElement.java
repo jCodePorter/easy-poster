@@ -10,7 +10,7 @@ import com.augrain.easy.canvas.geometry.Dimension;
  * @since 2025/03/16
  */
 public abstract class AbstractRepeatableElement<T extends AbstractRepeatableElement>
-        extends AbstractElement<AbstractRepeatableElement> implements IRepeatableElement {
+        extends AbstractElement<T> implements IRepeatableElement {
 
     @Override
     public CoordinatePoint reCalculatePosition(int canvasWidth, int canvasHeight, Dimension dimension) {

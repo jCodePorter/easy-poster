@@ -6,7 +6,6 @@ import com.augrain.easy.canvas.model.Scale;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
@@ -58,11 +57,11 @@ public class ImageUtils {
 
         // 创建旋转后的图片
         BufferedImage rotatedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = rotatedImage.createGraphics();
+        Graphics2D g = rotatedImage.createGraphics();
 
         // 启用抗锯齿
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         // 计算旋转中心点
         int x = (newWidth - image.getWidth()) / 2;
@@ -73,46 +72,27 @@ public class ImageUtils {
         AffineTransform transform = new AffineTransform();
         transform.translate(x, y);
         transform.rotate(radians, image.getWidth() / 2.0, image.getHeight() / 2.0);
-        g2d.setTransform(transform);
+        g.setTransform(transform);
 
         // 绘制旋转后的图片
-        g2d.drawImage(image, 0, 0, null);
-        g2d.dispose();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
         return rotatedImage;
     }
 
-    public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
+    public static BufferedImage roundedCorner(BufferedImage image, int cornerRadius) {
         int w = image.getWidth();
         int h = image.getHeight();
         BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = output.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        Graphics2D g = output.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        g2.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
-        g2.setComposite(AlphaComposite.SrcIn);
+        g.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
+        g.setComposite(AlphaComposite.SrcIn);
 
-        g2.drawImage(image, 0, 0, w, h, null);
-        g2.dispose();
-        return output;
-    }
-
-    public static BufferedImage makeCircleCorner(BufferedImage image) {
-        int w = image.getWidth();
-        int h = image.getHeight();
-        if (w != h) {
-            throw new CanvasException("请使用宽高相等的图片");
-        }
-        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = output.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-        Ellipse2D.Double shape = new Ellipse2D.Double(0, 0, w, h);
-        g2.setClip(shape);
-
-        g2.drawImage(image, 0, 0, w, h, null);
-        g2.dispose();
+        g.drawImage(image, 0, 0, w, h, null);
+        g.dispose();
         return output;
     }
 
@@ -142,9 +122,9 @@ public class ImageUtils {
         }
         Image scaledInstance = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         BufferedImage scaleImg = new BufferedImage(width, height, image.getType());
-        Graphics2D graphics = scaleImg.createGraphics();
-        graphics.drawImage(scaledInstance, 0, 0, null);
-        graphics.dispose();
+        Graphics2D g = scaleImg.createGraphics();
+        g.drawImage(scaledInstance, 0, 0, null);
+        g.dispose();
         return scaleImg;
     }
 

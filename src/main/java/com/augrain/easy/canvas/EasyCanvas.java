@@ -1,11 +1,9 @@
 package com.augrain.easy.canvas;
 
 import com.augrain.easy.canvas.element.IElement;
-import com.augrain.easy.canvas.element.basic.CircleElement;
-import com.augrain.easy.canvas.element.basic.ImageElement;
-import com.augrain.easy.canvas.element.basic.RectangleElement;
-import com.augrain.easy.canvas.element.basic.TextElement;
+import com.augrain.easy.canvas.element.basic.*;
 import com.augrain.easy.canvas.exception.CanvasException;
+import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.model.CanvasListener;
 import lombok.Setter;
 
@@ -129,6 +127,12 @@ public class EasyCanvas {
         CircleElement circleElement = new CircleElement(width, height);
         renderedElements.add(circleElement);
         return circleElement;
+    }
+
+    public LineElement addLineElement(CoordinatePoint start, CoordinatePoint end) {
+        LineElement lineElement = new LineElement(start, end);
+        renderedElements.add(lineElement);
+        return lineElement;
     }
 
     /**

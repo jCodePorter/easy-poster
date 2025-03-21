@@ -16,6 +16,9 @@ import java.awt.*;
 @Getter
 public class RectangleElement extends AbstractDimensionElement<CircleElement> {
 
+    /**
+     * 线宽
+     */
     private int borderSize = 0;
 
     /**

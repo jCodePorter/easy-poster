@@ -12,7 +12,7 @@ import java.awt.*;
  * @since 2025/03/17
  */
 public abstract class AbstractDimensionElement<T extends AbstractDimensionElement>
-        extends AbstractRepeatableElement<AbstractDimensionElement> implements IElement {
+        extends AbstractRepeatableElement<T> implements IElement {
 
     /**
      * 宽度

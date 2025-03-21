@@ -81,6 +81,17 @@ public class ImageElement extends AbstractDimensionElement<ImageElement> impleme
         return this;
     }
 
+    /**
+     * 圆角
+     *
+     * @param roundCorner 圆角宽度
+     */
+    public ImageElement roundCorner(final int roundCorner) {
+        this.image = ImageUtils.roundedCorner(image, roundCorner);
+        handleDimension();
+        return this;
+    }
+
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
         CoordinatePoint point = dimension.getPoint();

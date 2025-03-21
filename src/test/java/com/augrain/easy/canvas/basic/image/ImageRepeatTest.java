@@ -4,7 +4,6 @@ import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.element.advance.RepeatElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
 import com.augrain.easy.canvas.model.Scale;
-import com.augrain.easy.canvas.model.ZoomMode;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -20,7 +19,7 @@ import java.io.InputStream;
 public class ImageRepeatTest {
 
     @Test
-    public void testBasicImage() throws Exception {
+    public void testRepeat() throws Exception {
         EasyCanvas canvas = new EasyCanvas(500, 500);
 
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
@@ -30,6 +29,7 @@ public class ImageRepeatTest {
                 new ImageElement(input)
                         .crop("1:1")
                         .scale(Scale.byWidth(80))
+                        .roundCorner(80)
                         .rotate(-45)
                         .setAlpha(0.5f)
         ).setPadding(20, 20);
