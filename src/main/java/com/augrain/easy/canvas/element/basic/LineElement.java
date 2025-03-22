@@ -1,13 +1,11 @@
 package com.augrain.easy.canvas.element.basic;
 
-import com.augrain.easy.canvas.element.AbstractRepeatableElement;
+import com.augrain.easy.canvas.element.AbstractElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
-import com.augrain.easy.canvas.utils.PointUtils;
 
 import java.awt.*;
-import java.util.Arrays;
 
 /**
  * 线段类型
@@ -15,7 +13,7 @@ import java.util.Arrays;
  * @author biaoy
  * @since 2025/03/21
  */
-public class LineElement extends AbstractRepeatableElement<LineElement> implements IElement {
+public class LineElement extends AbstractElement<LineElement> implements IElement {
 
     /**
      * 起始坐标点
@@ -62,20 +60,13 @@ public class LineElement extends AbstractRepeatableElement<LineElement> implemen
 
     @Override
     public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
-        Dimension dimension = PointUtils.boundingBox(Arrays.asList(this.start, this.end));
-        CoordinatePoint point = dimension.getPoint();
-        if (position != null) {
-            point = position.calculate(canvasWidth, canvasHeight, dimension.getWidth(), dimension.getHeight());
-        }
-        dimension.setPoint(point);
-        return dimension;
+        return null;
     }
 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        CoordinatePoint point = dimension.getPoint();
-        g.drawLine(point.getX(), point.getY(), point.getX() + dimension.getWidth(), point.getY() + dimension.getHeight());
-        return dimension.getPoint();
+        g.drawLine(this.start.getX(), start.getY(), this.end.getX(), this.end.getY());
+        return this.start;
     }
 
     @Override
