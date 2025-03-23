@@ -4,6 +4,7 @@ import com.augrain.easy.canvas.element.AbstractElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.LineStyle;
 
 import java.awt.*;
 
@@ -35,7 +36,10 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
      */
     private Color color = Color.BLACK;
 
-    private boolean dashed = false;
+    /**
+     * 线段样式
+     */
+    private LineStyle lineStyle;
 
     public LineElement(CoordinatePoint start, CoordinatePoint end) {
         this.start = start;
@@ -53,8 +57,13 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
         return this;
     }
 
-    public LineElement setDashed(final boolean dashed) {
-        this.dashed = dashed;
+    public LineElement setLineStyle(final LineStyle lineStyle) {
+        this.lineStyle = lineStyle;
+        return this;
+    }
+
+    public LineElement setBorderSize(final int borderSize) {
+        this.borderSize = borderSize;
         return this;
     }
 
@@ -72,13 +81,10 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
     @Override
     public void beforeRender(Graphics2D g) {
         g.setColor(this.color);
-        if (this.dashed) {
-            float[] dotPattern = {2, 5};
-            g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10, dotPattern, 0));
+        if (this.lineStyle != null) {
+            g.setStroke(this.lineStyle.toStroke(this.borderSize));
         } else {
-            if (this.borderSize > 1) {
-                g.setStroke(new BasicStroke(this.borderSize));
-            }
+            g.setStroke(new BasicStroke(this.borderSize));
         }
     }
 }
