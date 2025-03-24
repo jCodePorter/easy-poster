@@ -14,7 +14,7 @@ import java.awt.*;
  * @since 2025/03/16
  */
 @Getter
-public class RectangleElement extends AbstractDimensionElement<CircleElement> {
+public class RectangleElement extends AbstractDimensionElement<RectangleElement> {
 
     /**
      * 线宽
@@ -55,6 +55,7 @@ public class RectangleElement extends AbstractDimensionElement<CircleElement> {
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
         CoordinatePoint point = dimension.getPoint();
+        super.gradient(g, dimension);
         if (this.borderSize > 0) {
             g.setStroke(new BasicStroke(this.borderSize));
             if (this.getRoundCorner() != 0) {

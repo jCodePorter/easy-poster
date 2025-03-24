@@ -85,6 +85,7 @@ canvas.asFile("png", "text_basic.png");
   - 功能优化
 - 元素支持
   - 增加线段
+- 增加渐变设置
 
 ### 0.0.2
 - 元素支持

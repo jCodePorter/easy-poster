@@ -4,6 +4,7 @@ import com.augrain.easy.canvas.exception.CanvasException;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.geometry.Position;
+import com.augrain.easy.canvas.model.Gradient;
 import lombok.Getter;
 
 import java.awt.*;
@@ -31,6 +32,11 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
      */
     protected Position position;
 
+    /**
+     * 渐变设置
+     */
+    protected Gradient gradient;
+
     public T setAlpha(float alpha) {
         if (alpha < 0 || alpha > 1) {
             throw new CanvasException("alpha must be between 0 and 1");
@@ -46,6 +52,11 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
 
     public T setPosition(Position position) {
         this.position = position;
+        return (T) this;
+    }
+
+    public T setGradient(Gradient gradient) {
+        this.gradient = gradient;
         return (T) this;
     }
 
@@ -78,5 +89,11 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
 
     public void afterRender(Graphics2D g) {
 
+    }
+
+    public void gradient(Graphics2D g, Dimension dimension) {
+        if (gradient != null) {
+            g.setPaint(this.gradient.toGradient(dimension));
+        }
     }
 }

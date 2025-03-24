@@ -3,6 +3,8 @@ package com.augrain.easy.canvas.basic.rectangle;
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.geometry.Positions;
 import com.augrain.easy.canvas.geometry.RelativePosition;
+import com.augrain.easy.canvas.model.Gradient;
+import com.augrain.easy.canvas.model.GradientDirection;
 import org.junit.Test;
 
 import java.awt.*;
@@ -25,6 +27,17 @@ public class RectangleBasicTest {
                 .setPosition(RelativePosition.of(Positions.CENTER));
 
         canvas.asFile("png" ,"rectangle_basic.png");
+    }
+
+    @Test
+    public void testGradientRectangle() {
+        EasyCanvas canvas = new EasyCanvas(500, 500);
+
+        canvas.addRectangleElement(500, 500)
+                .setGradient(Gradient.of(new Color[]{Color.RED, Color.BLUE}, GradientDirection.LEFT_RIGHT))
+                .setPosition(RelativePosition.of(Positions.CENTER));
+
+        canvas.asFile("png" ,"rectangle_gradient.png");
     }
 
 }
