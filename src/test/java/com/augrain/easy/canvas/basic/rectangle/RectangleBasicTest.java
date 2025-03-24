@@ -34,7 +34,7 @@ public class RectangleBasicTest {
         EasyCanvas canvas = new EasyCanvas(500, 500);
 
         canvas.addRectangleElement(500, 500)
-                .setGradient(Gradient.of(new Color[]{Color.RED, Color.BLUE}, GradientDirection.LEFT_RIGHT))
+                .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
                 .setPosition(RelativePosition.of(Positions.CENTER));
 
         canvas.asFile("png" ,"rectangle_gradient.png");

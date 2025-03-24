@@ -3,8 +3,10 @@ package com.augrain.easy.canvas.model;
 import com.augrain.easy.canvas.exception.CanvasException;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.utils.HexUtils;
 
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * 渐变
@@ -28,6 +30,14 @@ public class Gradient {
 
     public static Gradient of(Color[] colors, GradientDirection direction) {
         return new Gradient(colors, direction);
+    }
+
+    public static Gradient of(String[] colors, GradientDirection direction) {
+        return new Gradient(transformColor(colors), direction);
+    }
+
+    private static Color[] transformColor(String[] colors) {
+        return Arrays.stream(colors).map(HexUtils::hexToColor).toArray(Color[]::new);
     }
 
     public Paint toGradient(Dimension dimension) {
