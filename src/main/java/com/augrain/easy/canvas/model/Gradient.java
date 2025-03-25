@@ -16,9 +16,20 @@ import java.util.Arrays;
  */
 public class Gradient {
 
-    private Color[] colors;
+    /**
+     * 颜色组
+     */
+    private final Color[] colors;
 
-    private GradientDirection direction;
+    /**
+     * 渐变方向
+     */
+    private final GradientDirection direction;
+
+    /**
+     * 帧
+     */
+    private float[] fractions;
 
     private Gradient(Color[] colors, GradientDirection direction) {
         if (colors.length < 2) {
@@ -26,6 +37,14 @@ public class Gradient {
         }
         this.colors = colors;
         this.direction = direction;
+    }
+
+    public Gradient setFractions(float[] fractions) {
+        if (fractions.length != colors.length) {
+            throw new CanvasException("fractions.length != colors.length");
+        }
+        this.fractions = fractions;
+        return this;
     }
 
     public static Gradient of(Color[] colors, GradientDirection direction) {
@@ -50,10 +69,14 @@ public class Gradient {
     }
 
     private float[] getFractions() {
+        if (this.fractions != null) {
+            return this.fractions;
+        }
+
         float[] fractions = new float[colors.length];
         float interval = 1.0F / colors.length;
         for (int i = 0; i < fractions.length - 1; i++) {
-            fractions[0] = interval * i;
+            fractions[i] = interval * i;
         }
         fractions[fractions.length - 1] = 1.0F;
         return fractions;

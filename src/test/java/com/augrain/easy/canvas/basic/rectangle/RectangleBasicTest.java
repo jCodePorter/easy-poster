@@ -26,7 +26,7 @@ public class RectangleBasicTest {
                 .setRoundCorner(30)
                 .setPosition(RelativePosition.of(Positions.CENTER));
 
-        canvas.asFile("png" ,"rectangle_basic.png");
+        canvas.asFile("png", "rectangle_basic.png");
     }
 
     @Test
@@ -34,10 +34,13 @@ public class RectangleBasicTest {
         EasyCanvas canvas = new EasyCanvas(500, 500);
 
         canvas.addRectangleElement(500, 500)
-                .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
+                // 双色渐变
+                // .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
+                // 三色渐变
+                .setGradient(Gradient.of(new String[]{"#EA9381", "#F0B09F", "#FFDBBD"}, GradientDirection.TOP_BOTTOM))
                 .setPosition(RelativePosition.of(Positions.CENTER));
 
-        canvas.asFile("png" ,"rectangle_gradient.png");
+        canvas.asFile("png", "rectangle_gradient.png");
     }
 
 }

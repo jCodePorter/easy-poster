@@ -50,6 +50,12 @@ public class ImageUtils {
         }
     }
 
+    /**
+     * 圆角
+     *
+     * @param image 输入的源文件BufferedImage
+     * @param angle 旋转角度
+     */
     public static BufferedImage rotate(BufferedImage image, int angle) {
         int[] bounds = RotateUtils.newBounds(image.getWidth(), image.getHeight(), angle);
         int newWidth = bounds[0];
@@ -80,6 +86,12 @@ public class ImageUtils {
         return rotatedImage;
     }
 
+    /**
+     * 圆角
+     *
+     * @param image        输入的源文件BufferedImage
+     * @param cornerRadius 圆角宽度
+     */
     public static BufferedImage roundedCorner(BufferedImage image, int cornerRadius) {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -98,6 +110,9 @@ public class ImageUtils {
 
     /**
      * 缩放
+     *
+     * @param image 输入的源文件BufferedImage
+     * @param scale 缩放参数
      */
     public static BufferedImage scale(BufferedImage image, Scale scale) {
         int width = 0;
