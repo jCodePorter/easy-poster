@@ -174,6 +174,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
+        super.gradient(g, dimension);
         CoordinatePoint point = dimension.getPoint();
         for (int i = 0; i < this.splitText.size(); i++) {
             int startX = point.getX() + dimension.getXOffset();

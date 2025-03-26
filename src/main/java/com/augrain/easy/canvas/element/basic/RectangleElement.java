@@ -54,8 +54,8 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
 
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        CoordinatePoint point = dimension.getPoint();
         super.gradient(g, dimension);
+        CoordinatePoint point = dimension.getPoint();
         if (this.borderSize > 0) {
             g.setStroke(new BasicStroke(this.borderSize));
             if (this.getRoundCorner() != 0) {

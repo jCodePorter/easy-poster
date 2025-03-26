@@ -4,6 +4,9 @@ import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.geometry.AbsolutePosition;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.RelativePosition;
+import com.augrain.easy.canvas.model.Gradient;
+import com.augrain.easy.canvas.model.GradientDirection;
 import org.junit.Test;
 
 import java.awt.*;
@@ -39,4 +42,19 @@ public class TextBasicTest {
 
         canvas.asFile("png", "text_basic.png");
     }
+
+    // .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
+
+    @Test
+    public void testGradient() {
+        EasyCanvas canvas = new EasyCanvas(800, 100);
+
+        canvas.addTextElement("叮有鱼由叮叮智能科技进行孵化，专注于无人自助场景全套解决方案")
+                .setFontSize(25)
+                .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.LEFT_RIGHT))
+                .setPosition(RelativePosition.of(Positions.CENTER));
+
+        canvas.asFile("png", "text_gradient.png");
+    }
 }
+

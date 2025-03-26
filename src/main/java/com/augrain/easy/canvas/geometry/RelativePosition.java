@@ -16,9 +16,9 @@ import lombok.ToString;
 public class RelativePosition implements Position {
 
     /**
-     * {@link Positions} 相对位置枚举实现
+     * {@link Positions} 基准位置
      */
-    private Position position;
+    private Position referencePosition;
 
     /**
      * 边距
@@ -26,7 +26,7 @@ public class RelativePosition implements Position {
     private Margin margin;
 
     private RelativePosition(Position position, Margin margin) {
-        this.position = position;
+        this.referencePosition = position;
         this.margin = margin;
     }
 
@@ -40,6 +40,6 @@ public class RelativePosition implements Position {
 
     @Override
     public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
-        return this.position.calculate(enclosingWidth, enclosingHeight, elementWidth, elementHeight, this.margin);
+        return this.referencePosition.calculate(enclosingWidth, enclosingHeight, elementWidth, elementHeight, this.margin);
     }
 }
