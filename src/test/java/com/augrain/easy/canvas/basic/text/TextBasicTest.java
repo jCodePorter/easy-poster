@@ -43,8 +43,6 @@ public class TextBasicTest {
         canvas.asFile("png", "text_basic.png");
     }
 
-    // .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
-
     @Test
     public void testGradient() {
         EasyCanvas canvas = new EasyCanvas(800, 100);
