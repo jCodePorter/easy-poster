@@ -58,9 +58,9 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
         CoordinatePoint point = dimension.getPoint();
         if (this.borderSize > 0) {
             g.setStroke(new BasicStroke(this.borderSize));
-            g.drawOval(point.getX(), point.getX(), this.width, this.height);
+            g.drawOval(point.getX(), point.getY(), this.width, this.height);
         } else {
-            g.fillOval(point.getX(), point.getX(), this.width, this.height);
+            g.fillOval(point.getX(), point.getY(), this.width, this.height);
         }
         return dimension.getPoint();
     }
