@@ -16,7 +16,10 @@ import java.awt.geom.Ellipse2D;
  */
 public class CircleElement extends AbstractDimensionElement<CircleElement> {
 
-    private int borderSize = 0;
+    /**
+     * 线宽
+     */
+    private double borderSize = 0;
 
     /**
      * 填充颜色或者边框颜色
@@ -59,9 +62,6 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
         super.gradient(g, dimension);
         CoordinatePoint point = dimension.getPoint();
         if (this.borderSize > 0 && this.borderSize < Math.max(this.width, this.height)) {
-            // g.setStroke(new BasicStroke(this.borderSize));
-            // g.drawOval(point.getX(), point.getY(), this.width, this.height);
-
             Ellipse2D outer = new Ellipse2D.Double(point.getX(), point.getY(), this.width, this.height);
             Ellipse2D inner = new Ellipse2D.Double(
                     point.getX() + borderSize,

@@ -23,8 +23,8 @@ public class RectangleBasicTest {
 
         canvas.addRectangleElement(100, 100)
                 .setColor(Color.PINK)
-                .setRoundCorner(30)
-                .setPosition(RelativePosition.of(Positions.CENTER));
+                .setArc(20)
+                .setPosition(RelativePosition.of(Positions.TOP_LEFT));
 
         canvas.asFile("png", "rectangle_basic.png");
     }

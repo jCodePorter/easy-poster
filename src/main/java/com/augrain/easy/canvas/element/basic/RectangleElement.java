@@ -6,6 +6,8 @@ import com.augrain.easy.canvas.geometry.Dimension;
 import lombok.Getter;
 
 import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.RoundRectangle2D;
 
 /**
  * 矩形元素
@@ -19,12 +21,17 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
     /**
      * 线宽
      */
-    private int borderSize = 0;
+    private double borderSize = 0;
 
     /**
-     * 圆角
+     * 圆角宽度
      */
-    private int roundCorner = 0;
+    private double arcWidth = 0;
+
+    /**
+     * 圆角高度
+     */
+    private double arcHeight = 0;
 
     /**
      * 填充颜色或者边框颜色
@@ -36,14 +43,15 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
         this.height = height;
     }
 
-    public RectangleElement(final int width, final int height, final int borderSize) {
-        this.width = width;
-        this.height = height;
-        this.borderSize = borderSize;
+    public RectangleElement setArc(final int arc) {
+        this.arcWidth = arc;
+        this.arcHeight = arc;
+        return this;
     }
 
-    public RectangleElement setRoundCorner(final int roundCorner) {
-        this.roundCorner = roundCorner;
+    public RectangleElement setArc(final int arcWidth, final int arcHeight) {
+        this.arcWidth = arcWidth;
+        this.arcHeight = arcHeight;
         return this;
     }
 
@@ -52,25 +60,32 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
         return this;
     }
 
+    public RectangleElement setBorderSize(final int borderSize) {
+        this.borderSize = borderSize;
+        return this;
+    }
+
     @Override
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
         super.gradient(g, dimension);
         CoordinatePoint point = dimension.getPoint();
-        if (this.borderSize > 0) {
-            g.setStroke(new BasicStroke(this.borderSize));
-            if (this.getRoundCorner() != 0) {
-                g.drawRoundRect(point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(),
-                        this.getRoundCorner(), this.getRoundCorner());
-            } else {
-                g.drawRect(point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight());
-            }
+
+        RoundRectangle2D rect = new RoundRectangle2D.Double(point.getX(), point.getY(), width, height,
+                this.arcWidth, this.arcHeight);
+        if (this.borderSize > 0 && this.borderSize < Math.max(this.width, this.height)) {
+            RoundRectangle2D inner = new RoundRectangle2D.Double(
+                    point.getX() + borderSize,
+                    point.getY() + borderSize,
+                    width - 2 * borderSize,
+                    height - 2 * borderSize,
+                    Math.max(0, this.arcWidth - borderSize),
+                    Math.max(0, this.arcHeight - borderSize)
+            );
+            Area outerArea = new Area(rect);
+            outerArea.subtract(new Area(inner));
+            g.fill(outerArea);
         } else {
-            if (this.getRoundCorner() != 0) {
-                g.fillRoundRect(point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(),
-                        this.getRoundCorner(), this.getRoundCorner());
-            } else {
-                g.fillRect(point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight());
-            }
+            g.fill(rect);
         }
         return dimension.getPoint();
     }

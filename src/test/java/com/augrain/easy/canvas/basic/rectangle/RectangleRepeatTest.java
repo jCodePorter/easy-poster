@@ -22,7 +22,7 @@ public class RectangleRepeatTest {
 
         RepeatElement repeatElement = new RepeatElement(new RectangleElement(100, 100)
                 .setColor(Color.PINK)
-                .setRoundCorner(30))
+                .setArc(30))
                 .setPadding(20, 20)
                 .setLayout(4, 4, Margin.of(10));
 
