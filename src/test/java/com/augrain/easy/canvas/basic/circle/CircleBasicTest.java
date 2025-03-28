@@ -27,7 +27,7 @@ public class CircleBasicTest {
         canvas.addCircleElement(100)
                 .setColor(Color.PINK)
                 .setBorderSize(40)
-                .setPosition(RelativePosition.of(Positions.CENTER));
+                .setPosition(RelativePosition.of(Positions.TOP_LEFT));
 
         canvas.asFile("png", "circle_basic.png");
     }

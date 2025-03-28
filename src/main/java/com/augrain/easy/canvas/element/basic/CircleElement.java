@@ -5,6 +5,8 @@ import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 
 import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 
 /**
  * 圆形
@@ -56,9 +58,20 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
     public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
         super.gradient(g, dimension);
         CoordinatePoint point = dimension.getPoint();
-        if (this.borderSize > 0) {
-            g.setStroke(new BasicStroke(this.borderSize));
-            g.drawOval(point.getX(), point.getY(), this.width, this.height);
+        if (this.borderSize > 0 && this.borderSize < Math.max(this.width, this.height)) {
+            // g.setStroke(new BasicStroke(this.borderSize));
+            // g.drawOval(point.getX(), point.getY(), this.width, this.height);
+
+            Ellipse2D outer = new Ellipse2D.Double(point.getX(), point.getY(), this.width, this.height);
+            Ellipse2D inner = new Ellipse2D.Double(
+                    point.getX() + borderSize,
+                    point.getY() + borderSize,
+                    width - 2 * borderSize,
+                    height - 2 * borderSize
+            );
+            Area ring = new Area(outer);
+            ring.subtract(new Area(inner));
+            g.fill(ring);
         } else {
             g.fillOval(point.getX(), point.getY(), this.width, this.height);
         }
