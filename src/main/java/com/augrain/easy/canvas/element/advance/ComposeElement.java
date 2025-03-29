@@ -214,7 +214,10 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             points.add(CoordinatePoint.of(startX, startY + v.getHeight()));
             points.add(CoordinatePoint.of(startX + v.getWidth(), startY + v.getHeight()));
         });
+
+        // 计算组合元素外接矩形
         Dimension dimension = PointUtils.boundingBox(points);
+        // 外接矩形左上角坐标点，组合元素中也称之为基准坐标点
         CoordinatePoint markPoint = dimension.getPoint();
 
         // 计算差值

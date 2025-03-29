@@ -3,6 +3,7 @@ package com.augrain.easy.canvas.basic.image;
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.element.advance.RepeatElement;
 import com.augrain.easy.canvas.element.basic.ImageElement;
+import com.augrain.easy.canvas.geometry.Margin;
 import com.augrain.easy.canvas.model.Scale;
 import org.junit.Test;
 
@@ -30,9 +31,11 @@ public class ImageRepeatTest {
                         .crop("1:1")
                         .scale(Scale.byWidth(80))
                         .roundCorner(80)
-                        .rotate(-45)
-                        .setAlpha(0.5f)
-        ).setPadding(20, 20);
+                        // .rotate(-45)
+                        // .setAlpha(0.5f)
+        )
+                //.setPadding(20, 20);
+                .setLayout(4,4);
 
         canvas.addElement(repeatElement);
         canvas.asFile("png", "image_tile.png");
