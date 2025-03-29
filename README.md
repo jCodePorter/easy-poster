@@ -86,6 +86,7 @@ canvas.asFile("png", "text_basic.png");
 - 元素支持
   - 增加线段
   - 组合元素（alpha）
+  - 正N边形
 - 增加渐变设置
 
 ### 0.0.2

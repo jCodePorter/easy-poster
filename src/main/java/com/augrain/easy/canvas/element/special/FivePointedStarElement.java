@@ -22,7 +22,7 @@ public class FivePointedStarElement extends AbstractDimensionElement {
     private Color color = Color.BLACK;
 
     /**
-     * 圆形构造器
+     * 五角星构造器
      *
      * @param radius 半径
      */

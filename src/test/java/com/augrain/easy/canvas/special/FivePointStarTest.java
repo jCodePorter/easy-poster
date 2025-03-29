@@ -17,7 +17,7 @@ import java.awt.*;
 public class FivePointStarTest {
 
     @Test
-    public void testBasicCircle() {
+    public void testBasic() {
         EasyCanvas canvas = new EasyCanvas(500, 500);
 
         FivePointedStarElement fivePointedStarElement = new FivePointedStarElement(100);
