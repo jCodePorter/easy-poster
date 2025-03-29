@@ -26,6 +26,9 @@ public class Scale {
      */
     private double ratio;
 
+    /**
+     * 缩放模式
+     */
     private ZoomMode zoomMode;
 
     public static Scale byWidth(int width) {

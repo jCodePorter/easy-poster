@@ -1,6 +1,7 @@
 package com.augrain.easy.canvas.element.advance;
 
 import com.augrain.easy.canvas.element.AbstractElement;
+import com.augrain.easy.canvas.element.AbstractRepeatableElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
@@ -24,7 +25,7 @@ import java.util.Map;
  * @author biaoy
  * @since 2025/03/06
  */
-public class ComposeElement extends AbstractElement implements IElement {
+public class ComposeElement extends AbstractRepeatableElement<ComposeElement> implements IElement {
 
     private final AbstractElement basicElement;
 
@@ -84,9 +85,9 @@ public class ComposeElement extends AbstractElement implements IElement {
         Dimension basicDimension = basicElement.calculateDimension(g, canvasWidth, canvasHeight);
         dimensionMap.put(basicElement, basicDimension);
 
-        for (ElementWrapper elementWrapper : elementWrapper) {
-            Dimension dimension = calRelativeElementDimension(g, canvasWidth, canvasHeight, elementWrapper, basicDimension);
-            dimensionMap.put(elementWrapper.getElement(), dimension);
+        for (ElementWrapper wrapper : elementWrapper) {
+            Dimension dimension = calRelativeElementDimension(g, canvasWidth, canvasHeight, wrapper, basicDimension);
+            dimensionMap.put(wrapper.getElement(), dimension);
         }
 
         // 根据各元素尺寸大小和位置信息，计算外接矩形，即待渲染组合元素的大小，基准点
