@@ -49,6 +49,7 @@ public class TextBasicTest {
 
         canvas.addTextElement("叮有鱼由叮叮智能科技进行孵化，专注于无人自助场景全套解决方案")
                 .setFontSize(25)
+                .setStrikeThrough(true)
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.LEFT_RIGHT))
                 .setPosition(RelativePosition.of(Positions.CENTER));
 

@@ -11,8 +11,10 @@ import com.augrain.easy.canvas.utils.RotateUtils;
 import lombok.Getter;
 
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.text.AttributedString;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +78,11 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
      */
     private int maxTextWidth;
 
+    /**
+     * 删除线
+     */
+    private boolean strikeThrough = false;
+
     // 程序处理过程中所需数据
     private List<String> splitText;
 
@@ -131,7 +138,12 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         return this;
     }
 
-    public Font getFont() {
+    public TextElement setStrikeThrough(boolean strikeThrough) {
+        this.strikeThrough = strikeThrough;
+        return this;
+    }
+
+    private Font getFont() {
         if (this.font != null) {
             return this.font;
         }
@@ -186,13 +198,24 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
                 AffineTransform rotateTransform = AffineTransform.getRotateInstance(Math.toRadians(rotate), rotateX, rotateY);
                 AffineTransform savedTransform = g.getTransform();
                 g.setTransform(rotateTransform);
-                g.drawString(splitText.get(i), startX, startY);
+                doDrawText(g, splitText.get(i), startX, startY);
                 g.setTransform(savedTransform);
             } else {
-                g.drawString(splitText.get(i), startX, startY);
+                doDrawText(g, splitText.get(i), startX, startY);
             }
         }
         return dimension.getPoint();
+    }
+
+    private void doDrawText(Graphics2D g, String text, int startX, int startY) {
+        if (this.strikeThrough) {
+            AttributedString as = new AttributedString(text);
+            as.addAttribute(TextAttribute.FONT, g.getFont());
+            as.addAttribute(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON, 0, text.length());
+            g.drawString(as.getIterator(), startX, startY);
+        } else {
+            g.drawString(text, startX, startY);
+        }
     }
 
     @Override
