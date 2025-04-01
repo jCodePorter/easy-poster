@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 组合元素，可以以一个基础元素作为基准，在他的上下左右添加附加元素
@@ -75,7 +76,12 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     public ComposeElement add(AbstractElement element, RelativeDirection direction, boolean strict) {
-        elementWrapper.add(new ElementWrapper(element, direction, strict));
+        elementWrapper.add(new ElementWrapper(element, direction, strict, false));
+        return this;
+    }
+
+    public ComposeElement follow(AbstractElement element, RelativeDirection direction, boolean strict) {
+        elementWrapper.add(new ElementWrapper(element, direction, strict, true));
         return this;
     }
 
@@ -85,28 +91,63 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         Dimension basicDimension = basicElement.calculateDimension(g, canvasWidth, canvasHeight);
         dimensionMap.put(basicElement, basicDimension);
 
-        for (ElementWrapper wrapper : elementWrapper) {
-            Dimension dimension = calRelativeElementDimension(g, canvasWidth, canvasHeight, wrapper, basicDimension);
-            dimensionMap.put(wrapper.getElement(), dimension);
-        }
+        Map<RelativeDirection, List<ElementWrapper>> elementGroup = elementWrapper.stream().collect(Collectors.groupingBy(ElementWrapper::getDirection));
+        elementGroup.forEach((direction, elementWrapperList) -> {
+            if (direction == RelativeDirection.BOTTOM) {
+                Dimension last = null;
+                for (ElementWrapper wrapper : elementWrapperList) {
+                    wrapper.getElement().beforeRender(g);
+                    Dimension dimension = doCalRelativeBottom(g, canvasWidth, canvasHeight, wrapper, basicDimension);
+                    if (last != null && wrapper.isFollow()) {
+                        dimension.getPoint().setY(dimension.getPoint().getY() + last.getHeight());
+                    }
+                    last = dimension;
+                    dimensionMap.put(wrapper.getElement(), dimension);
+                }
+            } else if (direction == RelativeDirection.TOP) {
+                Dimension last = null;
+                for (ElementWrapper wrapper : elementWrapperList) {
+                    wrapper.getElement().beforeRender(g);
+                    Dimension dimension = doCalRelativeTop(g, canvasWidth, wrapper, basicDimension);
+                    if (last != null && wrapper.isFollow()) {
+                        dimension.getPoint().setY(dimension.getPoint().getY() - last.getHeight());
+                    }
+                    last = dimension;
+                    dimensionMap.put(wrapper.getElement(), dimension);
+                }
+            } else if (direction == RelativeDirection.LEFT) {
+                Dimension last = null;
+                for (ElementWrapper wrapper : elementWrapperList) {
+                    wrapper.getElement().beforeRender(g);
+                    Dimension dimension = doCalRelativeLeft(g, canvasHeight, wrapper, basicDimension);
+                    if (last != null && wrapper.isFollow()) {
+                        dimension.getPoint().setX(dimension.getPoint().getX() - last.getWidth());
+                    }
+                    last = dimension;
+                    dimensionMap.put(wrapper.getElement(), dimension);
+                }
+            } else if (direction == RelativeDirection.RIGHT) {
+                Dimension last = null;
+                for (ElementWrapper wrapper : elementWrapperList) {
+                    wrapper.getElement().beforeRender(g);
+                    Dimension dimension = doCalRelativeRight(g, canvasWidth, canvasHeight, wrapper, basicDimension);
+                    if (last != null && wrapper.isFollow()) {
+                        dimension.getPoint().setX(dimension.getPoint().getX() + last.getWidth());
+                    }
+                    last = dimension;
+                    dimensionMap.put(wrapper.getElement(), dimension);
+                }
+            } else if (direction == RelativeDirection.IN) {
+                for (ElementWrapper wrapper : elementWrapperList) {
+                    wrapper.getElement().beforeRender(g);
+                    Dimension dimension = doCalRelativeIn(g, wrapper, basicDimension);
+                    dimensionMap.put(wrapper.getElement(), dimension);
+                }
+            }
+        });
 
         // 根据各元素尺寸大小和位置信息，计算外接矩形，即待渲染组合元素的大小，基准点
         return calculateBoundingBox(dimensionMap);
-    }
-
-    private Dimension calRelativeElementDimension(Graphics2D g, int canvasWidth, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
-        if (elementWrapper.getDirection() == RelativeDirection.BOTTOM) {
-            return doCalRelativeBottom(g, canvasWidth, canvasHeight, elementWrapper, basicDimension);
-        } else if (elementWrapper.getDirection() == RelativeDirection.TOP) {
-            return doCalRelativeTop(g, canvasWidth, elementWrapper, basicDimension);
-        } else if (elementWrapper.getDirection() == RelativeDirection.LEFT) {
-            return doCalRelativeLeft(g, canvasHeight, elementWrapper, basicDimension);
-        } else if (elementWrapper.getDirection() == RelativeDirection.RIGHT) {
-            return doCalRelativeRight(g, canvasWidth, canvasHeight, elementWrapper, basicDimension);
-        } else if (elementWrapper.getDirection() == RelativeDirection.IN) {
-            return doCalRelativeIn(g, elementWrapper, basicDimension);
-        }
-        throw new UnsupportedOperationException("未知的相对位置属性");
     }
 
     private Dimension doCalRelativeIn(Graphics2D g, ElementWrapper elementWrapper, Dimension basicDimension) {
@@ -243,6 +284,8 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             CoordinatePoint point = basicDimension.getPoint();
             point.setX(markPoint.getX() + pointOffsetMap.get(basicElement).xOffset);
             point.setY(markPoint.getY() + pointOffsetMap.get(basicElement).yOffset);
+
+            basicElement.beforeRender(g);
             basicElement.doRender(g, basicDimension, basicDimension.getWidth(), basicDimension.getHeight());
 
             for (ElementWrapper elementWrapper : elementWrapper) {
@@ -251,15 +294,21 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
                 CoordinatePoint elementPoint = elementDimension.getPoint();
                 elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
                 elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
+
+                element.beforeRender(g);
                 element.doRender(g, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());
+                element.afterRender(g);
             }
             return null;
         } else {
+            basicElement.beforeRender(g);
             CoordinatePoint basicPoint = basicElement.doRender(g, basicDimension, canvasWidth, canvasHeight);
 
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();
+                element.beforeRender(g);
                 element.doRender(g, dimensionMap.get(element), basicDimension.getWidth(), basicDimension.getHeight());
+                element.afterRender(g);
             }
             return basicPoint;
         }
@@ -267,9 +316,28 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
 
     @Override
     public void beforeRender(Graphics2D g) {
+        super.beforeRender(g);
         basicElement.beforeRender(g);
+    }
 
-        elementWrapper.forEach(b -> b.getElement().beforeRender(g));
+    @Override
+    public void afterRender(Graphics2D g) {
+        super.afterRender(g);
+        basicElement.afterRender(g);
+    }
+
+    /**
+     * 组合元素坐标点与基准坐标的偏移量
+     */
+    private static class PointOffset {
+        private final int xOffset;
+
+        private final int yOffset;
+
+        public PointOffset(int x, int y) {
+            this.xOffset = x;
+            this.yOffset = y;
+        }
     }
 
     @Getter
@@ -291,28 +359,20 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
          */
         private boolean strict;
 
+        /**
+         * 是否跟随，设置为true，当添加多个同一个方向的元素时，会再次参考前一个元素的位置
+         */
+        private boolean follow;
+
         public ElementWrapper(AbstractElement element) {
             this.element = element;
         }
 
-        public ElementWrapper(AbstractElement element, RelativeDirection direction, boolean strict) {
+        public ElementWrapper(AbstractElement element, RelativeDirection direction, boolean strict, boolean follow) {
             this.element = element;
             this.direction = direction;
             this.strict = strict;
-        }
-    }
-
-    /**
-     * 组合元素坐标点与基准坐标的偏移量
-     */
-    private static class PointOffset {
-        private final int xOffset;
-
-        private final int yOffset;
-
-        public PointOffset(int x, int y) {
-            this.xOffset = x;
-            this.yOffset = y;
+            this.follow = follow;
         }
     }
 }

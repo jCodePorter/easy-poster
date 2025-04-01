@@ -9,6 +9,7 @@ import com.augrain.easy.canvas.element.basic.TextElement;
 import com.augrain.easy.canvas.geometry.Margin;
 import com.augrain.easy.canvas.geometry.Positions;
 import com.augrain.easy.canvas.geometry.RelativePosition;
+import com.augrain.easy.canvas.model.BaseLine;
 import com.augrain.easy.canvas.model.RelativeDirection;
 import com.augrain.easy.canvas.model.Scale;
 import org.junit.Test;
@@ -200,5 +201,31 @@ public class ComposeElementTest {
                 .setPadding(100, 100);
         canvas.addElement(tileElement);
         canvas.asFile("png", "compose_in_tile.png");
+    }
+
+    @Test
+    public void testFollow() {
+        EasyCanvas canvas = new EasyCanvas(1000, 200);
+
+        BaseLine baseLine = BaseLine.CENTER;
+        ComposeElement composeElement = new ComposeElement(new TextElement("您已经连续工作")
+                .setPosition(RelativePosition.of(Positions.LEFT_CENTER))
+                .setFontSize(18)
+                .setFontName("楷体")
+                .setBaseLine(baseLine)
+        )
+                .follow(new TextElement("6")
+                        .setFontColor(Color.red)
+                        .setFontSize(50)
+                        .setFontName("仿宋")
+                        .setBaseLine(baseLine)
+                        .setPosition(RelativePosition.of(Positions.LEFT_CENTER)), RelativeDirection.RIGHT, true)
+                .follow(new TextElement("天了，需要好好休息休息了")
+                        .setFontSize(35)
+                        .setFontName("楷体")
+                        .setBaseLine(baseLine)
+                        .setPosition(RelativePosition.of(Positions.LEFT_CENTER)), RelativeDirection.RIGHT, true);
+        canvas.addElement(composeElement);
+        canvas.asFile("png", "compose_follow.png");
     }
 }

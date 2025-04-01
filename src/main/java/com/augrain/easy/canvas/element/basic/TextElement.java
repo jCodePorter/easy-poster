@@ -220,8 +220,8 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
     @Override
     public void beforeRender(Graphics2D g) {
+        super.beforeRender(g);
         g.setFont(getFont());
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, getAlpha()));
         g.setColor(getFontColor());
     }
 }
