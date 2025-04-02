@@ -90,6 +90,10 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         this.text = text;
     }
 
+    public static TextElement of(String text) {
+        return new TextElement(text);
+    }
+
     public TextElement setFontColor(Color fontColor) {
         this.fontColor = fontColor;
         return this;

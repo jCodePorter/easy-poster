@@ -208,24 +208,24 @@ public class ComposeElementTest {
         EasyCanvas canvas = new EasyCanvas(1000, 200);
 
         BaseLine baseLine = BaseLine.CENTER;
-        ComposeElement composeElement = new ComposeElement(new TextElement("您已经连续工作")
+        canvas.addElement(TextElement.of("您已经连续工作")
                 .setPosition(RelativePosition.of(Positions.LEFT_CENTER))
                 .setFontSize(18)
                 .setFontName("楷体")
                 .setBaseLine(baseLine)
-        )
-                .follow(new TextElement("6")
+                .follow(TextElement.of("6")
                         .setFontColor(Color.red)
                         .setFontSize(50)
                         .setFontName("仿宋")
                         .setBaseLine(baseLine)
                         .setPosition(RelativePosition.of(Positions.LEFT_CENTER)), RelativeDirection.RIGHT, true)
-                .follow(new TextElement("天了，需要好好休息休息了")
+                .follow(TextElement.of("天了，需要好好休息休息了")
                         .setFontSize(35)
                         .setFontName("楷体")
                         .setBaseLine(baseLine)
-                        .setPosition(RelativePosition.of(Positions.LEFT_CENTER)), RelativeDirection.RIGHT, true);
-        canvas.addElement(composeElement);
+                        .setPosition(RelativePosition.of(Positions.LEFT_CENTER)), RelativeDirection.RIGHT, true)
+                        .follow(TextElement.of("这是一个小标题")
+                                .setPosition(RelativePosition.of(Positions.TOP_CENTER)), RelativeDirection.BOTTOM, true));
         canvas.asFile("png", "compose_follow.png");
     }
 }

@@ -40,6 +40,10 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         this.basicElement = basicElement;
     }
 
+    public static ComposeElement of(AbstractElement basicElement) {
+        return new ComposeElement(basicElement);
+    }
+
     /**
      * 在基准元素下方添加元素
      *

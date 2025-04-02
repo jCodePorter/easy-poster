@@ -1,10 +1,12 @@
 package com.augrain.easy.canvas.element;
 
+import com.augrain.easy.canvas.element.advance.ComposeElement;
 import com.augrain.easy.canvas.exception.CanvasException;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.geometry.Position;
 import com.augrain.easy.canvas.model.Gradient;
+import com.augrain.easy.canvas.model.RelativeDirection;
 import lombok.Getter;
 
 import java.awt.*;
@@ -58,6 +60,12 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     public T setGradient(Gradient gradient) {
         this.gradient = gradient;
         return (T) this;
+    }
+
+    public ComposeElement follow(AbstractElement element, RelativeDirection direction, boolean strict) {
+        ComposeElement composeElement = ComposeElement.of(this);
+        composeElement.follow(element, direction, strict);
+        return composeElement;
     }
 
     @Override
