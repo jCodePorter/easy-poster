@@ -63,13 +63,19 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     }
 
     public ComposeElement follow(AbstractElement element, RelativeDirection direction, boolean strict) {
-        ComposeElement composeElement = ComposeElement.of(this);
-        composeElement.follow(element, direction, strict);
+        ComposeElement composeElement;
+        if (element instanceof ComposeElement) {
+            composeElement = (ComposeElement) element;
+            composeElement.follow(element, direction, strict);
+        } else {
+            composeElement = ComposeElement.of(this);
+            composeElement.follow(element, direction, strict);
+        }
         return composeElement;
     }
 
     @Override
-    public CoordinatePoint render(Graphics2D g, int canvasWidth, int canvasHeight) throws Exception {
+    public CoordinatePoint render(Graphics2D g, int canvasWidth, int canvasHeight) {
         beforeRender(g);
         Dimension elementInfo = calculateDimension(g, canvasWidth, canvasHeight);
         CoordinatePoint coordinatePoint = doRender(g, elementInfo, canvasWidth, canvasHeight);

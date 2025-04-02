@@ -206,8 +206,16 @@ public class ComposeElementTest {
     @Test
     public void testFollow() {
         EasyCanvas canvas = new EasyCanvas(1000, 200);
-
         BaseLine baseLine = BaseLine.CENTER;
+
+        ComposeElement follow = TextElement.of("天了，需要好好休息休息了")
+                .setFontSize(35)
+                .setFontName("楷体")
+                .setBaseLine(baseLine)
+                .setPosition(RelativePosition.of(Positions.LEFT_CENTER))
+                .follow(TextElement.of("这是一个小标题")
+                        .setPosition(RelativePosition.of(Positions.TOP_CENTER)), RelativeDirection.BOTTOM, true);
+
         canvas.addElement(TextElement.of("您已经连续工作")
                 .setPosition(RelativePosition.of(Positions.LEFT_CENTER))
                 .setFontSize(18)
@@ -219,13 +227,8 @@ public class ComposeElementTest {
                         .setFontName("仿宋")
                         .setBaseLine(baseLine)
                         .setPosition(RelativePosition.of(Positions.LEFT_CENTER)), RelativeDirection.RIGHT, true)
-                .follow(TextElement.of("天了，需要好好休息休息了")
-                        .setFontSize(35)
-                        .setFontName("楷体")
-                        .setBaseLine(baseLine)
-                        .setPosition(RelativePosition.of(Positions.LEFT_CENTER)), RelativeDirection.RIGHT, true)
-                        .follow(TextElement.of("这是一个小标题")
-                                .setPosition(RelativePosition.of(Positions.TOP_CENTER)), RelativeDirection.BOTTOM, true));
+                .follow(follow, RelativeDirection.RIGHT, true));
+
         canvas.asFile("png", "compose_follow.png");
     }
 }
