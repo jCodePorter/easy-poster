@@ -50,36 +50,36 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
      * @param element 下方待添加的元素
      */
     public ComposeElement bottom(AbstractElement element) {
-        add(element, RelativeDirection.BOTTOM);
+        next(element, RelativeDirection.BOTTOM);
         return this;
     }
 
     public ComposeElement top(AbstractElement element) {
-        add(element, RelativeDirection.TOP);
+        next(element, RelativeDirection.TOP);
         return this;
     }
 
     public ComposeElement left(AbstractElement element) {
-        add(element, RelativeDirection.LEFT);
+        next(element, RelativeDirection.LEFT);
         return this;
     }
 
     public ComposeElement right(AbstractElement element) {
-        add(element, RelativeDirection.RIGHT);
+        next(element, RelativeDirection.RIGHT);
         return this;
     }
 
     public ComposeElement in(AbstractElement element) {
-        add(element, RelativeDirection.IN);
+        next(element, RelativeDirection.IN);
         return this;
     }
 
-    public ComposeElement add(AbstractElement element, RelativeDirection direction) {
-        add(element, direction, true);
+    public ComposeElement next(AbstractElement element, RelativeDirection direction) {
+        next(element, direction, true);
         return this;
     }
 
-    public ComposeElement add(AbstractElement element, RelativeDirection direction, boolean strict) {
+    public ComposeElement next(AbstractElement element, RelativeDirection direction, boolean strict) {
         elementWrapper.add(new ElementWrapper(element, direction, strict, false));
         return this;
     }

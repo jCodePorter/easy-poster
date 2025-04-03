@@ -48,8 +48,8 @@ public class ComposeElementTest {
                 .setPosition(RelativePosition.of(Positions.TOP_LEFT, margin2));
 
         ComposeElement composeElement = new ComposeElement(imageElement)
-                .add(textElement, RelativeDirection.BOTTOM, true)
-                .add(textElement2, RelativeDirection.BOTTOM, false);
+                .next(textElement, RelativeDirection.BOTTOM, true)
+                .next(textElement2, RelativeDirection.BOTTOM, false);
 
         canvas.addElement(composeElement);
         canvas.asFile("png", "compose_bottom.png");
@@ -72,7 +72,7 @@ public class ComposeElementTest {
                     .setFontColor(Color.red)
                     .setFontSize(18)
                     .setPosition(RelativePosition.of(position, margin));
-            composeElement.add(textElement, RelativeDirection.TOP, false);
+            composeElement.next(textElement, RelativeDirection.TOP, false);
         }
         canvas.addElement(composeElement);
         canvas.asFile("png", "compose_top.png");
@@ -95,7 +95,7 @@ public class ComposeElementTest {
                     .setFontColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
-            composeElement.add(textElement, RelativeDirection.LEFT, true);
+            composeElement.next(textElement, RelativeDirection.LEFT, true);
         }
         canvas.addElement(composeElement);
 
@@ -119,7 +119,7 @@ public class ComposeElementTest {
                     .setFontColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
-            composeElement.add(textElement, RelativeDirection.RIGHT, false);
+            composeElement.next(textElement, RelativeDirection.RIGHT, false);
         }
         canvas.addElement(composeElement);
         canvas.asFile("png", "compose_right.png");
@@ -142,7 +142,7 @@ public class ComposeElementTest {
                     .setFontColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
-            composeElement.add(textElement, RelativeDirection.IN, false);
+            composeElement.next(textElement, RelativeDirection.IN, false);
         }
         canvas.addElement(composeElement);
 
@@ -194,7 +194,7 @@ public class ComposeElementTest {
                     .setFontColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
-            composeElement.add(textElement, RelativeDirection.IN, false);
+            composeElement.next(textElement, RelativeDirection.IN, false);
         }
 
         RepeatElement tileElement = new RepeatElement(composeElement)

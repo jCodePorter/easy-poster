@@ -62,6 +62,38 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
         return (T) this;
     }
 
+    public ComposeElement in(AbstractElement element) {
+        return follow(element, RelativeDirection.IN, true);
+    }
+
+    public ComposeElement left(AbstractElement element) {
+        return follow(element, RelativeDirection.LEFT, true);
+    }
+
+    public ComposeElement right(AbstractElement element) {
+        return follow(element, RelativeDirection.RIGHT, true);
+    }
+
+    public ComposeElement top(AbstractElement element) {
+        return follow(element, RelativeDirection.TOP, true);
+    }
+
+    public ComposeElement bottom(AbstractElement element) {
+        return follow(element, RelativeDirection.BOTTOM, true);
+    }
+
+    public ComposeElement next(AbstractElement element, RelativeDirection direction, boolean strict) {
+        ComposeElement composeElement;
+        if (element instanceof ComposeElement) {
+            composeElement = (ComposeElement) element;
+            composeElement.next(element, direction, strict);
+        } else {
+            composeElement = ComposeElement.of(this);
+            composeElement.next(element, direction, strict);
+        }
+        return composeElement;
+    }
+
     public ComposeElement follow(AbstractElement element, RelativeDirection direction, boolean strict) {
         ComposeElement composeElement;
         if (element instanceof ComposeElement) {
