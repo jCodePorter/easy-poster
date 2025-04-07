@@ -7,12 +7,12 @@ import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.geometry.Position;
 import com.augrain.easy.canvas.geometry.RelativePosition;
+import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.model.RelativeDirection;
 import com.augrain.easy.canvas.utils.PointUtils;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -103,23 +103,23 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     @Override
-    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
         // 基准元素的尺寸
-        Dimension basicDimension = basicElement.calculateDimension(g, canvasWidth, canvasHeight);
+        Dimension basicDimension = basicElement.calculateDimension(context, canvasWidth, canvasHeight);
         dimensionMap.put(basicElement, basicDimension);
 
         Map<RelativeDirection, List<ElementWrapper>> elementGroup = elementWrapper.stream().collect(Collectors.groupingBy(ElementWrapper::getDirection));
         elementGroup.forEach((direction, elementWrapperList) -> {
             if (direction == RelativeDirection.BOTTOM) {
-                doBottom(g, canvasWidth, canvasHeight, elementWrapperList, basicDimension);
+                doBottom(context, canvasWidth, canvasHeight, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.TOP) {
-                doTop(g, canvasWidth, elementWrapperList, basicDimension);
+                doTop(context, canvasWidth, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.LEFT) {
-                doLeft(g, canvasHeight, elementWrapperList, basicDimension);
+                doLeft(context, canvasHeight, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.RIGHT) {
-                doRight(g, canvasWidth, canvasHeight, elementWrapperList, basicDimension);
+                doRight(context, canvasWidth, canvasHeight, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.IN) {
-                doIn(g, elementWrapperList, basicDimension);
+                doIn(context, elementWrapperList, basicDimension);
             }
         });
 
@@ -127,19 +127,19 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return calculateBoundingBox(dimensionMap);
     }
 
-    private void doIn(Graphics2D g, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doIn(CanvasContext context, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         for (ElementWrapper wrapper : elementWrapperList) {
-            wrapper.getElement().beforeRender(g);
-            Dimension dimension = doCalRelativeIn(g, wrapper, basicDimension);
+            wrapper.getElement().beforeRender(context);
+            Dimension dimension = doCalRelativeIn(context, wrapper, basicDimension);
             dimensionMap.put(wrapper.getElement(), dimension);
         }
     }
 
-    private void doRight(Graphics2D g, int canvasWidth, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doRight(CanvasContext context, int canvasWidth, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
-            wrapper.getElement().beforeRender(g);
-            Dimension dimension = doCalRelativeRight(g, canvasWidth, canvasHeight, wrapper, basicDimension);
+            wrapper.getElement().beforeRender(context);
+            Dimension dimension = doCalRelativeRight(context, canvasWidth, canvasHeight, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 if (wrapper.getElement() instanceof ComposeElement) {
                     ((ComposeElement) wrapper.getElement()).resetCoordinatePointOffset(last.getWidth(), 0);
@@ -152,11 +152,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         }
     }
 
-    private void doLeft(Graphics2D g, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doLeft(CanvasContext context, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
-            wrapper.getElement().beforeRender(g);
-            Dimension dimension = doCalRelativeLeft(g, canvasHeight, wrapper, basicDimension);
+            wrapper.getElement().beforeRender(context);
+            Dimension dimension = doCalRelativeLeft(context, canvasHeight, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 dimension.getPoint().setX(dimension.getPoint().getX() - last.getWidth());
             }
@@ -165,11 +165,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         }
     }
 
-    private void doTop(Graphics2D g, int canvasWidth, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doTop(CanvasContext context, int canvasWidth, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
-            wrapper.getElement().beforeRender(g);
-            Dimension dimension = doCalRelativeTop(g, canvasWidth, wrapper, basicDimension);
+            wrapper.getElement().beforeRender(context);
+            Dimension dimension = doCalRelativeTop(context, canvasWidth, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 dimension.getPoint().setY(dimension.getPoint().getY() - last.getHeight());
             }
@@ -178,11 +178,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         }
     }
 
-    private void doBottom(Graphics2D g, int canvasWidth, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doBottom(CanvasContext context, int canvasWidth, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
-            wrapper.getElement().beforeRender(g);
-            Dimension dimension = doCalRelativeBottom(g, canvasWidth, canvasHeight, wrapper, basicDimension);
+            wrapper.getElement().beforeRender(context);
+            Dimension dimension = doCalRelativeBottom(context, canvasWidth, canvasHeight, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 if (wrapper.getElement() instanceof ComposeElement) {
                     ((ComposeElement) wrapper.getElement()).resetCoordinatePointOffset(0, last.getHeight());
@@ -202,10 +202,10 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         });
     }
 
-    private Dimension doCalRelativeIn(Graphics2D g, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeIn(CanvasContext context, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
-        Dimension dimension = element.calculateDimension(g, basicDimension.getWidth(), basicDimension.getHeight());
+        Dimension dimension = element.calculateDimension(context, basicDimension.getWidth(), basicDimension.getHeight());
 
         // 根据相对的基准元素进行坐标修正
         Position position = element.getPosition();
@@ -217,11 +217,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeLeft(Graphics2D g, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeLeft(CanvasContext context, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
         int relativeHeight = elementWrapper.isStrict() ? basicDimension.getHeight() : canvasHeight;
-        Dimension dimension = element.calculateDimension(g, basicDimension.getPoint().getX(), relativeHeight);
+        Dimension dimension = element.calculateDimension(context, basicDimension.getPoint().getX(), relativeHeight);
 
         // 根据相对的基准元素进行坐标修正
         int y = 0;
@@ -232,12 +232,12 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeRight(Graphics2D g, int canvasWidth, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeRight(CanvasContext context, int canvasWidth, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
         int relativeHeight = elementWrapper.isStrict() ? basicDimension.getHeight() : canvasHeight;
         int relativeWidth = canvasWidth - basicDimension.getWidth() - basicDimension.getPoint().getX();
-        Dimension dimension = element.calculateDimension(g, relativeWidth, relativeHeight);
+        Dimension dimension = element.calculateDimension(context, relativeWidth, relativeHeight);
 
         // 根据相对的基准元素进行坐标修正
         int x;
@@ -252,11 +252,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeTop(Graphics2D g, int canvasWidth, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeTop(CanvasContext context, int canvasWidth, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
         int relativeWidth = elementWrapper.isStrict() ? basicDimension.getWidth() : canvasWidth;
-        Dimension dimension = element.calculateDimension(g, relativeWidth, basicDimension.getPoint().getY());
+        Dimension dimension = element.calculateDimension(context, relativeWidth, basicDimension.getPoint().getY());
 
         int x = 0;
         if (elementWrapper.isStrict()) {
@@ -266,12 +266,12 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeBottom(Graphics2D g, int canvasWidth, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeBottom(CanvasContext context, int canvasWidth, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
         int relativeWidth = elementWrapper.isStrict() ? basicDimension.getWidth() : canvasWidth;
         int relativeHeight = canvasHeight - basicDimension.getHeight() - basicDimension.getPoint().getY();
-        Dimension dimension = element.calculateDimension(g, relativeWidth, relativeHeight);
+        Dimension dimension = element.calculateDimension(context, relativeWidth, relativeHeight);
 
         // 根据相对的基准元素进行坐标修正
         int x = 0;
@@ -318,7 +318,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
         Dimension basicDimension = dimensionMap.get(basicElement);
 
         if (getPosition() != null) {
@@ -330,8 +330,8 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             point.setX(markPoint.getX() + pointOffsetMap.get(basicElement).xOffset);
             point.setY(markPoint.getY() + pointOffsetMap.get(basicElement).yOffset);
 
-            basicElement.beforeRender(g);
-            basicElement.doRender(g, basicDimension, basicDimension.getWidth(), basicDimension.getHeight());
+            basicElement.beforeRender(context);
+            basicElement.doRender(context, basicDimension, basicDimension.getWidth(), basicDimension.getHeight());
 
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();
@@ -340,35 +340,35 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
                 elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
                 elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
 
-                element.beforeRender(g);
-                element.doRender(g, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());
-                element.afterRender(g);
+                element.beforeRender(context);
+                element.doRender(context, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());
+                element.afterRender(context);
             }
             return null;
         } else {
-            basicElement.beforeRender(g);
-            CoordinatePoint basicPoint = basicElement.doRender(g, basicDimension, canvasWidth, canvasHeight);
+            basicElement.beforeRender(context);
+            CoordinatePoint basicPoint = basicElement.doRender(context, basicDimension, canvasWidth, canvasHeight);
 
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();
-                element.beforeRender(g);
-                element.doRender(g, dimensionMap.get(element), basicDimension.getWidth(), basicDimension.getHeight());
-                element.afterRender(g);
+                element.beforeRender(context);
+                element.doRender(context, dimensionMap.get(element), basicDimension.getWidth(), basicDimension.getHeight());
+                element.afterRender(context);
             }
             return basicPoint;
         }
     }
 
     @Override
-    public void beforeRender(Graphics2D g) {
-        super.beforeRender(g);
-        basicElement.beforeRender(g);
+    public void beforeRender(CanvasContext context) {
+        super.beforeRender(context);
+        basicElement.beforeRender(context);
     }
 
     @Override
-    public void afterRender(Graphics2D g) {
-        super.afterRender(g);
-        basicElement.afterRender(g);
+    public void afterRender(CanvasContext context) {
+        super.afterRender(context);
+        basicElement.afterRender(context);
     }
 
     /**

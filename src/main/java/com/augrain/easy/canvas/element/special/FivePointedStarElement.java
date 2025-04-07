@@ -3,6 +3,7 @@ package com.augrain.easy.canvas.element.special;
 import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.CanvasContext;
 
 import java.awt.*;
 
@@ -42,7 +43,7 @@ public class FivePointedStarElement extends AbstractDimensionElement {
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
         // 绘制五角星。五角星分别有5个顶点，1个中心。绘制五个四边形，绘制方法：每个顶点（称为'A'点）连接不相邻的两个顶点（称为'B'点、'C'点）,五角星的正中心点（称为'D'点），'B'点、'C'点分别连接'D'点。
         int centerX = dimension.getPoint().getX() + width / 2;
         int radius = width / 2;
@@ -55,6 +56,7 @@ public class FivePointedStarElement extends AbstractDimensionElement {
         // 中心坐标
         int[] point5 = new int[]{centerX, centerX};
 
+        Graphics2D g = context.getGraphics();
         if (this.borderSize > 0) {
             g.setStroke(new BasicStroke(this.borderSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             drawLine(g, point0, point1, point2, point3, point4, point5);
@@ -121,7 +123,7 @@ public class FivePointedStarElement extends AbstractDimensionElement {
     }
 
     @Override
-    public void beforeRender(Graphics2D g) {
-        g.setColor(this.color);
+    public void beforeRender(CanvasContext context) {
+        context.getGraphics().setColor(this.color);
     }
 }

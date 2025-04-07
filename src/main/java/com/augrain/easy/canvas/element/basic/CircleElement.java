@@ -3,6 +3,7 @@ package com.augrain.easy.canvas.element.basic;
 import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.CanvasContext;
 
 import java.awt.*;
 import java.awt.geom.Area;
@@ -58,9 +59,10 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        super.gradient(g, dimension);
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+        super.gradient(context, dimension);
         CoordinatePoint point = dimension.getPoint();
+        Graphics2D g = context.getGraphics();
         if (this.borderSize > 0 && this.borderSize < Math.max(this.width, this.height)) {
             Ellipse2D outer = new Ellipse2D.Double(point.getX(), point.getY(), this.width, this.height);
             Ellipse2D inner = new Ellipse2D.Double(
@@ -79,7 +81,7 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
     }
 
     @Override
-    public void beforeRender(Graphics2D g) {
-        g.setColor(this.color);
+    public void beforeRender(CanvasContext context) {
+        context.getGraphics().setColor(this.color);
     }
 }

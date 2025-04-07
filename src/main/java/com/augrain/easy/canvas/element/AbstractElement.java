@@ -5,6 +5,7 @@ import com.augrain.easy.canvas.exception.CanvasException;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.geometry.Position;
+import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.model.Gradient;
 import com.augrain.easy.canvas.model.RelativeDirection;
 import lombok.Getter;
@@ -107,39 +108,39 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     }
 
     @Override
-    public CoordinatePoint render(Graphics2D g, int canvasWidth, int canvasHeight) {
-        beforeRender(g);
-        Dimension elementInfo = calculateDimension(g, canvasWidth, canvasHeight);
-        CoordinatePoint coordinatePoint = doRender(g, elementInfo, canvasWidth, canvasHeight);
-        afterRender(g);
+    public CoordinatePoint render(CanvasContext context, int canvasWidth, int canvasHeight) {
+        beforeRender(context);
+        Dimension elementInfo = calculateDimension(context, canvasWidth, canvasHeight);
+        CoordinatePoint coordinatePoint = doRender(context, elementInfo, canvasWidth, canvasHeight);
+        afterRender(context);
         return coordinatePoint;
     }
 
     /**
      * 计算元素尺寸
      */
-    public abstract Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight);
+    public abstract Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight);
 
     /**
      * 执行渲染
      */
-    public abstract CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight);
+    public abstract CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight);
 
     /**
      * 渲染之前，做一些默认配置
      */
-    public void beforeRender(Graphics2D g) {
+    public void beforeRender(CanvasContext context) {
         AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
-        g.setComposite(alphaComposite);
+        context.getGraphics().setComposite(alphaComposite);
     }
 
-    public void afterRender(Graphics2D g) {
+    public void afterRender(CanvasContext context) {
 
     }
 
-    public void gradient(Graphics2D g, Dimension dimension) {
+    public void gradient(CanvasContext context, Dimension dimension) {
         if (gradient != null) {
-            g.setPaint(this.gradient.toGradient(dimension));
+            context.getGraphics().setPaint(this.gradient.toGradient(dimension));
         }
     }
 }

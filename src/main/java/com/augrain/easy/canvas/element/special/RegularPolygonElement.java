@@ -4,6 +4,7 @@ import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.CanvasContext;
 
 import java.awt.*;
 
@@ -43,7 +44,7 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
         int r = this.width / 2;
         int centerX = dimension.getPoint().getX() + r;
         int centerY = dimension.getPoint().getY() + r;
@@ -57,6 +58,7 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
         }
         points[this.edges] = points[0];
 
+        Graphics2D g = context.getGraphics();
         for (int i = 0; i < this.edges; i++) {
             g.drawLine(points[i].getX(), points[i].getY(), points[i + 1].getX(), points[i + 1].getY());
         }
@@ -64,8 +66,8 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
     }
 
     @Override
-    public void beforeRender(Graphics2D g) {
-        super.beforeRender(g);
-        g.setColor(color);
+    public void beforeRender(CanvasContext context) {
+        super.beforeRender(context);
+        context.getGraphics().setColor(color);
     }
 }

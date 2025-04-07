@@ -4,6 +4,7 @@ import com.augrain.easy.canvas.element.AbstractElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.model.LineStyle;
 
 import java.awt.*;
@@ -68,18 +69,19 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
     }
 
     @Override
-    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
         return null;
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        g.drawLine(this.start.getX(), start.getY(), this.end.getX(), this.end.getY());
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+        context.getGraphics().drawLine(this.start.getX(), start.getY(), this.end.getX(), this.end.getY());
         return this.start;
     }
 
     @Override
-    public void beforeRender(Graphics2D g) {
+    public void beforeRender(CanvasContext context) {
+        Graphics2D g = context.getGraphics();
         g.setColor(this.color);
         if (this.lineStyle != null) {
             g.setStroke(this.lineStyle.toStroke(this.borderSize));

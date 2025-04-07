@@ -4,11 +4,11 @@ import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.model.Scale;
 import com.augrain.easy.canvas.utils.ImageUtils;
 import lombok.Getter;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -93,9 +93,9 @@ public class ImageElement extends AbstractDimensionElement<ImageElement> impleme
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
         CoordinatePoint point = dimension.getPoint();
-        g.drawImage(this.getImage(), point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
+        context.getGraphics().drawImage(this.getImage(), point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
         return point;
     }
 }

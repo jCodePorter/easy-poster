@@ -5,6 +5,7 @@ import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.model.BaseLine;
+import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.text.ITextSplitter;
 import com.augrain.easy.canvas.text.TextSplitterSimpleImpl;
 import com.augrain.easy.canvas.utils.RotateUtils;
@@ -155,7 +156,8 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Override
-    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
+        Graphics2D g = context.getGraphics();
         FontMetrics fm = g.getFontMetrics();
 
         int width;
@@ -189,9 +191,11 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        super.gradient(g, dimension);
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+        super.gradient(context, dimension);
         CoordinatePoint point = dimension.getPoint();
+
+        Graphics2D g = context.getGraphics();
         for (int i = 0; i < this.splitText.size(); i++) {
             int startX = point.getX() + dimension.getXOffset();
             int startY = point.getY() + dimension.getYOffset() + i * dimension.getHeight();
@@ -212,6 +216,9 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     private void doDrawText(Graphics2D g, String text, int startX, int startY) {
+
+        FontMetrics fontMetrics = g.getFontMetrics();
+
         if (this.strikeThrough) {
             AttributedString as = new AttributedString(text);
             as.addAttribute(TextAttribute.FONT, g.getFont());
@@ -223,8 +230,9 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Override
-    public void beforeRender(Graphics2D g) {
-        super.beforeRender(g);
+    public void beforeRender(CanvasContext context) {
+        super.beforeRender(context);
+        Graphics2D g = context.getGraphics();
         g.setFont(getFont());
         g.setColor(getFontColor());
     }

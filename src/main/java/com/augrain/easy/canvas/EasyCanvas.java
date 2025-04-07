@@ -4,7 +4,11 @@ import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.element.basic.*;
 import com.augrain.easy.canvas.exception.CanvasException;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
+import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.model.CanvasListener;
+import com.augrain.easy.canvas.model.Config;
+import com.sun.corba.se.impl.orbutil.concurrent.CondVar;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.imageio.ImageIO;
@@ -42,6 +46,9 @@ public class EasyCanvas {
      */
     @Setter
     private CanvasListener canvasListener;
+
+    @Getter
+    private final Config config = new Config();
 
     /**
      * Canvas构造方法
@@ -147,12 +154,23 @@ public class EasyCanvas {
         g.setColor(Color.white);
         g.fillRect(0, 0, canvasWidth, canvasHeight);
 
+        // 创建CanvasContext
+        CanvasContext canvasContext = buildCanvasContext(g);
+
         // 循环绘制各元素
         for (IElement element : renderedElements) {
-            element.render(g, canvasWidth, canvasHeight);
+            element.render(canvasContext, canvasWidth, canvasHeight);
         }
         g.dispose();
         return baseImg;
+    }
+
+    private CanvasContext buildCanvasContext(Graphics2D g) {
+        CanvasContext canvasContext = new CanvasContext();
+        canvasContext.setConfig(config);
+        canvasContext.setEasyCanvas(this);
+        canvasContext.setGraphics(g);
+        return canvasContext;
     }
 
     public void asFile(String format, String filePath) {

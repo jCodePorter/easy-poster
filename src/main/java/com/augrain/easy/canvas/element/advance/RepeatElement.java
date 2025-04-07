@@ -4,6 +4,7 @@ import com.augrain.easy.canvas.element.AbstractRepeatableElement;
 import com.augrain.easy.canvas.element.IElement;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.geometry.*;
+import com.augrain.easy.canvas.model.CanvasContext;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -68,20 +69,17 @@ public class RepeatElement implements IElement {
     }
 
     @Override
-    public CoordinatePoint render(Graphics2D g, int canvasWidth, int canvasHeight) {
-        basicElement.beforeRender(g);
+    public CoordinatePoint render(CanvasContext context, int canvasWidth, int canvasHeight) {
+        basicElement.beforeRender(context);
 
-        Dimension dimension = basicElement.calculateDimension(g, canvasWidth, canvasHeight);
+        Dimension dimension = basicElement.calculateDimension(context, canvasWidth, canvasHeight);
         int elementWidth = Math.max(dimension.getRotateWidth(), dimension.getWidth());
         int elementHeight = Math.max(dimension.getRotateHeight(), dimension.getHeight());
 
-        return doRepeat(g, canvasWidth, canvasHeight, elementWidth, elementHeight, dimension);
+        return doRepeat(context, canvasWidth, canvasHeight, elementWidth, elementHeight, dimension);
     }
 
-    /**
-     * 自定义平铺布局
-     */
-    private CoordinatePoint doRepeat(Graphics2D g, int canvasWidth, int canvasHeight, int elementWidth, int elementHeight, Dimension dimension) {
+    private CoordinatePoint doRepeat(CanvasContext context, int canvasWidth, int canvasHeight, int elementWidth, int elementHeight, Dimension dimension) {
         RepeatConfig result = getRepeatConfig(canvasWidth, canvasHeight, elementWidth, elementHeight, dimension);
 
         for (int j = 0; j < result.cols; j++) {
@@ -93,7 +91,7 @@ public class RepeatElement implements IElement {
                 basicElement.setPosition(RelativePosition.of(Positions.TOP_LEFT, elementMargin));
                 CoordinatePoint coordinatePoint = basicElement.reCalculatePosition(canvasWidth, canvasHeight, dimension);
                 dimension.setPoint(coordinatePoint);
-                basicElement.doRender(g, dimension, canvasWidth, canvasHeight);
+                basicElement.doRender(context, dimension, canvasWidth, canvasHeight);
             }
         }
         return CoordinatePoint.ORIGIN_COORDINATE;

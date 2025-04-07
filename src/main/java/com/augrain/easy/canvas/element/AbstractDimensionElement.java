@@ -2,8 +2,7 @@ package com.augrain.easy.canvas.element;
 
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
-
-import java.awt.*;
+import com.augrain.easy.canvas.model.CanvasContext;
 
 /**
  * 有明确宽高尺寸的元素
@@ -25,7 +24,7 @@ public abstract class AbstractDimensionElement<T extends AbstractDimensionElemen
     protected int height;
 
     @Override
-    public Dimension calculateDimension(Graphics2D g, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
         CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
         if (position != null) {
             point = position.calculate(canvasWidth, canvasHeight, width, height);

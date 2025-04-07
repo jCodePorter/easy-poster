@@ -3,6 +3,7 @@ package com.augrain.easy.canvas.element.basic;
 import com.augrain.easy.canvas.element.AbstractDimensionElement;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
+import com.augrain.easy.canvas.model.CanvasContext;
 import lombok.Getter;
 
 import java.awt.*;
@@ -66,8 +67,8 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
     }
 
     @Override
-    public CoordinatePoint doRender(Graphics2D g, Dimension dimension, int canvasWidth, int canvasHeight) {
-        super.gradient(g, dimension);
+    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+        super.gradient(context, dimension);
         CoordinatePoint point = dimension.getPoint();
 
         RoundRectangle2D rect = new RoundRectangle2D.Double(point.getX(), point.getY(), width, height,
@@ -83,15 +84,15 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
             );
             Area outerArea = new Area(rect);
             outerArea.subtract(new Area(inner));
-            g.fill(outerArea);
+            context.getGraphics().fill(outerArea);
         } else {
-            g.fill(rect);
+            context.getGraphics().fill(rect);
         }
         return dimension.getPoint();
     }
 
     @Override
-    public void beforeRender(Graphics2D g) {
-        g.setColor(this.color);
+    public void beforeRender(CanvasContext context) {
+        context.getGraphics().setColor(this.color);
     }
 }
