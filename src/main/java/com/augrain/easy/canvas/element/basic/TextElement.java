@@ -12,6 +12,7 @@ import com.augrain.easy.canvas.utils.RotateUtils;
 import lombok.Getter;
 
 import java.awt.*;
+import java.awt.font.LineMetrics;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -206,19 +207,25 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
                 AffineTransform rotateTransform = AffineTransform.getRotateInstance(Math.toRadians(rotate), rotateX, rotateY);
                 AffineTransform savedTransform = g.getTransform();
                 g.setTransform(rotateTransform);
-                doDrawText(g, splitText.get(i), startX, startY);
+                doDrawText(context, splitText.get(i), startX, startY, dimension);
                 g.setTransform(savedTransform);
             } else {
-                doDrawText(g, splitText.get(i), startX, startY);
+                doDrawText(context, splitText.get(i), startX, startY, dimension);
             }
         }
         return dimension.getPoint();
     }
 
-    private void doDrawText(Graphics2D g, String text, int startX, int startY) {
+    private void doDrawText(CanvasContext context, String text, int startX, int startY, Dimension dimension) {
+        Graphics2D g = context.getGraphics();
 
-        FontMetrics fontMetrics = g.getFontMetrics();
-
+        if (context.getConfig().isDebug()) {
+            FontMetrics fontMetrics = g.getFontMetrics();
+            LineMetrics lineMetrics = fontMetrics.getLineMetrics(text, g);
+            float ascent = lineMetrics.getAscent();
+            int diffHeight = (Optional.ofNullable(this.lineHeight).orElse(fontMetrics.getHeight()) - fontMetrics.getHeight()) / 2;
+            g.drawRect(startX, (int) (startY - ascent - diffHeight), dimension.getWidth(), dimension.getHeight());
+        }
         if (this.strikeThrough) {
             AttributedString as = new AttributedString(text);
             as.addAttribute(TextAttribute.FONT, g.getFont());
