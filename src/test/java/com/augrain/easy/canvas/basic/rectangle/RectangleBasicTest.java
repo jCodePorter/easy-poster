@@ -1,7 +1,7 @@
 package com.augrain.easy.canvas.basic.rectangle;
 
 import com.augrain.easy.canvas.EasyCanvas;
-import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.PositionDirection;
 import com.augrain.easy.canvas.geometry.RelativePosition;
 import com.augrain.easy.canvas.model.Gradient;
 import com.augrain.easy.canvas.model.GradientDirection;
@@ -24,7 +24,7 @@ public class RectangleBasicTest {
         canvas.addRectangleElement(100, 100)
                 .setColor(Color.PINK)
                 .setArc(20)
-                .setPosition(RelativePosition.of(Positions.TOP_LEFT));
+                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT));
 
         canvas.asFile("png", "rectangle_basic.png");
     }
@@ -38,7 +38,7 @@ public class RectangleBasicTest {
                 // .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
                 // 三色渐变
                 .setGradient(Gradient.of(new String[]{"#EA9381", "#F0B09F", "#FFDBBD"}, GradientDirection.TOP_BOTTOM))
-                .setPosition(RelativePosition.of(Positions.CENTER));
+                .setPosition(RelativePosition.of(PositionDirection.CENTER));
 
         canvas.asFile("png", "rectangle_gradient.png");
     }

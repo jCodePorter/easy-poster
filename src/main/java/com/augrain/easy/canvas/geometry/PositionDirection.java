@@ -1,12 +1,12 @@
 package com.augrain.easy.canvas.geometry;
 
 /**
- * 相对位置默认9种实现
+ * 位置默认9种方向
  *
  * @author biaoy
  * @since 2025/03/03
  */
-public enum Positions implements Position {
+public enum PositionDirection implements Position {
     /**
      * 居中
      */

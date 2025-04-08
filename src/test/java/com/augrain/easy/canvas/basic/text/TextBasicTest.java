@@ -3,7 +3,7 @@ package com.augrain.easy.canvas.basic.text;
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.geometry.AbsolutePosition;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
-import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.PositionDirection;
 import com.augrain.easy.canvas.geometry.RelativePosition;
 import com.augrain.easy.canvas.model.Gradient;
 import com.augrain.easy.canvas.model.GradientDirection;
@@ -26,19 +26,19 @@ public class TextBasicTest {
         canvas.addTextElement("正常文字")
                 .setFontSize(25)
                 .setFontColor(Color.red)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0), Positions.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0), PositionDirection.TOP_LEFT));
 
         canvas.addTextElement("旋转文字")
                 .setFontSize(25)
                 .setFontColor(Color.red)
                 .setRotate(-30)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 50), Positions.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 50), PositionDirection.TOP_LEFT));
 
         canvas.addTextElement("透明度为50%")
                 .setFontSize(25)
                 .setFontColor(Color.red)
                 .setAlpha(0.5f)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 100), Positions.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 100), PositionDirection.TOP_LEFT));
 
         canvas.asFile("png", "text_basic.png");
     }
@@ -51,7 +51,7 @@ public class TextBasicTest {
                 .setFontSize(25)
                 .setStrikeThrough(true)
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.LEFT_RIGHT))
-                .setPosition(RelativePosition.of(Positions.CENTER));
+                .setPosition(RelativePosition.of(PositionDirection.CENTER));
 
         canvas.asFile("png", "text_gradient.png");
     }

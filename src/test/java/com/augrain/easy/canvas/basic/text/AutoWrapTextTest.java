@@ -3,7 +3,7 @@ package com.augrain.easy.canvas.basic.text;
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.geometry.AbsolutePosition;
 import com.augrain.easy.canvas.geometry.CoordinatePoint;
-import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.PositionDirection;
 import org.junit.Test;
 
 import java.awt.*;
@@ -25,7 +25,7 @@ public class AutoWrapTextTest {
                 .setFontColor(Color.red)
                 .setLineHeight(50)
                 .setAutoWrapText(400)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0), Positions.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0), PositionDirection.TOP_LEFT));
 
         canvas.asFile("png", "text_auto_split.png");
     }

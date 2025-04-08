@@ -16,30 +16,30 @@ import lombok.ToString;
 public class RelativePosition implements Position {
 
     /**
-     * {@link Positions} 基准位置
+     * {@link PositionDirection} 相对位置的参考方向
      */
-    private Position referencePosition;
+    private PositionDirection direction;
 
     /**
      * 边距
      */
     private Margin margin;
 
-    private RelativePosition(Position position, Margin margin) {
-        this.referencePosition = position;
+    private RelativePosition(PositionDirection direction, Margin margin) {
+        this.direction = direction;
         this.margin = margin;
     }
 
-    public static RelativePosition of(Position position) {
-        return new RelativePosition(position, Margin.DEFAULT);
+    public static RelativePosition of(PositionDirection direction) {
+        return new RelativePosition(direction, Margin.DEFAULT);
     }
 
-    public static RelativePosition of(Position position, Margin margin) {
-        return new RelativePosition(position, margin);
+    public static RelativePosition of(PositionDirection direction, Margin margin) {
+        return new RelativePosition(direction, margin);
     }
 
     @Override
     public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
-        return this.referencePosition.calculate(enclosingWidth, enclosingHeight, elementWidth, elementHeight, this.margin);
+        return this.direction.calculate(enclosingWidth, enclosingHeight, elementWidth, elementHeight, this.margin);
     }
 }

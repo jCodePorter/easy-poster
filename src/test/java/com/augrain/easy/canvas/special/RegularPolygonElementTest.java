@@ -2,7 +2,7 @@ package com.augrain.easy.canvas.special;
 
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.element.special.RegularPolygonElement;
-import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.PositionDirection;
 import com.augrain.easy.canvas.geometry.RelativePosition;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class RegularPolygonElementTest {
 
         RegularPolygonElement element = new RegularPolygonElement(100, 8);
         element.setColor(Color.red);
-        element.setPosition(RelativePosition.of(Positions.CENTER));
+        element.setPosition(RelativePosition.of(PositionDirection.CENTER));
 
         canvas.addElement(element);
 

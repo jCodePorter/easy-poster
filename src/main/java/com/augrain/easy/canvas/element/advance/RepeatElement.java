@@ -8,8 +8,6 @@ import com.augrain.easy.canvas.model.CanvasContext;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.awt.*;
-
 /**
  * 平铺元素，可以组合基础元素，部分高级元素（部分特性）
  *
@@ -88,7 +86,7 @@ public class RepeatElement implements IElement {
                 int y = j * (elementHeight + result.yPadding) + result.yOffset;
 
                 Margin elementMargin = Margin.of().setMarginLeft(x).setMarginTop(y);
-                basicElement.setPosition(RelativePosition.of(Positions.TOP_LEFT, elementMargin));
+                basicElement.setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, elementMargin));
                 CoordinatePoint coordinatePoint = basicElement.reCalculatePosition(canvasWidth, canvasHeight, dimension);
                 dimension.setPoint(coordinatePoint);
                 basicElement.doRender(context, dimension, canvasWidth, canvasHeight);

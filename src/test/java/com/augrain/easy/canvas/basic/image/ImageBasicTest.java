@@ -2,7 +2,7 @@ package com.augrain.easy.canvas.basic.image;
 
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.geometry.Margin;
-import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.PositionDirection;
 import com.augrain.easy.canvas.geometry.RelativePosition;
 import com.augrain.easy.canvas.utils.ImageUtils;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class ImageBasicTest {
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage read = ImageIO.read(inputStream);
 
-        for (Positions position : Positions.values()) {
+        for (PositionDirection position : PositionDirection.values()) {
             canvas.addImageElement(read)
                     .setPosition(RelativePosition.of(position, Margin.of(10)));
         }

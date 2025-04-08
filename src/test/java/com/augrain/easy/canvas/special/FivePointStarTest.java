@@ -2,7 +2,7 @@ package com.augrain.easy.canvas.special;
 
 import com.augrain.easy.canvas.EasyCanvas;
 import com.augrain.easy.canvas.element.special.FivePointedStarElement;
-import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.PositionDirection;
 import com.augrain.easy.canvas.geometry.RelativePosition;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class FivePointStarTest {
         FivePointedStarElement fivePointedStarElement = new FivePointedStarElement(100);
         fivePointedStarElement.setColor(Color.red);
         fivePointedStarElement.setBorderSize(10);
-        fivePointedStarElement.setPosition(RelativePosition.of(Positions.CENTER));
+        fivePointedStarElement.setPosition(RelativePosition.of(PositionDirection.CENTER));
 
         canvas.addElement(fivePointedStarElement);
 

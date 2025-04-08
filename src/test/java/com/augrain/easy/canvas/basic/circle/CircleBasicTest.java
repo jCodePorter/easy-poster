@@ -1,7 +1,7 @@
 package com.augrain.easy.canvas.basic.circle;
 
 import com.augrain.easy.canvas.EasyCanvas;
-import com.augrain.easy.canvas.geometry.Positions;
+import com.augrain.easy.canvas.geometry.PositionDirection;
 import com.augrain.easy.canvas.geometry.RelativePosition;
 import com.augrain.easy.canvas.model.Gradient;
 import com.augrain.easy.canvas.model.GradientDirection;
@@ -27,7 +27,7 @@ public class CircleBasicTest {
         canvas.addCircleElement(100)
                 .setColor(Color.PINK)
                 .setBorderSize(40)
-                .setPosition(RelativePosition.of(Positions.TOP_LEFT));
+                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT));
 
         canvas.asFile("png", "circle_basic.png");
     }
@@ -42,7 +42,7 @@ public class CircleBasicTest {
         canvas.addOvalElement(100, 200)
                 .setColor(Color.PINK)
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
-                .setPosition(RelativePosition.of(Positions.CENTER));
+                .setPosition(RelativePosition.of(PositionDirection.CENTER));
 
         canvas.asFile("png", "oval_basic.png");
     }
