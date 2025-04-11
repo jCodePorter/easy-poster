@@ -110,8 +110,9 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     @Override
     public CoordinatePoint render(CanvasContext context, int canvasWidth, int canvasHeight) {
         beforeRender(context);
-        Dimension elementInfo = calculateDimension(context, canvasWidth, canvasHeight);
-        CoordinatePoint coordinatePoint = doRender(context, elementInfo, canvasWidth, canvasHeight);
+        Dimension dimension = calculateDimension(context, canvasWidth, canvasHeight);
+        debug(context, dimension);
+        CoordinatePoint coordinatePoint = doRender(context, dimension, canvasWidth, canvasHeight);
         afterRender(context);
         return coordinatePoint;
     }
@@ -141,6 +142,17 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     public void gradient(CanvasContext context, Dimension dimension) {
         if (gradient != null) {
             context.getGraphics().setPaint(this.gradient.toGradient(dimension));
+        }
+    }
+
+    public void debug(CanvasContext context, Dimension dimension) {
+        if (context.getConfig().isDebug()) {
+            Graphics2D graphics = context.getGraphics();
+            Color oldColor = graphics.getColor();
+            graphics.setColor(Color.BLACK);
+            graphics.drawRect(dimension.getPoint().getX(), dimension.getPoint().getY(),
+                    dimension.getWidth(), dimension.getHeight());
+            graphics.setColor(oldColor);
         }
     }
 }

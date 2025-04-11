@@ -4,6 +4,8 @@ import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.model.CanvasContext;
 
+import java.awt.*;
+
 /**
  * 有明确宽高尺寸的元素
  *

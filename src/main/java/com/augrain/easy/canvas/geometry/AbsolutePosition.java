@@ -26,11 +26,11 @@ public class AbsolutePosition implements Position {
     }
 
     public static AbsolutePosition of(CoordinatePoint point) {
-        return new AbsolutePosition(point, PositionDirection.CENTER);
+        return new AbsolutePosition(point, PositionDirection.TOP_LEFT);
     }
 
-    public static AbsolutePosition of(CoordinatePoint point, PositionDirection position) {
-        return new AbsolutePosition(point, position);
+    public static AbsolutePosition of(CoordinatePoint point, PositionDirection direction) {
+        return new AbsolutePosition(point, direction);
     }
 
     @Override
