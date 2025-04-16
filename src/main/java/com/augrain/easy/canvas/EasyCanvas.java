@@ -7,7 +7,6 @@ import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.model.CanvasListener;
 import com.augrain.easy.canvas.model.Config;
-import com.sun.corba.se.impl.orbutil.concurrent.CondVar;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,6 +46,9 @@ public class EasyCanvas {
     @Setter
     private CanvasListener canvasListener;
 
+    /**
+     * 全局配置
+     */
     @Getter
     private final Config config = new Config();
 
