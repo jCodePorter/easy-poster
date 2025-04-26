@@ -9,6 +9,7 @@ import lombok.Getter;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Optional;
 
 /**
  * 矩形元素
@@ -93,6 +94,6 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
 
     @Override
     public void beforeRender(CanvasContext context) {
-        context.getGraphics().setColor(this.color);
+        context.getGraphics().setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
     }
 }

@@ -59,7 +59,7 @@ public class TextBasicTest {
     @Test
     public void getGlobal() {
         EasyCanvas canvas = new EasyCanvas(500, 500);
-        canvas.getConfig().setFontColor(Color.blue);
+        canvas.getConfig().setColor(Color.blue);
         canvas.getConfig().setFontSize(25);
 
         canvas.addTextElement("正常文字")

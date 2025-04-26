@@ -8,6 +8,7 @@ import com.augrain.easy.canvas.model.CanvasContext;
 import com.augrain.easy.canvas.model.LineStyle;
 
 import java.awt.*;
+import java.util.Optional;
 
 /**
  * 线段类型
@@ -82,7 +83,7 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
     @Override
     public void beforeRender(CanvasContext context) {
         Graphics2D g = context.getGraphics();
-        g.setColor(this.color);
+        g.setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
         if (this.lineStyle != null) {
             g.setStroke(this.lineStyle.toStroke(this.borderSize));
         } else {

@@ -26,9 +26,9 @@ public class Config {
     private BaseLine baseLine = BaseLine.CENTER;
 
     /**
-     * 字体颜色，默认为黑色
+     * 颜色，默认为黑色（用于字体颜色、填充颜色等）
      */
-    private Color fontColor = Color.BLACK;
+    private Color color = Color.BLACK;
 
     /**
      * 字体名称，默认为微软雅黑

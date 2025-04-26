@@ -250,6 +250,6 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         super.beforeRender(context);
         Graphics2D g = context.getGraphics();
         g.setFont(getFont(context.getConfig()));
-        g.setColor(Optional.ofNullable(this.fontColor).orElse(context.getConfig().getFontColor()));
+        g.setColor(Optional.ofNullable(this.fontColor).orElse(context.getConfig().getColor()));
     }
 }

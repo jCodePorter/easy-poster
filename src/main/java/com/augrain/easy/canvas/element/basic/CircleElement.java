@@ -8,6 +8,7 @@ import com.augrain.easy.canvas.model.CanvasContext;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.util.Optional;
 
 /**
  * 圆形
@@ -82,6 +83,6 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
 
     @Override
     public void beforeRender(CanvasContext context) {
-        context.getGraphics().setColor(this.color);
+        context.getGraphics().setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
     }
 }
