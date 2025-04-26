@@ -6,6 +6,7 @@ import com.augrain.easy.canvas.geometry.CoordinatePoint;
 import com.augrain.easy.canvas.geometry.Dimension;
 import com.augrain.easy.canvas.model.BaseLine;
 import com.augrain.easy.canvas.model.CanvasContext;
+import com.augrain.easy.canvas.model.Config;
 import com.augrain.easy.canvas.text.ITextSplitter;
 import com.augrain.easy.canvas.text.TextSplitterSimpleImpl;
 import com.augrain.easy.canvas.utils.RotateUtils;
@@ -38,22 +39,22 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     /**
      * 字体颜色，默认为黑色
      */
-    private Color fontColor = Color.BLACK;
+    private Color fontColor;
 
     /**
      * 字体名称，默认为微软雅黑
      */
-    private String fontName = "微软雅黑";
+    private String fontName;
 
     /**
      * 字体样式，加粗，斜体，比如：Font.BOLD, Font.ITALIC，或者 Font.BOLD | Font.ITALIC
      */
-    private int fontStyle = Font.PLAIN;
+    private Integer fontStyle;
 
     /**
      * 字体大小，默认12pt
      */
-    private int fontSize = 12;
+    private Integer fontSize;
 
     /**
      * 自定义字体
@@ -63,7 +64,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     /**
      * 文本对齐方式，默认居中对齐
      */
-    private BaseLine baseLine = BaseLine.CENTER;
+    private BaseLine baseLine;
 
     /**
      * 行高
@@ -149,11 +150,14 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         return this;
     }
 
-    private Font getFont() {
-        if (this.font != null) {
-            return this.font;
+    private Font getFont(Config config) {
+        Font fontConfig = Optional.ofNullable(this.font).orElse(config.getFont());
+        if (fontConfig != null) {
+            return fontConfig;
         }
-        return new Font(this.fontName, this.fontStyle, this.fontSize);
+        return new Font(Optional.ofNullable(this.fontName).orElse(config.getFontName()),
+                Optional.ofNullable(this.fontStyle).orElse(config.getFontStyle()),
+                Optional.ofNullable(this.fontSize).orElse(config.getFontSize()));
     }
 
     @Override
@@ -161,8 +165,12 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         Graphics2D g = context.getGraphics();
         FontMetrics fm = g.getFontMetrics();
 
+        // 行高处理
+        Integer lineHeightCfg = Optional.ofNullable(context.getConfig().getLineHeight()).orElse(this.lineHeight);
+
+        // 文本宽高
         int width;
-        int height = Optional.ofNullable(this.lineHeight).orElse(fm.getHeight());
+        int height = Optional.ofNullable(lineHeightCfg).orElse(fm.getHeight());
         if (autoWordWrap) {
             ITextSplitter splitter = new TextSplitterSimpleImpl();
             this.splitText = splitter.splitText(text, maxTextWidth, fm);
@@ -178,10 +186,11 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
             point = position.calculate(canvasWidth, canvasHeight, width, height);
         }
 
+        BaseLine baseLineCfg = Optional.ofNullable(this.baseLine).orElse(context.getConfig().getBaseLine());
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(width)
                 .height(height)
-                .yOffset(baseLine.getOffset(fm, height))
+                .yOffset(baseLineCfg.getOffset(fm, height))
                 .point(point);
         if (this.getRotate() != 0) {
             int[] newBounds = RotateUtils.newBounds(width, height, this.getRotate());
@@ -240,7 +249,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     public void beforeRender(CanvasContext context) {
         super.beforeRender(context);
         Graphics2D g = context.getGraphics();
-        g.setFont(getFont());
-        g.setColor(getFontColor());
+        g.setFont(getFont(context.getConfig()));
+        g.setColor(Optional.ofNullable(this.fontColor).orElse(context.getConfig().getFontColor()));
     }
 }

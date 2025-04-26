@@ -55,5 +55,26 @@ public class TextBasicTest {
 
         canvas.asFile("png", "text_gradient.png");
     }
+
+    @Test
+    public void getGlobal() {
+        EasyCanvas canvas = new EasyCanvas(500, 500);
+        canvas.getConfig().setFontColor(Color.blue);
+        canvas.getConfig().setFontSize(25);
+
+        canvas.addTextElement("正常文字")
+                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0)));
+
+        canvas.addTextElement("旋转文字")
+                .setRotate(-30)
+                .setFontColor(Color.red)
+                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 50)));
+
+        canvas.addTextElement("透明度为50%")
+                .setAlpha(0.5f)
+                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 100)));
+
+        canvas.asFile("png", "text_global.png");
+    }
 }
 
