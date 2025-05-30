@@ -118,6 +118,7 @@ public void testRelativePosition() throws Exception {
     - 全局字体样式，文本基线
 - 新增元素
     - 支持二维码元素（可选）
+- 修改项目名和包名
 
 ### 0.0.4
 
