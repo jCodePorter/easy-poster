@@ -4,7 +4,7 @@ import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.Scale;
 import com.augrain.easy.poster.utils.ImageUtils;
 import lombok.Getter;
@@ -93,7 +93,7 @@ public class ImageElement extends AbstractDimensionElement<ImageElement> impleme
     }
 
     @Override
-    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         CoordinatePoint point = dimension.getPoint();
         context.getGraphics().drawImage(this.getImage(), point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
         return point;

@@ -13,7 +13,7 @@ public abstract class AbstractRepeatableElement<T extends AbstractRepeatableElem
         extends AbstractElement<T> implements IRepeatableElement {
 
     @Override
-    public CoordinatePoint reCalculatePosition(int canvasWidth, int canvasHeight, Dimension dimension) {
-        return getPosition().calculate(canvasWidth, canvasHeight, dimension.getWidth(), dimension.getHeight());
+    public CoordinatePoint reCalculatePosition(int posterWidth, int posterHeight, Dimension dimension) {
+        return getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
     }
 }

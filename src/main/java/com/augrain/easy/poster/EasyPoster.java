@@ -2,11 +2,11 @@ package com.augrain.easy.poster;
 
 import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.element.basic.*;
-import com.augrain.easy.poster.exception.CanvasException;
+import com.augrain.easy.poster.exception.PosterException;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
-import com.augrain.easy.poster.model.CanvasContext;
-import com.augrain.easy.poster.model.CanvasListener;
 import com.augrain.easy.poster.model.Config;
+import com.augrain.easy.poster.model.PosterContext;
+import com.augrain.easy.poster.model.PosterListener;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,20 +31,20 @@ public class EasyPoster {
     private final List<IElement> renderedElements = new ArrayList<>();
 
     /**
-     * 画布宽度
+     * 海报宽度
      */
-    private final int canvasWidth;
+    private final int posterWidth;
 
     /**
-     * 画布高度
+     * 海报高度
      */
-    private final int canvasHeight;
+    private final int posterHeight;
 
     /**
-     * canvas监听
+     * 海报监听
      */
     @Setter
-    private CanvasListener canvasListener;
+    private PosterListener posterListener;
 
     /**
      * 全局配置
@@ -53,24 +53,24 @@ public class EasyPoster {
     private final Config config = new Config();
 
     /**
-     * Canvas构造方法
+     * EasyPoster构造方法
      *
-     * @param canvasWidth  画布宽
-     * @param canvasHeight 画布高
+     * @param posterWidth  宽
+     * @param posterHeight 高
      */
-    public EasyPoster(int canvasWidth, int canvasHeight) {
-        this.canvasWidth = canvasWidth;
-        this.canvasHeight = canvasHeight;
+    public EasyPoster(int posterWidth, int posterHeight) {
+        this.posterWidth = posterWidth;
+        this.posterHeight = posterHeight;
     }
 
     /**
-     * Canvas构造方法
+     * EasyPoster构造方法
      *
      * @param backgroundImg 背景图
      */
     public EasyPoster(BufferedImage backgroundImg) {
-        this.canvasWidth = backgroundImg.getWidth();
-        this.canvasHeight = backgroundImg.getHeight();
+        this.posterWidth = backgroundImg.getWidth();
+        this.posterHeight = backgroundImg.getHeight();
         addImageElement(backgroundImg);
     }
 
@@ -148,56 +148,56 @@ public class EasyPoster {
      * 渲染图片，返回图片对象
      */
     private BufferedImage render() throws Exception {
-        BufferedImage baseImg = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage baseImg = new BufferedImage(posterWidth, posterHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = baseImg.createGraphics();
         // 抗锯齿
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.setColor(Color.white);
-        g.fillRect(0, 0, canvasWidth, canvasHeight);
+        g.fillRect(0, 0, posterWidth, posterHeight);
 
-        // 创建CanvasContext
-        CanvasContext canvasContext = buildCanvasContext(g);
+        // 创建PosterContext
+        PosterContext posterContext = buildPosterContext(g);
 
         // 循环绘制各元素
         for (IElement element : renderedElements) {
-            element.render(canvasContext, canvasWidth, canvasHeight);
+            element.render(posterContext, posterWidth, posterHeight);
         }
         g.dispose();
         return baseImg;
     }
 
-    private CanvasContext buildCanvasContext(Graphics2D g) {
-        CanvasContext canvasContext = new CanvasContext();
-        canvasContext.setConfig(config);
-        canvasContext.setEasyCanvas(this);
-        canvasContext.setGraphics(g);
-        return canvasContext;
+    private PosterContext buildPosterContext(Graphics2D g) {
+        PosterContext posterContext = new PosterContext();
+        posterContext.setConfig(config);
+        posterContext.setEasyPoster(this);
+        posterContext.setGraphics(g);
+        return posterContext;
     }
 
     public void asFile(String format, String filePath) {
         try {
             BufferedImage image = this.render();
-            if (canvasListener != null) {
-                image = canvasListener.beforeOut(image);
+            if (posterListener != null) {
+                image = posterListener.beforeOut(image);
             }
             ImageIO.write(image, format, new File(filePath));
         } catch (Exception e) {
-            throw new CanvasException(e);
+            throw new PosterException(e);
         }
     }
 
     public byte[] asBytes(String format) {
         try {
             BufferedImage image = this.render();
-            if (canvasListener != null) {
-                image = canvasListener.beforeOut(image);
+            if (posterListener != null) {
+                image = posterListener.beforeOut(image);
             }
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             ImageIO.write(image, format, output);
             return output.toByteArray();
         } catch (Exception e) {
-            throw new CanvasException(e);
+            throw new PosterException(e);
         }
     }
 }

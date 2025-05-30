@@ -7,16 +7,16 @@ import lombok.Setter;
 import java.awt.*;
 
 /**
- * CanvasContext
+ * PosterContext
  *
  * @author biaoy
  * @since 2025/04/07
  */
 @Getter
 @Setter
-public class CanvasContext {
+public class PosterContext {
 
-    private EasyPoster easyCanvas;
+    private EasyPoster easyPoster;
 
     private Graphics2D graphics;
 

@@ -18,7 +18,7 @@ public class RectangleRepeatTest {
 
     @Test
     public void testBasicRectangle() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
         RepeatElement repeatElement = new RepeatElement(new RectangleElement(100, 100)
                 .setColor(Color.PINK)
@@ -26,7 +26,7 @@ public class RectangleRepeatTest {
                 .setPadding(20, 20)
                 .setLayout(4, 4, Margin.of(10));
 
-        canvas.addElement(repeatElement);
-        canvas.asFile("png", "rectangle_tile.png");
+        poster.addElement(repeatElement);
+        poster.asFile("png", "rectangle_tile.png");
     }
 }

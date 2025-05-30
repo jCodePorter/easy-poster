@@ -1,6 +1,6 @@
 package com.augrain.easy.poster.model;
 
-import com.augrain.easy.poster.exception.CanvasException;
+import com.augrain.easy.poster.exception.PosterException;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.utils.HexUtils;
@@ -33,7 +33,7 @@ public class Gradient {
 
     private Gradient(Color[] colors, GradientDirection direction) {
         if (colors.length < 2) {
-            throw new CanvasException("colors.length < 2");
+            throw new PosterException("colors.length < 2");
         }
         this.colors = colors;
         this.direction = direction;
@@ -41,7 +41,7 @@ public class Gradient {
 
     public Gradient setFractions(float[] fractions) {
         if (fractions.length != colors.length) {
-            throw new CanvasException("fractions.length != colors.length");
+            throw new PosterException("fractions.length != colors.length");
         }
         this.fractions = fractions;
         return this;

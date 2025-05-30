@@ -1,11 +1,11 @@
 package com.augrain.easy.poster.element;
 
 import com.augrain.easy.poster.element.advance.ComposeElement;
-import com.augrain.easy.poster.exception.CanvasException;
+import com.augrain.easy.poster.exception.PosterException;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.geometry.Position;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.Gradient;
 import com.augrain.easy.poster.model.RelativeDirection;
 import lombok.Getter;
@@ -42,7 +42,7 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
 
     public T setAlpha(float alpha) {
         if (alpha < 0 || alpha > 1) {
-            throw new CanvasException("alpha must be between 0 and 1");
+            throw new PosterException("alpha must be between 0 and 1");
         }
         this.alpha = alpha;
         return (T) this;
@@ -108,11 +108,11 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     }
 
     @Override
-    public CoordinatePoint render(CanvasContext context, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint render(PosterContext context, int posterWidth, int posterHeight) {
         beforeRender(context);
-        Dimension dimension = calculateDimension(context, canvasWidth, canvasHeight);
+        Dimension dimension = calculateDimension(context, posterWidth, posterHeight);
         debug(context, dimension);
-        CoordinatePoint coordinatePoint = doRender(context, dimension, canvasWidth, canvasHeight);
+        CoordinatePoint coordinatePoint = doRender(context, dimension, posterWidth, posterHeight);
         afterRender(context);
         return coordinatePoint;
     }
@@ -120,32 +120,32 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     /**
      * 计算元素尺寸
      */
-    public abstract Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight);
+    public abstract Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight);
 
     /**
      * 执行渲染
      */
-    public abstract CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight);
+    public abstract CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight);
 
     /**
      * 渲染之前，做一些默认配置
      */
-    public void beforeRender(CanvasContext context) {
+    public void beforeRender(PosterContext context) {
         AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
         context.getGraphics().setComposite(alphaComposite);
     }
 
-    public void afterRender(CanvasContext context) {
+    public void afterRender(PosterContext context) {
 
     }
 
-    public void gradient(CanvasContext context, Dimension dimension) {
+    public void gradient(PosterContext context, Dimension dimension) {
         if (gradient != null) {
             context.getGraphics().setPaint(this.gradient.toGradient(dimension));
         }
     }
 
-    public void debug(CanvasContext context, Dimension dimension) {
+    public void debug(PosterContext context, Dimension dimension) {
         if (context.getConfig().isDebug()) {
             Graphics2D graphics = context.getGraphics();
             Color oldColor = graphics.getColor();

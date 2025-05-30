@@ -15,5 +15,5 @@ public interface IRepeatableElement extends IElement {
     /**
      * 重新计算位置，由类 {@link RepeatElement} 进行调用
      */
-    CoordinatePoint reCalculatePosition(int canvasWidth, int canvasHeight, Dimension dimension);
+    CoordinatePoint reCalculatePosition(int posterWidth, int posterHeight, Dimension dimension);
 }

@@ -19,18 +19,18 @@ public class QrCodeElementTest {
 
     @Test
     public void testBasic() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
         QrCodeElement qrcodeElement = new QrCodeElement("这是一段二维码测试文本", 200, 200);
         qrcodeElement.setPosition(RelativePosition.of(PositionDirection.CENTER));
-        canvas.addElement(qrcodeElement);
+        poster.addElement(qrcodeElement);
 
-        canvas.asFile("png", "qrcode.png");
+        poster.asFile("png", "qrcode.png");
     }
 
     @Test
     public void testCompose() {
-        EasyPoster canvas = new EasyPoster(300, 300);
+        EasyPoster poster = new EasyPoster(300, 300);
 
         ComposeElement composeElement = ComposeElement.of(
                         new QrCodeElement("联系作者jcodeporter@gmail.com", 250, 250)
@@ -39,7 +39,7 @@ public class QrCodeElementTest {
                         .setPosition(RelativePosition.of(PositionDirection.TOP_CENTER, Margin.of(5))))
                 .setPosition(RelativePosition.of(PositionDirection.CENTER));
 
-        canvas.addElement(composeElement);
-        canvas.asFile("png", "qrcode_compose.png");
+        poster.addElement(composeElement);
+        poster.asFile("png", "qrcode_compose.png");
     }
 }

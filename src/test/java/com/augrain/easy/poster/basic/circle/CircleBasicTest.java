@@ -22,14 +22,14 @@ public class CircleBasicTest {
      */
     @Test
     public void testBasicCircle() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
-        canvas.addCircleElement(100)
+        poster.addCircleElement(100)
                 .setColor(Color.PINK)
                 .setBorderSize(40)
                 .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT));
 
-        canvas.asFile("png", "circle_basic.png");
+        poster.asFile("png", "circle_basic.png");
     }
 
     /**
@@ -37,14 +37,14 @@ public class CircleBasicTest {
      */
     @Test
     public void testBasicOvalCircle() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
-        canvas.addOvalElement(100, 200)
+        poster.addOvalElement(100, 200)
                 .setColor(Color.PINK)
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
                 .setPosition(RelativePosition.of(PositionDirection.CENTER));
 
-        canvas.asFile("png", "oval_basic.png");
+        poster.asFile("png", "oval_basic.png");
     }
 
 }

@@ -17,21 +17,21 @@ public class LineBasicTest {
 
     @Test
     public void testBasicLine() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
-        canvas.addLineElement(CoordinatePoint.of(0, 200), CoordinatePoint.of(500, 200))
+        poster.addLineElement(CoordinatePoint.of(0, 200), CoordinatePoint.of(500, 200))
                 .setLineStyle(LineStyle.DASH)
                 .setColor(Color.BLUE);
 
-        canvas.addLineElement(CoordinatePoint.of(0, 250), CoordinatePoint.of(500, 250))
+        poster.addLineElement(CoordinatePoint.of(0, 250), CoordinatePoint.of(500, 250))
                 .setLineStyle(LineStyle.DOT)
                 .setColor(Color.RED);
 
-        canvas.addLineElement(CoordinatePoint.of(0, 300), CoordinatePoint.of(500, 300))
+        poster.addLineElement(CoordinatePoint.of(0, 300), CoordinatePoint.of(500, 300))
                 .setLineStyle(LineStyle.DASH_DOT)
                 .setColor(Color.ORANGE);
 
-        canvas.asFile("png", "line_basic.png");
+        poster.asFile("png", "line_basic.png");
     }
 
 }

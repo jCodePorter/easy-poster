@@ -19,28 +19,28 @@ public class RectangleBasicTest {
 
     @Test
     public void testBasicRectangle() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
-        canvas.addRectangleElement(100, 100)
+        poster.addRectangleElement(100, 100)
                 .setColor(Color.PINK)
                 .setArc(20)
                 .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT));
 
-        canvas.asFile("png", "rectangle_basic.png");
+        poster.asFile("png", "rectangle_basic.png");
     }
 
     @Test
     public void testGradientRectangle() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
-        canvas.addRectangleElement(500, 500)
+        poster.addRectangleElement(500, 500)
                 // 双色渐变
                 // .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
                 // 三色渐变
                 .setGradient(Gradient.of(new String[]{"#EA9381", "#F0B09F", "#FFDBBD"}, GradientDirection.TOP_BOTTOM))
                 .setPosition(RelativePosition.of(PositionDirection.CENTER));
 
-        canvas.asFile("png", "rectangle_gradient.png");
+        poster.asFile("png", "rectangle_gradient.png");
     }
 
 }

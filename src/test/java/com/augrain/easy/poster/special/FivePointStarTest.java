@@ -18,16 +18,16 @@ public class FivePointStarTest {
 
     @Test
     public void testBasic() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
         FivePointedStarElement fivePointedStarElement = new FivePointedStarElement(100);
         fivePointedStarElement.setColor(Color.red);
         fivePointedStarElement.setBorderSize(10);
         fivePointedStarElement.setPosition(RelativePosition.of(PositionDirection.CENTER));
 
-        canvas.addElement(fivePointedStarElement);
+        poster.addElement(fivePointedStarElement);
 
-        canvas.asFile("png", "five_point_star.png");
+        poster.asFile("png", "five_point_star.png");
     }
 
 }

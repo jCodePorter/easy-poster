@@ -4,7 +4,7 @@ import com.augrain.easy.poster.element.AbstractElement;
 import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.LineStyle;
 
 import java.awt.*;
@@ -70,18 +70,18 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
     }
 
     @Override
-    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
         return null;
     }
 
     @Override
-    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         context.getGraphics().drawLine(this.start.getX(), start.getY(), this.end.getX(), this.end.getY());
         return this.start;
     }
 
     @Override
-    public void beforeRender(CanvasContext context) {
+    public void beforeRender(PosterContext context) {
         Graphics2D g = context.getGraphics();
         g.setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
         if (this.lineStyle != null) {

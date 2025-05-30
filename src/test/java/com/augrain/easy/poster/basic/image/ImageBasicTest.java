@@ -22,26 +22,26 @@ public class ImageBasicTest {
 
     @Test
     public void testBasic() throws Exception {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage read = ImageIO.read(inputStream);
-        canvas.addImageElement(read);
-        canvas.asFile("png", "img_basic.png");
+        poster.addImageElement(read);
+        poster.asFile("png", "img_basic.png");
     }
 
     @Test
     public void testRelativePosition() throws Exception {
-        EasyPoster canvas = new EasyPoster(600, 600);
+        EasyPoster poster = new EasyPoster(600, 600);
 
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage read = ImageIO.read(inputStream);
 
         for (PositionDirection position : PositionDirection.values()) {
-            canvas.addImageElement(read)
+            poster.addImageElement(read)
                     .setPosition(RelativePosition.of(position, Margin.of(10)));
         }
-        canvas.asFile("png", "img_position.png");
+        poster.asFile("png", "img_position.png");
     }
 
     @Test

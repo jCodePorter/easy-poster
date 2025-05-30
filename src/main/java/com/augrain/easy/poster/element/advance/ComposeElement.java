@@ -7,7 +7,7 @@ import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.geometry.Position;
 import com.augrain.easy.poster.geometry.RelativePosition;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.RelativeDirection;
 import com.augrain.easy.poster.utils.PointUtils;
 import lombok.Getter;
@@ -103,21 +103,21 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     @Override
-    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
         // 基准元素的尺寸
-        Dimension basicDimension = basicElement.calculateDimension(context, canvasWidth, canvasHeight);
+        Dimension basicDimension = basicElement.calculateDimension(context, posterWidth, posterHeight);
         dimensionMap.put(basicElement, basicDimension);
 
         Map<RelativeDirection, List<ElementWrapper>> elementGroup = elementWrapper.stream().collect(Collectors.groupingBy(ElementWrapper::getDirection));
         elementGroup.forEach((direction, elementWrapperList) -> {
             if (direction == RelativeDirection.BOTTOM) {
-                doBottom(context, canvasWidth, canvasHeight, elementWrapperList, basicDimension);
+                doBottom(context, posterWidth, posterHeight, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.TOP) {
-                doTop(context, canvasWidth, elementWrapperList, basicDimension);
+                doTop(context, posterWidth, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.LEFT) {
-                doLeft(context, canvasHeight, elementWrapperList, basicDimension);
+                doLeft(context, posterHeight, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.RIGHT) {
-                doRight(context, canvasWidth, canvasHeight, elementWrapperList, basicDimension);
+                doRight(context, posterWidth, posterHeight, elementWrapperList, basicDimension);
             } else if (direction == RelativeDirection.IN) {
                 doIn(context, elementWrapperList, basicDimension);
             }
@@ -127,7 +127,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return calculateBoundingBox(dimensionMap);
     }
 
-    private void doIn(CanvasContext context, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doIn(PosterContext context, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         for (ElementWrapper wrapper : elementWrapperList) {
             wrapper.getElement().beforeRender(context);
             Dimension dimension = doCalRelativeIn(context, wrapper, basicDimension);
@@ -135,11 +135,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         }
     }
 
-    private void doRight(CanvasContext context, int canvasWidth, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doRight(PosterContext context, int posterWidth, int posterHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
             wrapper.getElement().beforeRender(context);
-            Dimension dimension = doCalRelativeRight(context, canvasWidth, canvasHeight, wrapper, basicDimension);
+            Dimension dimension = doCalRelativeRight(context, posterWidth, posterHeight, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 if (wrapper.getElement() instanceof ComposeElement) {
                     ((ComposeElement) wrapper.getElement()).resetCoordinatePointOffset(last.getWidth(), 0);
@@ -152,11 +152,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         }
     }
 
-    private void doLeft(CanvasContext context, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doLeft(PosterContext context, int posterHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
             wrapper.getElement().beforeRender(context);
-            Dimension dimension = doCalRelativeLeft(context, canvasHeight, wrapper, basicDimension);
+            Dimension dimension = doCalRelativeLeft(context, posterHeight, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 dimension.getPoint().setX(dimension.getPoint().getX() - last.getWidth());
             }
@@ -165,11 +165,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         }
     }
 
-    private void doTop(CanvasContext context, int canvasWidth, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doTop(PosterContext context, int posterWidth, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
             wrapper.getElement().beforeRender(context);
-            Dimension dimension = doCalRelativeTop(context, canvasWidth, wrapper, basicDimension);
+            Dimension dimension = doCalRelativeTop(context, posterWidth, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 dimension.getPoint().setY(dimension.getPoint().getY() - last.getHeight());
             }
@@ -178,11 +178,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         }
     }
 
-    private void doBottom(CanvasContext context, int canvasWidth, int canvasHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
+    private void doBottom(PosterContext context, int posterWidth, int posterHeight, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
         Dimension last = null;
         for (ElementWrapper wrapper : elementWrapperList) {
             wrapper.getElement().beforeRender(context);
-            Dimension dimension = doCalRelativeBottom(context, canvasWidth, canvasHeight, wrapper, basicDimension);
+            Dimension dimension = doCalRelativeBottom(context, posterWidth, posterHeight, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
                 if (wrapper.getElement() instanceof ComposeElement) {
                     ((ComposeElement) wrapper.getElement()).resetCoordinatePointOffset(0, last.getHeight());
@@ -202,7 +202,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         });
     }
 
-    private Dimension doCalRelativeIn(CanvasContext context, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeIn(PosterContext context, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
         Dimension dimension = element.calculateDimension(context, basicDimension.getWidth(), basicDimension.getHeight());
@@ -217,10 +217,10 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeLeft(CanvasContext context, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeLeft(PosterContext context, int posterHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
-        int relativeHeight = elementWrapper.isStrict() ? basicDimension.getHeight() : canvasHeight;
+        int relativeHeight = elementWrapper.isStrict() ? basicDimension.getHeight() : posterHeight;
         Dimension dimension = element.calculateDimension(context, basicDimension.getPoint().getX(), relativeHeight);
 
         // 根据相对的基准元素进行坐标修正
@@ -232,11 +232,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeRight(CanvasContext context, int canvasWidth, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeRight(PosterContext context, int posterWidth, int posterHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
-        int relativeHeight = elementWrapper.isStrict() ? basicDimension.getHeight() : canvasHeight;
-        int relativeWidth = canvasWidth - basicDimension.getWidth() - basicDimension.getPoint().getX();
+        int relativeHeight = elementWrapper.isStrict() ? basicDimension.getHeight() : posterHeight;
+        int relativeWidth = posterWidth - basicDimension.getWidth() - basicDimension.getPoint().getX();
         Dimension dimension = element.calculateDimension(context, relativeWidth, relativeHeight);
 
         // 根据相对的基准元素进行坐标修正
@@ -252,10 +252,10 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeTop(CanvasContext context, int canvasWidth, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeTop(PosterContext context, int posterWidth, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
-        int relativeWidth = elementWrapper.isStrict() ? basicDimension.getWidth() : canvasWidth;
+        int relativeWidth = elementWrapper.isStrict() ? basicDimension.getWidth() : posterWidth;
         Dimension dimension = element.calculateDimension(context, relativeWidth, basicDimension.getPoint().getY());
 
         int x = 0;
@@ -266,11 +266,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         return dimension;
     }
 
-    private Dimension doCalRelativeBottom(CanvasContext context, int canvasWidth, int canvasHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
+    private Dimension doCalRelativeBottom(PosterContext context, int posterWidth, int posterHeight, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
 
-        int relativeWidth = elementWrapper.isStrict() ? basicDimension.getWidth() : canvasWidth;
-        int relativeHeight = canvasHeight - basicDimension.getHeight() - basicDimension.getPoint().getY();
+        int relativeWidth = elementWrapper.isStrict() ? basicDimension.getWidth() : posterWidth;
+        int relativeHeight = posterHeight - basicDimension.getHeight() - basicDimension.getPoint().getY();
         Dimension dimension = element.calculateDimension(context, relativeWidth, relativeHeight);
 
         // 根据相对的基准元素进行坐标修正
@@ -318,12 +318,12 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     @Override
-    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         Dimension basicDimension = dimensionMap.get(basicElement);
 
         if (getPosition() != null) {
             // 如果组合元素整体设置位置参数，则基于整体宽高重新计算
-            CoordinatePoint markPoint = getPosition().calculate(canvasWidth, canvasHeight, dimension.getWidth(), dimension.getHeight());
+            CoordinatePoint markPoint = getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
 
             // 组合元素设置位置属性，重新调整坐标点
             CoordinatePoint point = basicDimension.getPoint();
@@ -347,7 +347,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             return null;
         } else {
             basicElement.beforeRender(context);
-            CoordinatePoint basicPoint = basicElement.doRender(context, basicDimension, canvasWidth, canvasHeight);
+            CoordinatePoint basicPoint = basicElement.doRender(context, basicDimension, posterWidth, posterHeight);
 
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();
@@ -360,13 +360,13 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     @Override
-    public void beforeRender(CanvasContext context) {
+    public void beforeRender(PosterContext context) {
         super.beforeRender(context);
         basicElement.beforeRender(context);
     }
 
     @Override
-    public void afterRender(CanvasContext context) {
+    public void afterRender(PosterContext context) {
         super.afterRender(context);
         basicElement.afterRender(context);
     }

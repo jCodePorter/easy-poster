@@ -5,7 +5,7 @@ import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.BaseLine;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.Config;
 import com.augrain.easy.poster.text.ITextSplitter;
 import com.augrain.easy.poster.text.TextSplitterSimpleImpl;
@@ -161,7 +161,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Override
-    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
         Graphics2D g = context.getGraphics();
         FontMetrics fm = g.getFontMetrics();
 
@@ -183,7 +183,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
         CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
         if (position != null) {
-            point = position.calculate(canvasWidth, canvasHeight, width, height);
+            point = position.calculate(posterWidth, posterHeight, width, height);
         }
 
         BaseLine baseLineCfg = Optional.ofNullable(this.baseLine).orElse(context.getConfig().getBaseLine());
@@ -201,7 +201,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Override
-    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         super.gradient(context, dimension);
         CoordinatePoint point = dimension.getPoint();
 
@@ -225,7 +225,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         return dimension.getPoint();
     }
 
-    private void doDrawText(CanvasContext context, String text, int startX, int startY, Dimension dimension) {
+    private void doDrawText(PosterContext context, String text, int startX, int startY, Dimension dimension) {
         Graphics2D g = context.getGraphics();
 
         if (context.getConfig().isDebug()) {
@@ -246,7 +246,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Override
-    public void beforeRender(CanvasContext context) {
+    public void beforeRender(PosterContext context) {
         super.beforeRender(context);
         Graphics2D g = context.getGraphics();
         g.setFont(getFont(context.getConfig()));

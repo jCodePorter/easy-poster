@@ -18,14 +18,14 @@ public class RegularPolygonElementTest {
 
     @Test
     public void testBasicRegularPolygon() {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
         RegularPolygonElement element = new RegularPolygonElement(100, 8);
         element.setColor(Color.red);
         element.setPosition(RelativePosition.of(PositionDirection.CENTER));
 
-        canvas.addElement(element);
+        poster.addElement(element);
 
-        canvas.asFile("png", "regular_polygon.png");
+        poster.asFile("png", "regular_polygon.png");
     }
 }

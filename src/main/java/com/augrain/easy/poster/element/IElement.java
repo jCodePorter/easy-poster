@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.element;
 
 import com.augrain.easy.poster.geometry.CoordinatePoint;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 
 /**
  * 元素
@@ -14,10 +14,10 @@ public interface IElement {
     /**
      * 渲染
      *
-     * @param context      canvas上下文
-     * @param canvasWidth  画板宽度
-     * @param canvasHeight 画板高度
+     * @param context      上下文
+     * @param posterWidth  画板宽度
+     * @param posterHeight 画板高度
      * @return 渲染元素的起始坐标点
      */
-    CoordinatePoint render(CanvasContext context, int canvasWidth, int canvasHeight) throws Exception;
+    CoordinatePoint render(PosterContext context, int posterWidth, int posterHeight) throws Exception;
 }

@@ -1,6 +1,6 @@
-# easy-canvas
+# easy-poster
 
-简易画板工具，可以用于海报制作，图片添加水印等
+简易海报制作工具，可以绘制图片、文本、矩形、圆形、二维码等元素。
 
 # 1. 简介
 
@@ -10,7 +10,7 @@
 
 本身基于Java进行图片合成不是什么高深技术，但是直接使用底层api进行封装也过于繁琐。因为本身系统上已经存在一套类似的组件，但是是属于高度定制化的，一部分专门用于绘制设备二维码，一部分专门用于绘制海报，而且代码还散落在各处，不方便统一维护，以及后续扩展。
 
-因此站在巨人的肩膀上，按照自己想要的实现方式，在公司已有代码基础上，重新进行封装一套简易图片处理工具（命名为easy-canvas，该项目名初衷是简化图片处理，由于本质上是在一个背景板上进行各种绘制，因此称之为画板）。
+因此站在巨人的肩膀上，按照自己想要的实现方式，在公司已有代码基础上，重新进行封装一套简易图片处理工具（命名为easy-poster，该项目名初衷是简化图片处理，由于本质上是在一个背景板上进行各种绘制，因此称之为画板）。
 
 ## 1.2 能做什么
 
@@ -33,26 +33,26 @@
 
 @Test
 public void testBasic() throws Exception {
-    EasyCanvas canvas = new EasyCanvas(500, 500);
-    canvas.addTextElement("正常文字")
+    EasyPoster poster = new EasyPoster(500, 500);
+    poster.addTextElement("正常文字")
             .setFontSize(25)
             .setFontColor(Color.red)
             // 以坐标点为待绘制元素的左上角顶点
             .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0), Positions.TOP_LEFT));
 
-    canvas.addTextElement("旋转文字")
+    poster.addTextElement("旋转文字")
             .setFontSize(25)
             .setFontColor(Color.red)
             .setRotate(-30)
             .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 50), Positions.TOP_LEFT));
 
-    canvas.addTextElement("透明度为50%")
+    poster.addTextElement("透明度为50%")
             .setFontSize(25)
             .setFontColor(Color.red)
             .setAlpha(0.5f)
             .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 100), Positions.TOP_LEFT));
 
-    canvas.asFile("png", "text_basic.png");
+    poster.asFile("png", "text_basic.png");
 }
 ```
 
@@ -62,27 +62,27 @@ public void testBasic() throws Exception {
 // 基本展示
 @Test
 public void testBasic() throws Exception {
-    EasyCanvas canvas = new EasyCanvas(500, 500);
+    EasyPoster poster = new EasyPoster(500, 500);
 
     InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
     BufferedImage read = ImageIO.read(inputStream);
-    canvas.addImageElement(read);
-    canvas.asFile("png", "img_basic.png");
+    poster.addImageElement(read);
+    poster.asFile("png", "img_basic.png");
 }
 
 // 相对位置
 @Test
 public void testRelativePosition() throws Exception {
-    EasyCanvas canvas = new EasyCanvas(600, 600);
+    EasyPoster poster = new EasyPoster(600, 600);
 
     InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
     BufferedImage read = ImageIO.read(inputStream);
 
     for (Positions position : Positions.values()) {
-        canvas.addImageElement(read)
+        poster.addImageElement(read)
                 .setPosition(RelativePosition.of(position, Margin.of(10)));
     }
-    canvas.asFile("png", "img_position.png");
+    poster.asFile("png", "img_position.png");
 }
 ```
 
@@ -150,7 +150,7 @@ public void testRelativePosition() throws Exception {
     - 增加自动换行（alpha）
     - 支持行高
 - 代码优化
-  - 增加抽象类[AbstractDimensionElement.java](src%2Fmain%2Fjava%2Fcom%2Faugrain%2Feasy%2Fcanvas%2Felement%2FAbstractDimensionElement.java)完成具有明确宽高的元素的尺寸计算
+  - 增加抽象类[AbstractDimensionElement.java](src%2Fmain%2Fjava%2Fcom%2Faugrain%2Feasy%2Fposter%2Felement%2FAbstractDimensionElement.java)完成具有明确宽高的元素的尺寸计算
 
 # 4. 联系作者
 

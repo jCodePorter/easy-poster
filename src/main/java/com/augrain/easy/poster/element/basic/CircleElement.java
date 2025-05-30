@@ -3,7 +3,7 @@ package com.augrain.easy.poster.element.basic;
 import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 
 import java.awt.*;
 import java.awt.geom.Area;
@@ -60,7 +60,7 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
     }
 
     @Override
-    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         super.gradient(context, dimension);
         CoordinatePoint point = dimension.getPoint();
         Graphics2D g = context.getGraphics();
@@ -82,7 +82,7 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
     }
 
     @Override
-    public void beforeRender(CanvasContext context) {
+    public void beforeRender(PosterContext context) {
         context.getGraphics().setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
     }
 }

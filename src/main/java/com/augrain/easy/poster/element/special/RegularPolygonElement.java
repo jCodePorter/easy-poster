@@ -4,7 +4,7 @@ import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 
 import java.awt.*;
 
@@ -44,7 +44,7 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
     }
 
     @Override
-    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         int r = this.width / 2;
         int centerX = dimension.getPoint().getX() + r;
         int centerY = dimension.getPoint().getY() + r;
@@ -66,7 +66,7 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
     }
 
     @Override
-    public void beforeRender(CanvasContext context) {
+    public void beforeRender(PosterContext context) {
         super.beforeRender(context);
         context.getGraphics().setColor(color);
     }

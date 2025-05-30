@@ -3,7 +3,7 @@ package com.augrain.easy.poster.element.special;
 import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.utils.QrCodeUtil;
 import com.google.zxing.common.BitMatrix;
 
@@ -26,7 +26,7 @@ public class QrCodeElement extends AbstractDimensionElement<QrCodeElement> {
     }
 
     @Override
-    public CoordinatePoint doRender(CanvasContext context, Dimension dimension, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         BitMatrix bitMatrix = QrCodeUtil.setBitMatrix(content, width, height);
         BufferedImage bufferedImage = QrCodeUtil.toBufferedImage(bitMatrix);
 

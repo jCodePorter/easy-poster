@@ -20,7 +20,7 @@ public class ImageRepeatTest {
 
     @Test
     public void testRepeat() throws Exception {
-        EasyPoster canvas = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 500);
 
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage input = ImageIO.read(inputStream);
@@ -36,7 +36,7 @@ public class ImageRepeatTest {
                 //.setPadding(20, 20);
                 .setLayout(4,4);
 
-        canvas.addElement(repeatElement);
-        canvas.asFile("png", "image_tile.png");
+        poster.addElement(repeatElement);
+        poster.asFile("png", "image_tile.png");
     }
 }

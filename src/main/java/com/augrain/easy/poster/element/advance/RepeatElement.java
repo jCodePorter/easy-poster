@@ -4,7 +4,7 @@ import com.augrain.easy.poster.element.AbstractRepeatableElement;
 import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.geometry.*;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -67,18 +67,18 @@ public class RepeatElement implements IElement {
     }
 
     @Override
-    public CoordinatePoint render(CanvasContext context, int canvasWidth, int canvasHeight) {
+    public CoordinatePoint render(PosterContext context, int posterWidth, int posterHeight) {
         basicElement.beforeRender(context);
 
-        Dimension dimension = basicElement.calculateDimension(context, canvasWidth, canvasHeight);
+        Dimension dimension = basicElement.calculateDimension(context, posterWidth, posterHeight);
         int elementWidth = Math.max(dimension.getRotateWidth(), dimension.getWidth());
         int elementHeight = Math.max(dimension.getRotateHeight(), dimension.getHeight());
 
-        return doRepeat(context, canvasWidth, canvasHeight, elementWidth, elementHeight, dimension);
+        return doRepeat(context, posterWidth, posterHeight, elementWidth, elementHeight, dimension);
     }
 
-    private CoordinatePoint doRepeat(CanvasContext context, int canvasWidth, int canvasHeight, int elementWidth, int elementHeight, Dimension dimension) {
-        RepeatConfig result = getRepeatConfig(canvasWidth, canvasHeight, elementWidth, elementHeight, dimension);
+    private CoordinatePoint doRepeat(PosterContext context, int posterWidth, int posterHeight, int elementWidth, int elementHeight, Dimension dimension) {
+        RepeatConfig result = getRepeatConfig(posterWidth, posterHeight, elementWidth, elementHeight, dimension);
 
         for (int j = 0; j < result.cols; j++) {
             for (int i = 0; i < result.rows; i++) {
@@ -87,15 +87,15 @@ public class RepeatElement implements IElement {
 
                 Margin elementMargin = Margin.of().setMarginLeft(x).setMarginTop(y);
                 basicElement.setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, elementMargin));
-                CoordinatePoint coordinatePoint = basicElement.reCalculatePosition(canvasWidth, canvasHeight, dimension);
+                CoordinatePoint coordinatePoint = basicElement.reCalculatePosition(posterWidth, posterHeight, dimension);
                 dimension.setPoint(coordinatePoint);
-                basicElement.doRender(context, dimension, canvasWidth, canvasHeight);
+                basicElement.doRender(context, dimension, posterWidth, posterHeight);
             }
         }
         return CoordinatePoint.ORIGIN_COORDINATE;
     }
 
-    private RepeatConfig getRepeatConfig(int canvasWidth, int canvasHeight, int elementWidth, int elementHeight, Dimension dimension) {
+    private RepeatConfig getRepeatConfig(int posterWidth, int posterHeight, int elementWidth, int elementHeight, Dimension dimension) {
         if (this.layout != null) {
             Margin margin = this.layout.getMargin();
 
@@ -104,16 +104,16 @@ public class RepeatElement implements IElement {
             int xOffset;
             int yOffset;
             if (margin != null) {
-                int visualWidth = canvasWidth - margin.getMarginLeft() - margin.getMarginRight();
-                int visualHeight = canvasHeight - margin.getMarginTop() - margin.getMarginBottom();
+                int visualWidth = posterWidth - margin.getMarginLeft() - margin.getMarginRight();
+                int visualHeight = posterHeight - margin.getMarginTop() - margin.getMarginBottom();
                 xInterval = (visualWidth - this.layout.getRows() * elementWidth) / (this.layout.getRows() - 1);
                 yInterval = (visualHeight - this.layout.getCols() * elementHeight) / (this.layout.getCols() - 1);
                 // 元素由于可能存在旋转倾斜，导致第一行元素跳出画板可视范围，因此向下向右做些微调
                 xOffset = dimension.widthDiff() / 2 + margin.getMarginLeft();
                 yOffset = Math.abs(dimension.heightDiff()) / 2 + margin.getMarginTop();
             } else {
-                xInterval = (canvasWidth - this.layout.getRows() * elementWidth) / (this.layout.getRows() + 1);
-                yInterval = (canvasHeight - this.layout.getCols() * elementHeight) / (this.layout.getCols() + 1);
+                xInterval = (posterWidth - this.layout.getRows() * elementWidth) / (this.layout.getRows() + 1);
+                yInterval = (posterHeight - this.layout.getCols() * elementHeight) / (this.layout.getCols() + 1);
                 xOffset = dimension.widthDiff() / 2 + xInterval;
                 yOffset = Math.abs(dimension.heightDiff()) / 2 + yInterval;
             }
@@ -124,21 +124,21 @@ public class RepeatElement implements IElement {
         } else {
             int xOffset = dimension.widthDiff() / 2;
             int yOffset = Math.abs(dimension.heightDiff()) / 2;
-            int rows = getRowNumber(elementWidth, canvasWidth);
-            int cols = getColumnsNumber(elementHeight, canvasHeight);
+            int rows = getRowNumber(elementWidth, posterWidth);
+            int cols = getColumnsNumber(elementHeight, posterHeight);
             return new RepeatConfig(this.xPadding, this.yPadding, xOffset, yOffset, rows, cols);
         }
     }
 
     /**
      * 获取行数
-     * x * elementWidth + (x - 1) * xPadding = canvasWidth
-     * x * (elementWidth + xPadding) = xPadding + canvasWidth
-     * x = (xPadding + canvasWidth) / (elementWidth + xPadding)
+     * x * elementWidth + (x - 1) * xPadding = posterWidth
+     * x * (elementWidth + xPadding) = xPadding + posterWidth
+     * x = (xPadding + posterWidth) / (elementWidth + xPadding)
      **/
-    private int getRowNumber(int elementWidth, int canvasWidth) {
-        int rows = (xPadding + canvasWidth) / (elementWidth + xPadding);
-        int left = (xPadding + canvasWidth) % (elementWidth + xPadding);
+    private int getRowNumber(int elementWidth, int posterWidth) {
+        int rows = (xPadding + posterWidth) / (elementWidth + xPadding);
+        int left = (xPadding + posterWidth) % (elementWidth + xPadding);
         if (left == 0) {
             return rows;
         }
@@ -148,9 +148,9 @@ public class RepeatElement implements IElement {
     /**
      * 获取列数
      **/
-    private int getColumnsNumber(int elementHeight, int canvasHeight) {
-        int cols = (yPadding + canvasHeight) / (elementHeight + yPadding);
-        int left = (yPadding + canvasHeight) % (elementHeight + yPadding);
+    private int getColumnsNumber(int elementHeight, int posterHeight) {
+        int cols = (yPadding + posterHeight) / (elementHeight + yPadding);
+        int left = (yPadding + posterHeight) % (elementHeight + yPadding);
         if (left == 0) {
             return cols;
         }

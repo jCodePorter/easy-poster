@@ -2,7 +2,7 @@ package com.augrain.easy.poster.element;
 
 import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
-import com.augrain.easy.poster.model.CanvasContext;
+import com.augrain.easy.poster.model.PosterContext;
 
 /**
  * 有明确宽高尺寸的元素
@@ -24,10 +24,10 @@ public abstract class AbstractDimensionElement<T extends AbstractDimensionElemen
     protected int height;
 
     @Override
-    public Dimension calculateDimension(CanvasContext context, int canvasWidth, int canvasHeight) {
+    public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
         CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
         if (position != null) {
-            point = position.calculate(canvasWidth, canvasHeight, width, height);
+            point = position.calculate(posterWidth, posterHeight, width, height);
         }
         return Dimension.builder()
                 .width(width)

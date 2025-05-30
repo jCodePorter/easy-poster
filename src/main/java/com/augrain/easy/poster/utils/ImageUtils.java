@@ -1,6 +1,6 @@
 package com.augrain.easy.poster.utils;
 
-import com.augrain.easy.poster.exception.CanvasException;
+import com.augrain.easy.poster.exception.PosterException;
 import com.augrain.easy.poster.model.Scale;
 
 import javax.imageio.ImageIO;
@@ -32,7 +32,7 @@ public class ImageUtils {
         try {
             return ImageIO.read(new URL(httpUrl));
         } catch (Exception e) {
-            throw new CanvasException(e);
+            throw new PosterException(e);
         }
     }
 
@@ -46,7 +46,7 @@ public class ImageUtils {
         try {
             return ImageIO.read(file);
         } catch (Exception e) {
-            throw new CanvasException(e);
+            throw new PosterException(e);
         }
     }
 
@@ -156,7 +156,7 @@ public class ImageUtils {
         // 解析比例
         String[] ratioParts = ratio.split(":");
         if (ratioParts.length != 2) {
-            throw new CanvasException("比例格式不正确，应为 'width:height'，例如 '1:1'");
+            throw new PosterException("比例格式不正确，应为 'width:height'，例如 '1:1'");
         }
         double targetRatio = Double.parseDouble(ratioParts[0]) / Double.parseDouble(ratioParts[1]);
 
