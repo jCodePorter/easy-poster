@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.augrain</groupId>
-    <artifactId>easy-canvas</artifactId>
+    <artifactId>easy-poster</artifactId>
     <version>0.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>简易画板工具，可以用于海报制作，图片添加水印等</description>
-    <url>https://github.com/jCodePorter/easy-canvas</url>
+    <description>简易海报制作工具，可以绘制图片、矩形、二维码、文字，以及平铺等功能</description>
+    <url>https://github.com/jCodePorter/easy-poster</url>
 
     <licenses>
         <license>
@@ -32,9 +32,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/jCodePorter/easy-canvas</connection>
-        <developerConnection>scm:git:ssh://github.com/jCodePorter/easy-canvas</developerConnection>
-        <url>http://github.com/jCodePorter/easy-canvas/tree/master</url>
+        <connection>scm:git:git://github.com/jCodePorter/easy-poster</connection>
+        <developerConnection>scm:git:ssh://github.com/jCodePorter/easy-poster</developerConnection>
+        <url>http://github.com/jCodePorter/easy-poster/tree/master</url>
     </scm>
 
     <properties>
