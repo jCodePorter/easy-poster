@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.element;
 
 import com.augrain.easy.poster.element.advance.RepeatElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 
 /**
@@ -15,5 +15,5 @@ public interface IRepeatableElement extends IElement {
     /**
      * 重新计算位置，由类 {@link RepeatElement} 进行调用
      */
-    CoordinatePoint reCalculatePosition(int posterWidth, int posterHeight, Dimension dimension);
+    Point reCalculatePosition(int posterWidth, int posterHeight, Dimension dimension);
 }

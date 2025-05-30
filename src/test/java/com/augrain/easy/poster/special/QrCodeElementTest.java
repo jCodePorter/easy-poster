@@ -5,7 +5,7 @@ import com.augrain.easy.poster.element.advance.ComposeElement;
 import com.augrain.easy.poster.element.basic.TextElement;
 import com.augrain.easy.poster.element.special.QrCodeElement;
 import com.augrain.easy.poster.geometry.Margin;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class QrCodeElementTest {
         EasyPoster poster = new EasyPoster(500, 500);
 
         QrCodeElement qrcodeElement = new QrCodeElement("这是一段二维码测试文本", 200, 200);
-        qrcodeElement.setPosition(RelativePosition.of(PositionDirection.CENTER));
+        qrcodeElement.setPosition(RelativePosition.of(Direction.CENTER));
         poster.addElement(qrcodeElement);
 
         poster.asFile("png", "qrcode.png");
@@ -34,10 +34,10 @@ public class QrCodeElementTest {
 
         ComposeElement composeElement = ComposeElement.of(
                         new QrCodeElement("联系作者jcodeporter@gmail.com", 250, 250)
-                                .setPosition(RelativePosition.of(PositionDirection.CENTER)))
+                                .setPosition(RelativePosition.of(Direction.CENTER)))
                 .bottom(new TextElement("测试门店").setFontSize(35).setFontName("仿宋")
-                        .setPosition(RelativePosition.of(PositionDirection.TOP_CENTER, Margin.of(5))))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(5))))
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.addElement(composeElement);
         poster.asFile("png", "qrcode_compose.png");

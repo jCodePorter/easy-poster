@@ -2,8 +2,8 @@ package com.augrain.easy.poster.basic.text;
 
 import com.augrain.easy.poster.EasyPoster;
 import com.augrain.easy.poster.geometry.AbsolutePosition;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Point;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.model.Gradient;
 import com.augrain.easy.poster.model.GradientDirection;
@@ -26,19 +26,19 @@ public class TextBasicTest {
         poster.addTextElement("正常文字")
                 .setFontSize(25)
                 .setFontColor(Color.red)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0), PositionDirection.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(Point.of(30, 0), Direction.TOP_LEFT));
 
         poster.addTextElement("旋转文字")
                 .setFontSize(25)
                 .setFontColor(Color.red)
                 .setRotate(-30)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 50), PositionDirection.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(Point.of(30, 50), Direction.TOP_LEFT));
 
         poster.addTextElement("透明度为50%")
                 .setFontSize(25)
                 .setFontColor(Color.red)
                 .setAlpha(0.5f)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 100), PositionDirection.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(Point.of(30, 100), Direction.TOP_LEFT));
 
         poster.asFile("png", "text_basic.png");
     }
@@ -51,7 +51,7 @@ public class TextBasicTest {
                 .setFontSize(25)
                 .setStrikeThrough(true)
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.LEFT_RIGHT))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.asFile("png", "text_gradient.png");
     }
@@ -63,16 +63,16 @@ public class TextBasicTest {
         poster.getConfig().setFontSize(25);
 
         poster.addTextElement("正常文字")
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0)));
+                .setPosition(AbsolutePosition.of(Point.of(30, 0)));
 
         poster.addTextElement("旋转文字")
                 .setRotate(-30)
                 .setFontColor(Color.red)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 50)));
+                .setPosition(AbsolutePosition.of(Point.of(30, 50)));
 
         poster.addTextElement("透明度为50%")
                 .setAlpha(0.5f)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 100)));
+                .setPosition(AbsolutePosition.of(Point.of(30, 100)));
 
         poster.asFile("png", "text_global.png");
     }

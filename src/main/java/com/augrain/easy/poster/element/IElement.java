@@ -1,6 +1,6 @@
 package com.augrain.easy.poster.element;
 
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.PosterContext;
 
 /**
@@ -19,5 +19,5 @@ public interface IElement {
      * @param posterHeight 画板高度
      * @return 渲染元素的起始坐标点
      */
-    CoordinatePoint render(PosterContext context, int posterWidth, int posterHeight) throws Exception;
+    Point render(PosterContext context, int posterWidth, int posterHeight) throws Exception;
 }

@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.basic.rectangle;
 
 import com.augrain.easy.poster.EasyPoster;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.model.Gradient;
 import com.augrain.easy.poster.model.GradientDirection;
@@ -24,7 +24,7 @@ public class RectangleBasicTest {
         poster.addRectangleElement(100, 100)
                 .setColor(Color.PINK)
                 .setArc(20)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         poster.asFile("png", "rectangle_basic.png");
     }
@@ -38,7 +38,7 @@ public class RectangleBasicTest {
                 // .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
                 // 三色渐变
                 .setGradient(Gradient.of(new String[]{"#EA9381", "#F0B09F", "#FFDBBD"}, GradientDirection.TOP_BOTTOM))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.asFile("png", "rectangle_gradient.png");
     }

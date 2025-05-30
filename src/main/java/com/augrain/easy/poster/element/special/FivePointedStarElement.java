@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.element.special;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.PosterContext;
 
@@ -43,7 +43,7 @@ public class FivePointedStarElement extends AbstractDimensionElement {
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         // 绘制五角星。五角星分别有5个顶点，1个中心。绘制五个四边形，绘制方法：每个顶点（称为'A'点）连接不相邻的两个顶点（称为'B'点、'C'点）,五角星的正中心点（称为'D'点），'B'点、'C'点分别连接'D'点。
         int centerX = dimension.getPoint().getX() + width / 2;
         int radius = width / 2;

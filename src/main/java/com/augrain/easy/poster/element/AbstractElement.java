@@ -2,7 +2,7 @@ package com.augrain.easy.poster.element;
 
 import com.augrain.easy.poster.element.advance.ComposeElement;
 import com.augrain.easy.poster.exception.PosterException;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.geometry.Position;
 import com.augrain.easy.poster.model.PosterContext;
@@ -108,11 +108,11 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     }
 
     @Override
-    public CoordinatePoint render(PosterContext context, int posterWidth, int posterHeight) {
+    public Point render(PosterContext context, int posterWidth, int posterHeight) {
         beforeRender(context);
         Dimension dimension = calculateDimension(context, posterWidth, posterHeight);
         debug(context, dimension);
-        CoordinatePoint coordinatePoint = doRender(context, dimension, posterWidth, posterHeight);
+        Point coordinatePoint = doRender(context, dimension, posterWidth, posterHeight);
         afterRender(context);
         return coordinatePoint;
     }
@@ -125,7 +125,7 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     /**
      * 执行渲染
      */
-    public abstract CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight);
+    public abstract Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight);
 
     /**
      * 渲染之前，做一些默认配置

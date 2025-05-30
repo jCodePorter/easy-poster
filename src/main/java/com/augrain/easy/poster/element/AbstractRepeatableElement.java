@@ -1,6 +1,6 @@
 package com.augrain.easy.poster.element;
 
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 
 /**
@@ -13,7 +13,7 @@ public abstract class AbstractRepeatableElement<T extends AbstractRepeatableElem
         extends AbstractElement<T> implements IRepeatableElement {
 
     @Override
-    public CoordinatePoint reCalculatePosition(int posterWidth, int posterHeight, Dimension dimension) {
+    public Point reCalculatePosition(int posterWidth, int posterHeight, Dimension dimension) {
         return getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
     }
 }

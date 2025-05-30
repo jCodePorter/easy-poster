@@ -8,7 +8,7 @@ package com.augrain.easy.poster.geometry;
  */
 public interface Position {
 
-    default CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight) {
+    default Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight) {
         return calculate(enclosingWidth, enclosingHeight, elementWidth, elementHeight, Margin.DEFAULT);
     }
 
@@ -22,5 +22,5 @@ public interface Position {
      * @param margin          边距
      * @return 坐标点
      */
-    CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin);
+    Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin);
 }

@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.PosterContext;
 import lombok.Getter;
@@ -68,9 +68,9 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         super.gradient(context, dimension);
-        CoordinatePoint point = dimension.getPoint();
+        Point point = dimension.getPoint();
 
         RoundRectangle2D rect = new RoundRectangle2D.Double(point.getX(), point.getY(), width, height,
                 this.arcWidth, this.arcHeight);

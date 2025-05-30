@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.PosterContext;
 
@@ -60,9 +60,9 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         super.gradient(context, dimension);
-        CoordinatePoint point = dimension.getPoint();
+        Point point = dimension.getPoint();
         Graphics2D g = context.getGraphics();
         if (this.borderSize > 0 && this.borderSize < Math.max(this.width, this.height)) {
             Ellipse2D outer = new Ellipse2D.Double(point.getX(), point.getY(), this.width, this.height);

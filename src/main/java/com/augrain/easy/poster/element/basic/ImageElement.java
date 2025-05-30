@@ -2,7 +2,7 @@ package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.Scale;
@@ -93,8 +93,8 @@ public class ImageElement extends AbstractDimensionElement<ImageElement> impleme
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
-        CoordinatePoint point = dimension.getPoint();
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+        Point point = dimension.getPoint();
         context.getGraphics().drawImage(this.getImage(), point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
         return point;
     }

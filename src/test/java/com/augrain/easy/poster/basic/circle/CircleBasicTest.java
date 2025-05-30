@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.basic.circle;
 
 import com.augrain.easy.poster.EasyPoster;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.model.Gradient;
 import com.augrain.easy.poster.model.GradientDirection;
@@ -27,7 +27,7 @@ public class CircleBasicTest {
         poster.addCircleElement(100)
                 .setColor(Color.PINK)
                 .setBorderSize(40)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         poster.asFile("png", "circle_basic.png");
     }
@@ -42,7 +42,7 @@ public class CircleBasicTest {
         poster.addOvalElement(100, 200)
                 .setColor(Color.PINK)
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.asFile("png", "oval_basic.png");
     }

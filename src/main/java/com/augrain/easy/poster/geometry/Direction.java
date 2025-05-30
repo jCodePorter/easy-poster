@@ -6,16 +6,16 @@ package com.augrain.easy.poster.geometry;
  * @author biaoy
  * @since 2025/03/03
  */
-public enum PositionDirection implements Position {
+public enum Direction implements Position {
     /**
      * 居中
      */
     CENTER() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = (enclosingWidth - elementWidth) / 2;
             int y = (enclosingHeight - elementHeight) / 2;
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -24,10 +24,10 @@ public enum PositionDirection implements Position {
      */
     LEFT_CENTER() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = margin.getMarginLeft();
             int y = (enclosingHeight - elementHeight) / 2;
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -36,10 +36,10 @@ public enum PositionDirection implements Position {
      */
     RIGHT_CENTER() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = (enclosingWidth - elementWidth - margin.getMarginRight());
             int y = (enclosingHeight - elementHeight) / 2;
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -48,10 +48,10 @@ public enum PositionDirection implements Position {
      */
     TOP_LEFT() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = margin.getMarginLeft();
             int y = margin.getMarginTop();
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -60,10 +60,10 @@ public enum PositionDirection implements Position {
      */
     TOP_CENTER() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = (enclosingWidth - elementWidth) / 2;
             int y = margin.getMarginTop();
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -72,10 +72,10 @@ public enum PositionDirection implements Position {
      */
     TOP_RIGHT() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = (enclosingWidth - elementWidth - margin.getMarginRight());
             int y = margin.getMarginTop();
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -84,10 +84,10 @@ public enum PositionDirection implements Position {
      */
     LEFT_BOTTOM() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = margin.getMarginLeft();
             int y = enclosingHeight - elementHeight - margin.getMarginBottom();
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -96,10 +96,10 @@ public enum PositionDirection implements Position {
      */
     BOTTOM_CENTER() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = (enclosingWidth - elementWidth) / 2;
             int y = enclosingHeight - elementHeight - margin.getMarginBottom();
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     },
 
@@ -108,10 +108,10 @@ public enum PositionDirection implements Position {
      */
     RIGHT_BOTTOM() {
         @Override
-        public CoordinatePoint calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
+        public Point calculate(int enclosingWidth, int enclosingHeight, int elementWidth, int elementHeight, Margin margin) {
             int x = enclosingWidth - elementWidth - margin.getMarginRight();
             int y = enclosingHeight - elementHeight - margin.getMarginBottom();
-            return CoordinatePoint.of(x, y);
+            return Point.of(x, y);
         }
     }
 }

@@ -2,7 +2,7 @@ package com.augrain.easy.poster.special;
 
 import com.augrain.easy.poster.EasyPoster;
 import com.augrain.easy.poster.element.special.FivePointedStarElement;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class FivePointStarTest {
         FivePointedStarElement fivePointedStarElement = new FivePointedStarElement(100);
         fivePointedStarElement.setColor(Color.red);
         fivePointedStarElement.setBorderSize(10);
-        fivePointedStarElement.setPosition(RelativePosition.of(PositionDirection.CENTER));
+        fivePointedStarElement.setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.addElement(fivePointedStarElement);
 

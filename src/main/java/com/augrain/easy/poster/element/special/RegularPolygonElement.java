@@ -2,7 +2,7 @@ package com.augrain.easy.poster.element.special;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.PosterContext;
 
@@ -44,17 +44,17 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         int r = this.width / 2;
         int centerX = dimension.getPoint().getX() + r;
         int centerY = dimension.getPoint().getY() + r;
 
         double thetaOffset = Math.PI / this.edges;
-        CoordinatePoint[] points = new CoordinatePoint[this.edges + 1];
+        Point[] points = new Point[this.edges + 1];
         for (int i = 0; i < this.edges; i++) {
             double xi = centerX + r * Math.cos(Math.PI * 2 * i / this.edges - thetaOffset);
             double yi = centerY + r * Math.sin(Math.PI * 2 * i / this.edges - thetaOffset);
-            points[i] = CoordinatePoint.of((int) xi, (int) yi);
+            points[i] = Point.of((int) xi, (int) yi);
         }
         points[this.edges] = points[0];
 

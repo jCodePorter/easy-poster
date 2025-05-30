@@ -2,7 +2,7 @@ package com.augrain.easy.poster.basic.image;
 
 import com.augrain.easy.poster.EasyPoster;
 import com.augrain.easy.poster.geometry.Margin;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.utils.ImageUtils;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class ImageBasicTest {
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage read = ImageIO.read(inputStream);
 
-        for (PositionDirection position : PositionDirection.values()) {
+        for (Direction position : Direction.values()) {
             poster.addImageElement(read)
                     .setPosition(RelativePosition.of(position, Margin.of(10)));
         }

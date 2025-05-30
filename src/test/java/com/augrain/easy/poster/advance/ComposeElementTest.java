@@ -7,7 +7,7 @@ import com.augrain.easy.poster.element.advance.RepeatElement;
 import com.augrain.easy.poster.element.basic.ImageElement;
 import com.augrain.easy.poster.element.basic.TextElement;
 import com.augrain.easy.poster.geometry.Margin;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.model.BaseLine;
 import com.augrain.easy.poster.model.RelativeDirection;
@@ -33,19 +33,19 @@ public class ComposeElementTest {
         BufferedImage inputImg = ImageIO.read(inputStream);
         ImageElement imageElement = new ImageElement(inputImg)
                 .scale(Scale.byWidth(50))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         Margin margin = Margin.of().setMarginTop(10);
         TextElement textElement = new TextElement("叮叮智能")
                 .setFontColor(Color.red)
                 .setFontSize(18)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, margin));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT, margin));
 
         Margin margin2 = Margin.of().setMarginTop(40);
         TextElement textElement2 = new TextElement("郑州叮有鱼科技")
                 .setFontColor(Color.red)
                 .setFontSize(18)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, margin2));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT, margin2));
 
         ComposeElement composeElement = new ComposeElement(imageElement)
                 .next(textElement, RelativeDirection.BOTTOM, true)
@@ -63,10 +63,10 @@ public class ComposeElementTest {
         BufferedImage inputImg = ImageIO.read(inputStream);
         ImageElement imageElement = new ImageElement(inputImg)
                 .scale(Scale.byWidth(50))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         ComposeElement composeElement = new ComposeElement(imageElement);
-        for (PositionDirection position : PositionDirection.values()) {
+        for (Direction position : Direction.values()) {
             Margin margin = Margin.of(10);
             TextElement textElement = new TextElement("叮叮智能")
                     .setFontColor(Color.red)
@@ -86,10 +86,10 @@ public class ComposeElementTest {
         BufferedImage inputImg = ImageIO.read(inputStream);
         ImageElement imageElement = new ImageElement(inputImg)
                 .scale(Scale.byWidth(500))
-                .setPosition(RelativePosition.of(PositionDirection.RIGHT_CENTER));
+                .setPosition(RelativePosition.of(Direction.RIGHT_CENTER));
 
         ComposeElement composeElement = new ComposeElement(imageElement);
-        for (PositionDirection position : PositionDirection.values()) {
+        for (Direction position : Direction.values()) {
             Margin margin = Margin.of(0);
             TextElement textElement = new TextElement("叮有鱼科技")
                     .setFontColor(Color.red)
@@ -110,10 +110,10 @@ public class ComposeElementTest {
         BufferedImage inputImg = ImageIO.read(inputStream);
         ImageElement imageElement = new ImageElement(inputImg)
                 .scale(Scale.byWidth(500))
-                .setPosition(RelativePosition.of(PositionDirection.LEFT_CENTER));
+                .setPosition(RelativePosition.of(Direction.LEFT_CENTER));
 
         ComposeElement composeElement = new ComposeElement(imageElement);
-        for (PositionDirection position : PositionDirection.values()) {
+        for (Direction position : Direction.values()) {
             Margin margin = Margin.of(0);
             TextElement textElement = new TextElement("叮有鱼科技")
                     .setFontColor(Color.red)
@@ -133,10 +133,10 @@ public class ComposeElementTest {
         BufferedImage inputImg = ImageIO.read(inputStream);
         ImageElement imageElement = new ImageElement(inputImg)
                 .scale(Scale.byWidth(700))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         ComposeElement composeElement = new ComposeElement(imageElement);
-        for (PositionDirection position : PositionDirection.values()) {
+        for (Direction position : Direction.values()) {
             Margin margin = Margin.of(0);
             TextElement textElement = new TextElement("叮有鱼科技")
                     .setFontColor(Color.red)
@@ -158,17 +158,17 @@ public class ComposeElementTest {
 
         ComposeElement composeElement = new ComposeElement(new ImageElement(inputImg)
                 .scale(Scale.byWidth(50))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER)))
+                .setPosition(RelativePosition.of(Direction.CENTER)))
                 .bottom(new TextElement("叮叮智能")
                         .setFontColor(Color.red)
                         .setFontSize(18)
                         .setFontName("仿宋")
-                        .setPosition(RelativePosition.of(PositionDirection.TOP_CENTER, Margin.of().setMarginTop(10))))
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))))
                 .bottom(new TextElement("郑州叮有鱼科技")
                         .setFontColor(Color.red)
                         .setFontSize(18)
                         .setFontName("楷体")
-                        .setPosition(RelativePosition.of(PositionDirection.TOP_CENTER, Margin.of().setMarginTop(40))));
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(40))));
 
         RepeatElement tileElement = new RepeatElement(composeElement)
                 .setPadding(20, 20);
@@ -185,10 +185,10 @@ public class ComposeElementTest {
         BufferedImage inputImg = ImageIO.read(inputStream);
         AbstractElement imageElement = new ImageElement(inputImg)
                 .scale(Scale.byWidth(500))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER));
 
         ComposeElement composeElement = new ComposeElement(imageElement);
-        for (PositionDirection position : PositionDirection.values()) {
+        for (Direction position : Direction.values()) {
             Margin margin = Margin.of(30);
             AbstractElement textElement = new TextElement("叮有鱼科技")
                     .setFontColor(Color.red)
@@ -212,12 +212,12 @@ public class ComposeElementTest {
                 .setFontSize(35)
                 .setFontName("楷体")
                 .setBaseLine(baseLine)
-                .setPosition(RelativePosition.of(PositionDirection.LEFT_CENTER))
+                .setPosition(RelativePosition.of(Direction.LEFT_CENTER))
                 .follow(TextElement.of("这是一个小标题")
-                        .setPosition(RelativePosition.of(PositionDirection.TOP_CENTER)), RelativeDirection.BOTTOM, true);
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER)), RelativeDirection.BOTTOM, true);
 
         poster.addElement(TextElement.of("您已经连续工作")
-                .setPosition(RelativePosition.of(PositionDirection.LEFT_CENTER))
+                .setPosition(RelativePosition.of(Direction.LEFT_CENTER))
                 .setFontSize(18)
                 .setFontName("楷体")
                 .setBaseLine(baseLine)
@@ -226,7 +226,7 @@ public class ComposeElementTest {
                         .setFontSize(50)
                         .setFontName("仿宋")
                         .setBaseLine(baseLine)
-                        .setPosition(RelativePosition.of(PositionDirection.LEFT_CENTER)), RelativeDirection.RIGHT, true)
+                        .setPosition(RelativePosition.of(Direction.LEFT_CENTER)), RelativeDirection.RIGHT, true)
                 .follow(follow, RelativeDirection.RIGHT, true));
 
         poster.asFile("png", "compose_follow.png");

@@ -1,6 +1,6 @@
 package com.augrain.easy.poster.model;
 
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 
 import java.util.function.Function;
@@ -20,7 +20,7 @@ public enum GradientDirection {
         int fromY = d.getPoint().getY();
         int toX = fromX;
         int toY = d.getPoint().getY() + d.getHeight();
-        return new CoordinatePoint[]{CoordinatePoint.of(fromX, fromY), CoordinatePoint.of(toX, toY)};
+        return new Point[]{Point.of(fromX, fromY), Point.of(toX, toY)};
     }),
 
     /**
@@ -31,7 +31,7 @@ public enum GradientDirection {
         int fromY = d.getPoint().getY() + d.getHeight() / 2;
         int toX = d.getPoint().getX() + d.getWidth();
         int toY = fromY;
-        return new CoordinatePoint[]{CoordinatePoint.of(fromX, fromY), CoordinatePoint.of(toX, toY)};
+        return new Point[]{Point.of(fromX, fromY), Point.of(toX, toY)};
     }),
 
     /**
@@ -42,7 +42,7 @@ public enum GradientDirection {
         int fromY = d.getPoint().getY();
         int toX = d.getPoint().getX() + d.getWidth();
         int toY = d.getPoint().getY() + d.getHeight();
-        return new CoordinatePoint[]{CoordinatePoint.of(fromX, fromY), CoordinatePoint.of(toX, toY)};
+        return new Point[]{Point.of(fromX, fromY), Point.of(toX, toY)};
     }),
 
     /**
@@ -53,16 +53,16 @@ public enum GradientDirection {
         int fromY = d.getPoint().getY();
         int toX = d.getPoint().getX();
         int toY = d.getPoint().getY() + d.getHeight();
-        return new CoordinatePoint[]{CoordinatePoint.of(fromX, fromY), CoordinatePoint.of(toX, toY)};
+        return new Point[]{Point.of(fromX, fromY), Point.of(toX, toY)};
     });
 
-    private final Function<Dimension, CoordinatePoint[]> directionCalculator;
+    private final Function<Dimension, Point[]> directionCalculator;
 
-    GradientDirection(Function<Dimension, CoordinatePoint[]> directionCalculator) {
+    GradientDirection(Function<Dimension, Point[]> directionCalculator) {
         this.directionCalculator = directionCalculator;
     }
 
-    public CoordinatePoint[] calcStartEnd(Dimension dimension) {
+    public Point[] calcStartEnd(Dimension dimension) {
         return directionCalculator.apply(dimension);
     }
 }

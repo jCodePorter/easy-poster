@@ -1,6 +1,6 @@
 package com.augrain.easy.poster.utils;
 
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class PointUtils {
 
-    public static Dimension boundingBox(List<CoordinatePoint> points) {
+    public static Dimension boundingBox(List<Point> points) {
         if (points == null || points.isEmpty()) {
             return null;
         }
@@ -23,7 +23,7 @@ public class PointUtils {
         int xMax = Integer.MIN_VALUE;
         int yMax = Integer.MIN_VALUE;
 
-        for (CoordinatePoint point : points) {
+        for (Point point : points) {
             if (point.getX() < xMin) {
                 xMin = point.getX();
             }
@@ -39,7 +39,7 @@ public class PointUtils {
         }
         int width = xMax - xMin;
         int height = yMax - yMin;
-        CoordinatePoint point = CoordinatePoint.of(xMin, yMin);
+        Point point = Point.of(xMin, yMin);
         return Dimension.builder()
                 .width(width)
                 .height(height)

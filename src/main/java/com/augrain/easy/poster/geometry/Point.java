@@ -13,23 +13,23 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class CoordinatePoint {
+public class Point {
 
     /**
      * 坐标原点
      */
-    public static final CoordinatePoint ORIGIN_COORDINATE = CoordinatePoint.of(0, 0);
+    public static final Point ORIGIN_COORDINATE = Point.of(0, 0);
 
     private int x;
 
     private int y;
 
-    private CoordinatePoint(int x, int y) {
+    private Point(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public static CoordinatePoint of(int x, int y) {
-        return new CoordinatePoint(x, y);
+    public static Point of(int x, int y) {
+        return new Point(x, y);
     }
 }

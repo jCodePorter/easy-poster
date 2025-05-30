@@ -3,8 +3,8 @@ package com.augrain.easy.poster.element.advance;
 import com.augrain.easy.poster.element.AbstractElement;
 import com.augrain.easy.poster.element.AbstractRepeatableElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Position;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.model.PosterContext;
@@ -28,12 +28,16 @@ import java.util.stream.Collectors;
  */
 public class ComposeElement extends AbstractRepeatableElement<ComposeElement> implements IElement {
 
+    // 基准元素
     private final AbstractElement basicElement;
 
+    // 相对元素的包装
     private final List<ElementWrapper> elementWrapper = new ArrayList<>();
 
+    // 各元素对应的尺寸
     private final Map<AbstractElement, Dimension> dimensionMap = new HashMap<>();
 
+    // 各元素相对组合元素左上角坐标点的偏移量
     private final Map<AbstractElement, PointOffset> pointOffsetMap = new HashMap<>();
 
     public ComposeElement(AbstractElement basicElement) {
@@ -95,7 +99,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         } else {
             Position position = element.getPosition();
             if (position instanceof RelativePosition) {
-                CoordinatePoint point = dimension.getPoint();
+                Point point = dimension.getPoint();
                 point.setX(point.getX() + x);
                 point.setY(point.getY() + y);
             }
@@ -210,7 +214,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         // 根据相对的基准元素进行坐标修正
         Position position = element.getPosition();
         if (position instanceof RelativePosition) {
-            CoordinatePoint point = dimension.getPoint();
+            Point point = dimension.getPoint();
             point.setX(point.getX() + basicDimension.getPoint().getX());
             point.setY(point.getY() + basicDimension.getPoint().getY());
         }
@@ -287,28 +291,28 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     private Dimension calculateBoundingBox(Map<AbstractElement, Dimension> dimensionMap) {
-        List<CoordinatePoint> points = new ArrayList<>();
+        List<Point> points = new ArrayList<>();
 
         // 根据渲染元素宽高与左上角坐标点，计算四角坐标
         dimensionMap.forEach((k, v) -> {
-            CoordinatePoint point = v.getPoint();
+            Point point = v.getPoint();
             int startX = point.getX();
             int startY = point.getY();
 
-            points.add(CoordinatePoint.of(startX, startY));
-            points.add(CoordinatePoint.of(startX + v.getWidth(), startY));
-            points.add(CoordinatePoint.of(startX, startY + v.getHeight()));
-            points.add(CoordinatePoint.of(startX + v.getWidth(), startY + v.getHeight()));
+            points.add(Point.of(startX, startY));
+            points.add(Point.of(startX + v.getWidth(), startY));
+            points.add(Point.of(startX, startY + v.getHeight()));
+            points.add(Point.of(startX + v.getWidth(), startY + v.getHeight()));
         });
 
         // 计算组合元素外接矩形
         Dimension dimension = PointUtils.boundingBox(points);
         // 外接矩形左上角坐标点，组合元素中也称之为基准坐标点
-        CoordinatePoint markPoint = dimension.getPoint();
+        Point markPoint = dimension.getPoint();
 
         // 计算差值
         dimensionMap.forEach((k, v) -> {
-            CoordinatePoint point = v.getPoint();
+            Point point = v.getPoint();
             int xOffset = point.getX() - markPoint.getX();
             int yOffset = point.getY() - markPoint.getY();
             PointOffset pointOffset = new PointOffset(xOffset, yOffset);
@@ -318,15 +322,15 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         Dimension basicDimension = dimensionMap.get(basicElement);
 
         if (getPosition() != null) {
             // 如果组合元素整体设置位置参数，则基于整体宽高重新计算
-            CoordinatePoint markPoint = getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
+            Point markPoint = getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
 
             // 组合元素设置位置属性，重新调整坐标点
-            CoordinatePoint point = basicDimension.getPoint();
+            Point point = basicDimension.getPoint();
             point.setX(markPoint.getX() + pointOffsetMap.get(basicElement).xOffset);
             point.setY(markPoint.getY() + pointOffsetMap.get(basicElement).yOffset);
 
@@ -336,7 +340,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();
                 Dimension elementDimension = dimensionMap.get(element);
-                CoordinatePoint elementPoint = elementDimension.getPoint();
+                Point elementPoint = elementDimension.getPoint();
                 elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
                 elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
 
@@ -347,7 +351,7 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             return null;
         } else {
             basicElement.beforeRender(context);
-            CoordinatePoint basicPoint = basicElement.doRender(context, basicDimension, posterWidth, posterHeight);
+            Point basicPoint = basicElement.doRender(context, basicDimension, posterWidth, posterHeight);
 
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();

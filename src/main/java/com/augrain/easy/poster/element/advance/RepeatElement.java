@@ -67,7 +67,7 @@ public class RepeatElement implements IElement {
     }
 
     @Override
-    public CoordinatePoint render(PosterContext context, int posterWidth, int posterHeight) {
+    public Point render(PosterContext context, int posterWidth, int posterHeight) {
         basicElement.beforeRender(context);
 
         Dimension dimension = basicElement.calculateDimension(context, posterWidth, posterHeight);
@@ -77,7 +77,7 @@ public class RepeatElement implements IElement {
         return doRepeat(context, posterWidth, posterHeight, elementWidth, elementHeight, dimension);
     }
 
-    private CoordinatePoint doRepeat(PosterContext context, int posterWidth, int posterHeight, int elementWidth, int elementHeight, Dimension dimension) {
+    private Point doRepeat(PosterContext context, int posterWidth, int posterHeight, int elementWidth, int elementHeight, Dimension dimension) {
         RepeatConfig result = getRepeatConfig(posterWidth, posterHeight, elementWidth, elementHeight, dimension);
 
         for (int j = 0; j < result.cols; j++) {
@@ -86,13 +86,13 @@ public class RepeatElement implements IElement {
                 int y = j * (elementHeight + result.yPadding) + result.yOffset;
 
                 Margin elementMargin = Margin.of().setMarginLeft(x).setMarginTop(y);
-                basicElement.setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, elementMargin));
-                CoordinatePoint coordinatePoint = basicElement.reCalculatePosition(posterWidth, posterHeight, dimension);
+                basicElement.setPosition(RelativePosition.of(Direction.TOP_LEFT, elementMargin));
+                Point coordinatePoint = basicElement.reCalculatePosition(posterWidth, posterHeight, dimension);
                 dimension.setPoint(coordinatePoint);
                 basicElement.doRender(context, dimension, posterWidth, posterHeight);
             }
         }
-        return CoordinatePoint.ORIGIN_COORDINATE;
+        return Point.ORIGIN_COORDINATE;
     }
 
     private RepeatConfig getRepeatConfig(int posterWidth, int posterHeight, int elementWidth, int elementHeight, Dimension dimension) {

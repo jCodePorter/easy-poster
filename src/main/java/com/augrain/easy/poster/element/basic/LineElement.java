@@ -2,7 +2,7 @@ package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.LineStyle;
@@ -21,12 +21,12 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
     /**
      * 起始坐标点
      */
-    private final CoordinatePoint start;
+    private final Point start;
 
     /**
      * 结束坐标点
      */
-    private final CoordinatePoint end;
+    private final Point end;
 
     /**
      * 线宽
@@ -43,12 +43,12 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
      */
     private LineStyle lineStyle;
 
-    public LineElement(CoordinatePoint start, CoordinatePoint end) {
+    public LineElement(Point start, Point end) {
         this.start = start;
         this.end = end;
     }
 
-    public LineElement(CoordinatePoint start, CoordinatePoint end, int borderSize) {
+    public LineElement(Point start, Point end, int borderSize) {
         this.start = start;
         this.end = end;
         this.borderSize = borderSize;
@@ -75,7 +75,7 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         context.getGraphics().drawLine(this.start.getX(), start.getY(), this.end.getX(), this.end.getY());
         return this.start;
     }

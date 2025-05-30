@@ -2,8 +2,8 @@ package com.augrain.easy.poster.basic.text;
 
 import com.augrain.easy.poster.EasyPoster;
 import com.augrain.easy.poster.geometry.AbsolutePosition;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Point;
+import com.augrain.easy.poster.geometry.Direction;
 import org.junit.Test;
 
 import java.awt.*;
@@ -25,7 +25,7 @@ public class AutoWrapTextTest {
                 .setFontColor(Color.red)
                 .setLineHeight(50)
                 .setAutoWrapText(400)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(30, 0), PositionDirection.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(Point.of(30, 0), Direction.TOP_LEFT));
 
         poster.asFile("png", "text_auto_split.png");
     }

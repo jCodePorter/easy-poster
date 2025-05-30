@@ -2,7 +2,7 @@ package com.augrain.easy.poster.special;
 
 import com.augrain.easy.poster.EasyPoster;
 import com.augrain.easy.poster.element.special.RegularPolygonElement;
-import com.augrain.easy.poster.geometry.PositionDirection;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class RegularPolygonElementTest {
 
         RegularPolygonElement element = new RegularPolygonElement(100, 8);
         element.setColor(Color.red);
-        element.setPosition(RelativePosition.of(PositionDirection.CENTER));
+        element.setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.addElement(element);
 

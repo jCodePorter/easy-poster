@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.basic.line;
 
 import com.augrain.easy.poster.EasyPoster;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.LineStyle;
 import org.junit.Test;
 
@@ -19,15 +19,15 @@ public class LineBasicTest {
     public void testBasicLine() {
         EasyPoster poster = new EasyPoster(500, 500);
 
-        poster.addLineElement(CoordinatePoint.of(0, 200), CoordinatePoint.of(500, 200))
+        poster.addLineElement(Point.of(0, 200), Point.of(500, 200))
                 .setLineStyle(LineStyle.DASH)
                 .setColor(Color.BLUE);
 
-        poster.addLineElement(CoordinatePoint.of(0, 250), CoordinatePoint.of(500, 250))
+        poster.addLineElement(Point.of(0, 250), Point.of(500, 250))
                 .setLineStyle(LineStyle.DOT)
                 .setColor(Color.RED);
 
-        poster.addLineElement(CoordinatePoint.of(0, 300), CoordinatePoint.of(500, 300))
+        poster.addLineElement(Point.of(0, 300), Point.of(500, 300))
                 .setLineStyle(LineStyle.DASH_DOT)
                 .setColor(Color.ORANGE);
 

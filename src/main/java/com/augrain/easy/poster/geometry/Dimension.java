@@ -46,7 +46,7 @@ public class Dimension {
     /**
      * 计算出待渲染的位置，相对于坐标原点
      */
-    private CoordinatePoint point;
+    private Point point;
 
     public int widthDiff() {
         if (rotateWidth != 0) {

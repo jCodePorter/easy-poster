@@ -1,6 +1,6 @@
 package com.augrain.easy.poster.element;
 
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.PosterContext;
 
@@ -25,7 +25,7 @@ public abstract class AbstractDimensionElement<T extends AbstractDimensionElemen
 
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
-        CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
+        Point point = Point.ORIGIN_COORDINATE;
         if (position != null) {
             point = position.calculate(posterWidth, posterHeight, width, height);
         }

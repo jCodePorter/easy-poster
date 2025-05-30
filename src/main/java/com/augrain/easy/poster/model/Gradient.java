@@ -1,7 +1,7 @@
 package com.augrain.easy.poster.model;
 
 import com.augrain.easy.poster.exception.PosterException;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.utils.HexUtils;
 
@@ -60,12 +60,12 @@ public class Gradient {
     }
 
     public Paint toGradient(Dimension dimension) {
-        CoordinatePoint[] coordinatePoints = direction.calcStartEnd(dimension);
-        CoordinatePoint start = coordinatePoints[0];
-        CoordinatePoint end = coordinatePoints[1];
+        Point[] coordinatePoints = direction.calcStartEnd(dimension);
+        Point start = coordinatePoints[0];
+        Point end = coordinatePoints[1];
 
         return new LinearGradientPaint(
-                new Point(start.getX(), start.getY()), new Point(end.getX(), end.getY()), getFractions(), colors, MultipleGradientPaint.CycleMethod.NO_CYCLE);
+                new java.awt.Point(start.getX(), start.getY()), new java.awt.Point(end.getX(), end.getY()), getFractions(), colors, MultipleGradientPaint.CycleMethod.NO_CYCLE);
     }
 
     private float[] getFractions() {

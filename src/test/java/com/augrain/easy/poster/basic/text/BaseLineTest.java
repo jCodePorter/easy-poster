@@ -4,6 +4,7 @@ import com.augrain.easy.poster.EasyPoster;
 import com.augrain.easy.poster.element.AbstractElement;
 import com.augrain.easy.poster.element.basic.TextElement;
 import com.augrain.easy.poster.geometry.*;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.BaseLine;
 import org.junit.Test;
 
@@ -26,27 +27,27 @@ public class BaseLineTest {
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.CENTER)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(0, 00), PositionDirection.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(0, 00), Direction.LEFT_CENTER));
 
         poster.addTextElement("顶部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.TOP)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(120, 0), PositionDirection.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(120, 0), Direction.LEFT_CENTER));
 
         poster.addTextElement("底部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BOTTOM)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(240, 0), PositionDirection.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(240, 0), Direction.LEFT_CENTER));
 
         poster.addTextElement("基线对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BASE_LINE)
-                .setPosition(AbsolutePosition.of(CoordinatePoint.of(360, 0), PositionDirection.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(360, 0), Direction.LEFT_CENTER));
 
-        poster.addLineElement(CoordinatePoint.of(0, 0), CoordinatePoint.of(500, 0))
+        poster.addLineElement(Point.of(0, 0), Point.of(500, 0))
                 .setColor(Color.BLUE);
 
         poster.asFile("png", "text_absolute_base_line.png");
@@ -61,28 +62,28 @@ public class BaseLineTest {
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.CENTER)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, Margin.of().setMarginLeft(0)));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of().setMarginLeft(0)));
 
         poster.addTextElement("顶部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.TOP)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, Margin.of().setMarginLeft(120)));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of().setMarginLeft(120)));
 
         poster.addTextElement("底部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BOTTOM)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, Margin.of().setMarginLeft(240)));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of().setMarginLeft(240)));
 
         poster.addTextElement("基线对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BASE_LINE)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_LEFT, Margin.of().setMarginLeft(360)));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of().setMarginLeft(360)));
 
-        poster.addLineElement(CoordinatePoint.of(0, 250), CoordinatePoint.of(500, 250))
-                .setPosition(RelativePosition.of(PositionDirection.CENTER))
+        poster.addLineElement(Point.of(0, 250), Point.of(500, 250))
+                .setPosition(RelativePosition.of(Direction.CENTER))
                 .setColor(Color.BLUE);
 
         poster.getConfig().setDebug(true);
@@ -98,7 +99,7 @@ public class BaseLineTest {
         AbstractElement textElement = new TextElement("顶部对齐")
                 .setFont(font)
                 .setBaseLine(BaseLine.TOP)
-                .setPosition(RelativePosition.of(PositionDirection.TOP_CENTER, Margin.of().setMarginLeft(120)));
+                .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginLeft(120)));
 
         poster.addElement(textElement);
         poster.getConfig().setDebug(true);

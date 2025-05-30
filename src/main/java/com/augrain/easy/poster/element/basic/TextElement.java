@@ -2,7 +2,7 @@ package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractRepeatableElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.model.BaseLine;
 import com.augrain.easy.poster.model.PosterContext;
@@ -181,7 +181,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
             this.splitText = Collections.singletonList(this.text);
         }
 
-        CoordinatePoint point = CoordinatePoint.ORIGIN_COORDINATE;
+        Point point = Point.ORIGIN_COORDINATE;
         if (position != null) {
             point = position.calculate(posterWidth, posterHeight, width, height);
         }
@@ -201,9 +201,9 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Override
-    public CoordinatePoint doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         super.gradient(context, dimension);
-        CoordinatePoint point = dimension.getPoint();
+        Point point = dimension.getPoint();
 
         Graphics2D g = context.getGraphics();
         for (int i = 0; i < this.splitText.size(); i++) {

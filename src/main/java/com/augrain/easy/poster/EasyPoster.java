@@ -3,7 +3,7 @@ package com.augrain.easy.poster;
 import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.element.basic.*;
 import com.augrain.easy.poster.exception.PosterException;
-import com.augrain.easy.poster.geometry.CoordinatePoint;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.Config;
 import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.PosterListener;
@@ -138,7 +138,7 @@ public class EasyPoster {
         return circleElement;
     }
 
-    public LineElement addLineElement(CoordinatePoint start, CoordinatePoint end) {
+    public LineElement addLineElement(Point start, Point end) {
         LineElement lineElement = new LineElement(start, end);
         renderedElements.add(lineElement);
         return lineElement;
