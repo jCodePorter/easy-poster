@@ -2,11 +2,11 @@ package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractRepeatableElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.BaseLine;
-import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.Config;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.text.ITextSplitter;
 import com.augrain.easy.poster.text.TextSplitterSimpleImpl;
 import com.augrain.easy.poster.utils.RotateUtils;
@@ -251,5 +251,10 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         Graphics2D g = context.getGraphics();
         g.setFont(getFont(context.getConfig()));
         g.setColor(Optional.ofNullable(this.fontColor).orElse(context.getConfig().getColor()));
+    }
+
+    @Override
+    public void debug(PosterContext context, Dimension dimension) {
+        // 文本由于需要换行，覆盖父类方法，啥也不做，具体执行渲染时，再处理
     }
 }
