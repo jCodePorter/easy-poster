@@ -8,8 +8,10 @@ import com.augrain.easy.poster.model.BaseLine;
 import com.augrain.easy.poster.model.Config;
 import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.text.ITextSplitter;
+import com.augrain.easy.poster.text.SplitTextInfo;
 import com.augrain.easy.poster.text.TextSplitterSimpleImpl;
 import com.augrain.easy.poster.utils.RotateUtils;
+import lombok.Data;
 import lombok.Getter;
 
 import java.awt.*;
@@ -21,6 +23,7 @@ import java.text.AttributedString;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 文本元素，java中文本字符串在绘制时，按照字体排印学中原则，坐标点 y 值，即绘制文本的base line
@@ -87,7 +90,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     private boolean strikeThrough = false;
 
     // 程序处理过程中所需数据
-    private List<String> splitText;
+    private List<SplitTextWrapper> splitText;
 
     public TextElement(String text) {
         this.text = text;
@@ -169,29 +172,22 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         Integer lineHeightCfg = Optional.ofNullable(context.getConfig().getLineHeight()).orElse(this.lineHeight);
 
         // 文本宽高
-        int width;
         int height = Optional.ofNullable(lineHeightCfg).orElse(fm.getHeight());
-        if (autoWordWrap) {
-            ITextSplitter splitter = new TextSplitterSimpleImpl();
-            this.splitText = splitter.splitText(text, maxTextWidth, fm);
-            width = maxTextWidth;
-        } else {
-            Rectangle2D textBounds = fm.getStringBounds(text, g);
-            width = (int) textBounds.getWidth();
-            this.splitText = Collections.singletonList(this.text);
-        }
 
-        Point point = Point.ORIGIN_COORDINATE;
-        if (position != null) {
-            point = position.calculate(posterWidth, posterHeight, width, height);
-        }
+        // 文本差费
+        List<SplitTextInfo> splitTextInfos = getSplitTextInfos(fm, g);
+
+        // 计算折算文本的起始坐标点
+        this.splitText = calcPoint(posterWidth, posterHeight, splitTextInfos, height);
+        int width = this.splitText.stream().map(s -> s.getInfo().getWidth()).max(Integer::compareTo).orElse(maxTextWidth);
+        Point firstPoint = this.splitText.get(0).getPoint();
 
         BaseLine baseLineCfg = Optional.ofNullable(this.baseLine).orElse(context.getConfig().getBaseLine());
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(width)
                 .height(height)
                 .yOffset(baseLineCfg.getOffset(fm, height))
-                .point(point);
+                .point(Point.of(firstPoint.getX(), firstPoint.getY()));
         if (this.getRotate() != 0) {
             int[] newBounds = RotateUtils.newBounds(width, height, this.getRotate());
             builder.rotateWidth(newBounds[0])
@@ -200,15 +196,44 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         return builder.build();
     }
 
+    private List<SplitTextWrapper> calcPoint(int posterWidth, int posterHeight, List<SplitTextInfo> splitTextInfos, int height) {
+        return splitTextInfos.stream().map(t -> {
+            if (position != null) {
+                Point textPoint = position.calculate(posterWidth, posterHeight, t.getWidth(), height);
+                return new SplitTextWrapper(t, textPoint);
+            }
+            return new SplitTextWrapper(t, Point.ORIGIN_COORDINATE);
+        }).collect(Collectors.toList());
+    }
+
+    private List<SplitTextInfo> getSplitTextInfos(FontMetrics fm, Graphics2D g) {
+        List<SplitTextInfo> splitTextInfos;
+        if (autoWordWrap) {
+            ITextSplitter splitter = new TextSplitterSimpleImpl();
+            splitTextInfos = splitter.splitText(text, maxTextWidth, fm);
+        } else {
+            Rectangle2D textBounds = fm.getStringBounds(text, g);
+            splitTextInfos = Collections.singletonList(SplitTextInfo.of(this.text, (int) textBounds.getWidth()));
+        }
+        return splitTextInfos;
+    }
+
     @Override
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         super.gradient(context, dimension);
         Point point = dimension.getPoint();
 
         Graphics2D g = context.getGraphics();
+
+        // 计算基准坐标被父元素修改调整的差值
+        int xDiff = dimension.getPoint().getX() - this.splitText.get(0).getPoint().getX();
+        int yDiff = dimension.getPoint().getY() - this.splitText.get(0).getPoint().getY();
+
         for (int i = 0; i < this.splitText.size(); i++) {
-            int startX = point.getX() + dimension.getXOffset();
-            int startY = point.getY() + dimension.getYOffset() + i * dimension.getHeight();
+            SplitTextWrapper wrapper = this.splitText.get(i);
+
+            int startX = wrapper.getPoint().getX() + dimension.getXOffset() + xDiff;
+            int startY = wrapper.getPoint().getY() + dimension.getYOffset() + i * dimension.getHeight() + yDiff;
             if (this.getRotate() != 0) {
                 double rotateX = point.getX() + dimension.getWidth() / 2.0;
                 double rotateY = point.getY() + dimension.getHeight() / 2.0 + i * dimension.getHeight();
@@ -216,10 +241,10 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
                 AffineTransform rotateTransform = AffineTransform.getRotateInstance(Math.toRadians(rotate), rotateX, rotateY);
                 AffineTransform savedTransform = g.getTransform();
                 g.setTransform(rotateTransform);
-                doDrawText(context, splitText.get(i), startX, startY, dimension);
+                doDrawText(context, wrapper.getInfo().getText(), startX, startY, dimension);
                 g.setTransform(savedTransform);
             } else {
-                doDrawText(context, splitText.get(i), startX, startY, dimension);
+                doDrawText(context, wrapper.getInfo().getText(), startX, startY, dimension);
             }
         }
         return dimension.getPoint();
@@ -256,5 +281,17 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     @Override
     public void debug(PosterContext context, Dimension dimension) {
         // 文本由于需要换行，覆盖父类方法，啥也不做，具体执行渲染时，再处理
+    }
+
+    @Data
+    private static class SplitTextWrapper {
+        private SplitTextInfo info;
+
+        private Point point;
+
+        public SplitTextWrapper(SplitTextInfo info, Point point) {
+            this.info = info;
+            this.point = point;
+        }
     }
 }

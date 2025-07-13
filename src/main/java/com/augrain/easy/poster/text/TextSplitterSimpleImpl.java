@@ -16,8 +16,8 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
     private static final Map<Character, Integer> charSizeMap = new HashMap<>();
 
     @Override
-    public List<String> splitText(String text, int width, FontMetrics fontMetrics) {
-        List<String> lines = new ArrayList<>();
+    public List<SplitTextInfo> splitText(String text, int width, FontMetrics fontMetrics) {
+        List<SplitTextInfo> lines = new ArrayList<>();
         int size = fontMetrics.getFont().getSize();
 
         char[] charArray = text.toCharArray();
@@ -27,10 +27,10 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         while (index < charArray.length) {
             int cSize = getCharSize(charArray[index], size, fontMetrics);
             if (currentSize + cSize > width) {
-                lines.add(builder.toString());
+                lines.add(SplitTextInfo.of(builder.toString(), currentSize));
                 builder.setLength(0);
                 builder.append(charArray[index]);
-                currentSize = 1;
+                currentSize = cSize;
             } else {
                 currentSize += cSize;
                 builder.append(charArray[index]);
@@ -39,7 +39,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         }
 
         if (builder.length() > 0) {
-            lines.add(builder.toString());
+            lines.add(SplitTextInfo.of(builder.toString(), currentSize));
         }
         return lines;
     }

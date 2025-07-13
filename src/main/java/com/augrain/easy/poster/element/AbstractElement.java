@@ -150,6 +150,7 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
             Graphics2D graphics = context.getGraphics();
             Color oldColor = graphics.getColor();
             graphics.setColor(Color.BLACK);
+            // FIXME because "dimension" is null
             graphics.drawRect(dimension.getPoint().getX(), dimension.getPoint().getY(),
                     dimension.getWidth(), dimension.getHeight());
             graphics.setColor(oldColor);
