@@ -1,8 +1,8 @@
 package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
-import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.PosterContext;
 import lombok.Getter;
 
@@ -72,12 +72,14 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
         super.gradient(context, dimension);
         Point point = dimension.getPoint();
 
-        RoundRectangle2D rect = new RoundRectangle2D.Double(point.getX(), point.getY(), width, height,
+        int renderX = point.getX() + dimension.getXOffset();
+        int renderY = point.getY() + dimension.getYOffset();
+        RoundRectangle2D rect = new RoundRectangle2D.Double(renderX, renderY, width, height,
                 this.arcWidth, this.arcHeight);
         if (this.borderSize > 0 && this.borderSize < Math.max(this.width, this.height)) {
             RoundRectangle2D inner = new RoundRectangle2D.Double(
-                    point.getX() + borderSize,
-                    point.getY() + borderSize,
+                    renderX + borderSize,
+                    renderY + borderSize,
                     width - 2 * borderSize,
                     height - 2 * borderSize,
                     Math.max(0, this.arcWidth - borderSize),
