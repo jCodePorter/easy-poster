@@ -43,19 +43,28 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <easy-tool.version>0.0.2</easy-tool.version>
+        <lombok.version>1.18.30</lombok.version>
+        <zxing-core.version>3.5.3</zxing-core.version>
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>cn.augrain</groupId>
+            <artifactId>easy-tool</artifactId>
+            <version>${easy-tool.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
+            <version>${lombok.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
-            <version>3.5.3</version>
+            <version>${zxing-core.version}</version>
         </dependency>
 
         <dependency>

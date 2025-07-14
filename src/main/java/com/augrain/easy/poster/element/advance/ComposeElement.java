@@ -99,9 +99,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         } else {
             Position position = element.getPosition();
             if (position instanceof RelativePosition) {
-                Point point = dimension.getPoint();
-                point.setX(point.getX() + x);
-                point.setY(point.getY() + y);
+                // Point point = dimension.getPoint();
+                // point.setX(point.getX() + x);
+                // point.setY(point.getY() + y);
+
+                dimension.addOffset(x, y);
             }
         }
     }
@@ -148,7 +150,9 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
                 if (wrapper.getElement() instanceof ComposeElement) {
                     ((ComposeElement) wrapper.getElement()).resetCoordinatePointOffset(last.getWidth(), 0);
                 } else {
-                    dimension.getPoint().setX(dimension.getPoint().getX() + last.getWidth());
+                    // dimension.getPoint().setX(dimension.getPoint().getX() + last.getWidth());
+
+                    dimension.addOffset(last.getWidth(), 0);
                 }
             }
             last = dimension;
@@ -162,7 +166,9 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             wrapper.getElement().beforeRender(context);
             Dimension dimension = doCalRelativeLeft(context, posterHeight, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
-                dimension.getPoint().setX(dimension.getPoint().getX() - last.getWidth());
+                // dimension.getPoint().setX(dimension.getPoint().getX() - last.getWidth());
+
+                dimension.addOffset(-last.getWidth(), 0);
             }
             last = dimension;
             dimensionMap.put(wrapper.getElement(), dimension);
@@ -175,7 +181,9 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             wrapper.getElement().beforeRender(context);
             Dimension dimension = doCalRelativeTop(context, posterWidth, wrapper, basicDimension);
             if (last != null && wrapper.isFollow()) {
-                dimension.getPoint().setY(dimension.getPoint().getY() - last.getHeight());
+                // dimension.getPoint().setY(dimension.getPoint().getY() - last.getHeight());
+
+                dimension.addOffset(0, -last.getHeight());
             }
             last = dimension;
             dimensionMap.put(wrapper.getElement(), dimension);
@@ -191,7 +199,9 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
                 if (wrapper.getElement() instanceof ComposeElement) {
                     ((ComposeElement) wrapper.getElement()).resetCoordinatePointOffset(0, last.getHeight());
                 } else {
-                    dimension.getPoint().setY(dimension.getPoint().getY() + last.getHeight());
+                    // dimension.getPoint().setY(dimension.getPoint().getY() + last.getHeight());
+
+                    dimension.addOffset(0, last.getHeight());
                 }
             }
             last = dimension;
@@ -201,22 +211,26 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
 
     public void resetCoordinatePointOffset(int xOffset, int yOffset) {
         dimensionMap.forEach((element, dimension) -> {
-            dimension.getPoint().setX(dimension.getPoint().getX() + xOffset);
-            dimension.getPoint().setY(dimension.getPoint().getY() + yOffset);
+            // dimension.getPoint().setX(dimension.getPoint().getX() + xOffset);
+            // dimension.getPoint().setY(dimension.getPoint().getY() + yOffset);
+
+            dimension.addOffset(xOffset, yOffset);
         });
     }
 
     private Dimension doCalRelativeIn(PosterContext context, ElementWrapper elementWrapper, Dimension basicDimension) {
         AbstractElement element = elementWrapper.getElement();
-
         Dimension dimension = element.calculateDimension(context, basicDimension.getWidth(), basicDimension.getHeight());
 
         // 根据相对的基准元素进行坐标修正
         Position position = element.getPosition();
         if (position instanceof RelativePosition) {
-            Point point = dimension.getPoint();
-            point.setX(point.getX() + basicDimension.getPoint().getX());
-            point.setY(point.getY() + basicDimension.getPoint().getY());
+            // Point point = dimension.getPoint();
+            // point.setX(point.getX() + basicDimension.getPoint().getX());
+            // point.setY(point.getY() + basicDimension.getPoint().getY());
+
+            Point basicPoint = basicDimension.getPoint();
+            dimension.addOffset(basicPoint.getX(), basicPoint.getY());
         }
         return dimension;
     }
@@ -296,8 +310,8 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         // 根据渲染元素宽高与左上角坐标点，计算四角坐标
         dimensionMap.forEach((k, v) -> {
             Point point = v.getPoint();
-            int startX = point.getX();
-            int startY = point.getY();
+            int startX = point.getX() + v.getXOffset();
+            int startY = point.getY() + v.getYOffset();
 
             points.add(Point.of(startX, startY));
             points.add(Point.of(startX + v.getWidth(), startY));
@@ -329,10 +343,14 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             // 如果组合元素整体设置位置参数，则基于整体宽高重新计算
             Point markPoint = getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
 
+            int xDiff = markPoint.getX() - basicDimension.getPoint().getX();
+            int yDiff = markPoint.getY() - basicDimension.getPoint().getY();
+
             // 组合元素设置位置属性，重新调整坐标点
-            Point point = basicDimension.getPoint();
-            point.setX(markPoint.getX() + pointOffsetMap.get(basicElement).xOffset);
-            point.setY(markPoint.getY() + pointOffsetMap.get(basicElement).yOffset);
+            basicDimension.addOffset(xDiff, yDiff);
+            // Point point = basicDimension.getPoint();
+            // point.setX(markPoint.getX() + pointOffsetMap.get(basicElement).xOffset);
+            // point.setY(markPoint.getY() + pointOffsetMap.get(basicElement).yOffset);
 
             basicElement.beforeRender(context);
             basicElement.doRender(context, basicDimension, basicDimension.getWidth(), basicDimension.getHeight());
@@ -340,9 +358,12 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();
                 Dimension elementDimension = dimensionMap.get(element);
-                Point elementPoint = elementDimension.getPoint();
-                elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
-                elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
+                // Point elementPoint = elementDimension.getPoint();
+                // elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
+                // elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
+
+                elementDimension.addOffset(xDiff + pointOffsetMap.get(element).xOffset,
+                        xDiff + pointOffsetMap.get(element).yOffset);
 
                 element.beforeRender(context);
                 element.doRender(context, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());

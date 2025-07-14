@@ -37,7 +37,7 @@ public class Dimension {
     private int rotateHeight;
 
     /**
-     * 偏移量，微调整，用于文本渲染时使用
+     * 偏移量，用于修正坐标点，该值会被上层高级元素再次调整
      */
     private int xOffset;
 
@@ -60,5 +60,10 @@ public class Dimension {
             return rotateHeight - height;
         }
         return 0;
+    }
+
+    public void addOffset(int x, int y) {
+        this.xOffset += x;
+        this.yOffset += y;
     }
 }

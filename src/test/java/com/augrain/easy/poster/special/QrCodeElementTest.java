@@ -7,6 +7,7 @@ import com.augrain.easy.poster.element.special.QrCodeElement;
 import com.augrain.easy.poster.geometry.Margin;
 import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.RelativePosition;
+import com.augrain.easy.poster.model.BaseLine;
 import org.junit.Test;
 
 /**
@@ -30,7 +31,7 @@ public class QrCodeElementTest {
 
     @Test
     public void testCompose() {
-        EasyPoster poster = new EasyPoster(300, 300);
+        EasyPoster poster = new EasyPoster(350, 350);
 
         ComposeElement composeElement = ComposeElement.of(
                         new QrCodeElement("联系作者jcodeporter@gmail.com", 250, 250)

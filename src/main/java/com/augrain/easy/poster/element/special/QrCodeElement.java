@@ -31,7 +31,10 @@ public class QrCodeElement extends AbstractDimensionElement<QrCodeElement> {
         BufferedImage bufferedImage = QrCodeUtil.toBufferedImage(bitMatrix);
 
         Point point = dimension.getPoint();
-        context.getGraphics().drawImage(bufferedImage, point.getX(), point.getY(), dimension.getWidth(), dimension.getHeight(), null);
+
+        int renderX = point.getX() + dimension.getXOffset();
+        int renderY = point.getY() + dimension.getYOffset();
+        context.getGraphics().drawImage(bufferedImage, renderX, renderY, dimension.getWidth(), dimension.getHeight(), null);
         return point;
     }
 }
