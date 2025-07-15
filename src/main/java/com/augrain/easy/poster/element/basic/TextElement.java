@@ -174,12 +174,13 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         // 文本宽高
         int height = Optional.ofNullable(lineHeightCfg).orElse(fm.getHeight());
 
-        // 文本差费
+        // 文本拆分
         List<SplitTextInfo> splitTextInfos = getSplitTextInfos(fm, g);
 
         // 计算折算文本的起始坐标点
         this.splitText = calcPoint(posterWidth, posterHeight, splitTextInfos, height);
         int width = this.splitText.stream().map(s -> s.getInfo().getWidth()).max(Integer::compareTo).orElse(maxTextWidth);
+        // 返回第一个坐标点作为基准元素
         Point firstPoint = this.splitText.get(0).getPoint();
 
         BaseLine baseLineCfg = Optional.ofNullable(this.baseLine).orElse(context.getConfig().getBaseLine());
@@ -221,11 +222,10 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     @Override
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         super.gradient(context, dimension);
-        Point point = dimension.getPoint();
-
         Graphics2D g = context.getGraphics();
 
         // 计算基准坐标被父元素修改调整的差值
+        Point point = dimension.getPoint();
         int xDiff = dimension.getPoint().getX() - this.splitText.get(0).getPoint().getX();
         int yDiff = dimension.getPoint().getY() - this.splitText.get(0).getPoint().getY();
 

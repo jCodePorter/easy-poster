@@ -87,8 +87,8 @@ public class RepeatElement implements IElement {
 
                 Margin elementMargin = Margin.of().setMarginLeft(x).setMarginTop(y);
                 basicElement.setPosition(RelativePosition.of(Direction.TOP_LEFT, elementMargin));
-                Point coordinatePoint = basicElement.reCalculatePosition(posterWidth, posterHeight, dimension);
-                dimension.setPoint(coordinatePoint);
+                // Point coordinatePoint = basicElement.reCalculatePosition(posterWidth, posterHeight, dimension);
+                // dimension.setPoint(coordinatePoint);
                 basicElement.doRender(context, dimension, posterWidth, posterHeight);
             }
         }

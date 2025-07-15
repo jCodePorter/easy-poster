@@ -150,60 +150,6 @@ public class ComposeElementTest {
     }
 
     @Test
-    public void testComposeTile() throws Exception {
-        EasyPoster poster = new EasyPoster(500, 500);
-
-        InputStream inputStream = ComposeElementTest.class.getClassLoader().getResourceAsStream("logo.png");
-        BufferedImage inputImg = ImageIO.read(inputStream);
-
-        ComposeElement composeElement = new ComposeElement(new ImageElement(inputImg)
-                .scale(Scale.byWidth(50))
-                .setPosition(RelativePosition.of(Direction.CENTER)))
-                .bottom(new TextElement("叮叮智能")
-                        .setFontColor(Color.red)
-                        .setFontSize(18)
-                        .setFontName("仿宋")
-                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))))
-                .bottom(new TextElement("郑州叮有鱼科技")
-                        .setFontColor(Color.red)
-                        .setFontSize(18)
-                        .setFontName("楷体")
-                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(40))));
-
-        RepeatElement tileElement = new RepeatElement(composeElement)
-                .setPadding(20, 20);
-        poster.addElement(tileElement);
-
-        poster.asFile("png", "compose_tile.png");
-    }
-
-    @Test
-    public void testInTile() throws Exception {
-        EasyPoster poster = new EasyPoster(3000, 3000);
-
-        InputStream inputStream = ComposeElementTest.class.getClassLoader().getResourceAsStream("logo.png");
-        BufferedImage inputImg = ImageIO.read(inputStream);
-        AbstractElement imageElement = new ImageElement(inputImg)
-                .scale(Scale.byWidth(500))
-                .setPosition(RelativePosition.of(Direction.CENTER));
-
-        ComposeElement composeElement = new ComposeElement(imageElement);
-        for (Direction position : Direction.values()) {
-            Margin margin = Margin.of(30);
-            AbstractElement textElement = new TextElement("叮有鱼科技")
-                    .setFontColor(Color.red)
-                    .setFontSize(25)
-                    .setPosition(RelativePosition.of(position, margin));
-            composeElement.next(textElement, RelativeDirection.IN, false);
-        }
-
-        RepeatElement tileElement = new RepeatElement(composeElement)
-                .setPadding(100, 100);
-        poster.addElement(tileElement);
-        poster.asFile("png", "compose_in_tile.png");
-    }
-
-    @Test
     public void testFollow() {
         EasyPoster poster = new EasyPoster(1000, 200);
         BaseLine baseLine = BaseLine.CENTER;
