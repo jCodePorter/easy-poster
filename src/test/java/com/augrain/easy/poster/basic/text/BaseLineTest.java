@@ -50,7 +50,7 @@ public class BaseLineTest {
         poster.addLineElement(Point.of(0, 0), Point.of(500, 0))
                 .setColor(Color.BLUE);
 
-        poster.asFile("png", "text_absolute_base_line.png");
+        poster.asFile("png", "out_text_absolute_base_line.png");
     }
 
     @Test
@@ -87,7 +87,7 @@ public class BaseLineTest {
                 .setColor(Color.BLUE);
 
         poster.getConfig().setDebug(true);
-        poster.asFile("png", "text_relative_base_line.png");
+        poster.asFile("png", "out_text_relative_base_line.png");
     }
 
     @Test
@@ -103,6 +103,6 @@ public class BaseLineTest {
 
         poster.addElement(textElement);
         poster.getConfig().setDebug(true);
-        poster.asFile("png", "text_relative_base_line2.png");
+        poster.asFile("png", "out_text_relative_base_line2.png");
     }
 }

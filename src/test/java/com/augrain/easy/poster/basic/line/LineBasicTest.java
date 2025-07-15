@@ -31,7 +31,7 @@ public class LineBasicTest {
                 .setLineStyle(LineStyle.DASH_DOT)
                 .setColor(Color.ORANGE);
 
-        poster.asFile("png", "line_basic.png");
+        poster.asFile("png", "out_line_basic.png");
     }
 
 }

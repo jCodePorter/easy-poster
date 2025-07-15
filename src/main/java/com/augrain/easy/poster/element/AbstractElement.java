@@ -2,11 +2,11 @@ package com.augrain.easy.poster.element;
 
 import com.augrain.easy.poster.element.advance.ComposeElement;
 import com.augrain.easy.poster.exception.PosterException;
-import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Position;
-import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.Gradient;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.RelativeDirection;
 import lombok.Getter;
 
@@ -147,13 +147,15 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
 
     public void debug(PosterContext context, Dimension dimension) {
         if (context.getConfig().isDebug()) {
-            Graphics2D graphics = context.getGraphics();
-            Color oldColor = graphics.getColor();
-            graphics.setColor(Color.BLACK);
-            // FIXME because "dimension" is null
-            graphics.drawRect(dimension.getPoint().getX(), dimension.getPoint().getY(),
-                    dimension.getWidth(), dimension.getHeight());
-            graphics.setColor(oldColor);
+            // Some elements do not have obvious sizes, for example LineElement
+            if (dimension != null) {
+                Graphics2D graphics = context.getGraphics();
+                Color oldColor = graphics.getColor();
+                graphics.setColor(Color.BLACK);
+                graphics.drawRect(dimension.getPoint().getX(), dimension.getPoint().getY(),
+                        dimension.getWidth(), dimension.getHeight());
+                graphics.setColor(oldColor);
+            }
         }
     }
 }

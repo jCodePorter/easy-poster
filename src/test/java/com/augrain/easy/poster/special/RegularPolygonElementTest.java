@@ -26,6 +26,6 @@ public class RegularPolygonElementTest {
 
         poster.addElement(element);
 
-        poster.asFile("png", "regular_polygon.png");
+        poster.asFile("png", "out_regular_polygon.png");
     }
 }

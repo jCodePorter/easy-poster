@@ -40,7 +40,7 @@ public class TextBasicTest {
                 .setAlpha(0.5f)
                 .setPosition(AbsolutePosition.of(Point.of(30, 100), Direction.TOP_LEFT));
 
-        poster.asFile("png", "text_basic.png");
+        poster.asFile("png", "out_text_basic.png");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class TextBasicTest {
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.LEFT_RIGHT))
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
-        poster.asFile("png", "text_gradient.png");
+        poster.asFile("png", "out_text_gradient.png");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class TextBasicTest {
                 .setAlpha(0.5f)
                 .setPosition(AbsolutePosition.of(Point.of(30, 100)));
 
-        poster.asFile("png", "text_global.png");
+        poster.asFile("png", "out_text_global.png");
     }
 }
 

@@ -358,12 +358,12 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             for (ElementWrapper elementWrapper : elementWrapper) {
                 AbstractElement element = elementWrapper.getElement();
                 Dimension elementDimension = dimensionMap.get(element);
+                PointOffset pointOffset = pointOffsetMap.get(element);
                 // Point elementPoint = elementDimension.getPoint();
                 // elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
                 // elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
 
-                elementDimension.setOffset(xDiff + pointOffsetMap.get(element).xOffset,
-                        yDiff + pointOffsetMap.get(element).yOffset);
+                elementDimension.addOffset(xDiff, yDiff);
 
                 element.beforeRender(context);
                 element.doRender(context, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());

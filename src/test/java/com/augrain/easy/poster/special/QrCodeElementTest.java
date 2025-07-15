@@ -11,6 +11,8 @@ import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.model.BaseLine;
 import org.junit.Test;
 
+import java.awt.*;
+
 /**
  * 二维码测试
  *
@@ -27,7 +29,7 @@ public class QrCodeElementTest {
         qrcodeElement.setPosition(RelativePosition.of(Direction.CENTER));
         poster.addElement(qrcodeElement);
 
-        poster.asFile("png", "qrcode.png");
+        poster.asFile("png", "out_qrcode.png");
     }
 
     @Test
@@ -42,7 +44,7 @@ public class QrCodeElementTest {
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.addElement(composeElement);
-        poster.asFile("png", "qrcode_compose.png");
+        poster.asFile("png", "out_qrcode_compose.png");
     }
 
     @Test
@@ -53,11 +55,12 @@ public class QrCodeElementTest {
                         new QrCodeElement("联系作者jcodeporter@gmail.com", 250, 250)
                                 .setPosition(RelativePosition.of(Direction.CENTER)))
                 .bottom(new RectangleElement(100, 20)
+                        .setColor(Color.pink)
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(5))))
-                .setPosition(RelativePosition.of(Direction.CENTER))
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT))
                 ;
 
         poster.addElement(composeElement);
-        poster.asFile("png", "qrcode_compose.png");
+        poster.asFile("png", "out_qrcode_compose2.png");
     }
 }

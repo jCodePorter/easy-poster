@@ -37,6 +37,6 @@ public class ImageRepeatTest {
                 .setLayout(4,4);
 
         poster.addElement(repeatElement);
-        poster.asFile("png", "image_tile.png");
+        poster.asFile("png", "out_image_tile.png");
     }
 }

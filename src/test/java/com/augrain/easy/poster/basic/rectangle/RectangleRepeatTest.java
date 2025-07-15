@@ -27,6 +27,6 @@ public class RectangleRepeatTest {
                 .setLayout(4, 4, Margin.of(10));
 
         poster.addElement(repeatElement);
-        poster.asFile("png", "rectangle_tile.png");
+        poster.asFile("png", "out_rectangle_tile.png");
     }
 }

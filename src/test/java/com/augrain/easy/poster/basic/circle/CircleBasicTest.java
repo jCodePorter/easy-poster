@@ -29,7 +29,7 @@ public class CircleBasicTest {
                 .setBorderSize(40)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        poster.asFile("png", "circle_basic.png");
+        poster.asFile("png", "out_circle_basic.png");
     }
 
     /**
@@ -44,7 +44,7 @@ public class CircleBasicTest {
                 .setGradient(Gradient.of(new String[]{"#74A5FF", "#CEFF7E"}, GradientDirection.TOP_BOTTOM))
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
-        poster.asFile("png", "oval_basic.png");
+        poster.asFile("png", "out_oval_basic.png");
     }
 
 }

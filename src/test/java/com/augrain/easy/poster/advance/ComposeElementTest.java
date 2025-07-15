@@ -52,7 +52,7 @@ public class ComposeElementTest {
                 .next(textElement2, RelativeDirection.BOTTOM, false);
 
         poster.addElement(composeElement);
-        poster.asFile("png", "out/compose_bottom.png");
+        poster.asFile("png", "out_compose_bottom.png");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ComposeElementTest {
             composeElement.next(textElement, RelativeDirection.TOP, false);
         }
         poster.addElement(composeElement);
-        poster.asFile("png", "compose_top.png");
+        poster.asFile("png", "out_compose_top.png");
     }
 
     @Test
@@ -99,7 +99,7 @@ public class ComposeElementTest {
         }
         poster.addElement(composeElement);
 
-        poster.asFile("png", "compose_left.png");
+        poster.asFile("png", "out_compose_left.png");
     }
 
     @Test
@@ -122,7 +122,7 @@ public class ComposeElementTest {
             composeElement.next(textElement, RelativeDirection.RIGHT, false);
         }
         poster.addElement(composeElement);
-        poster.asFile("png", "compose_right.png");
+        poster.asFile("png", "out_compose_right.png");
     }
 
     @Test
@@ -146,7 +146,7 @@ public class ComposeElementTest {
         }
         poster.addElement(composeElement);
 
-        poster.asFile("png", "compose_in.png");
+        poster.asFile("png", "out_compose_in.png");
     }
 
     @Test
@@ -174,7 +174,7 @@ public class ComposeElementTest {
                 .setPadding(20, 20);
         poster.addElement(tileElement);
 
-        poster.asFile("png", "compose_tile.png");
+        poster.asFile("png", "out_compose_tile.png");
     }
 
     @Test
@@ -200,7 +200,7 @@ public class ComposeElementTest {
         RepeatElement tileElement = new RepeatElement(composeElement)
                 .setPadding(100, 100);
         poster.addElement(tileElement);
-        poster.asFile("png", "compose_in_tile.png");
+        poster.asFile("png", "out_compose_in_tile.png");
     }
 
     @Test
@@ -229,6 +229,6 @@ public class ComposeElementTest {
                         .setPosition(RelativePosition.of(Direction.LEFT_CENTER)), RelativeDirection.RIGHT, true)
                 .follow(follow, RelativeDirection.RIGHT, true));
 
-        poster.asFile("png", "compose_follow.png");
+        poster.asFile("png", "out_compose_follow.png");
     }
 }
