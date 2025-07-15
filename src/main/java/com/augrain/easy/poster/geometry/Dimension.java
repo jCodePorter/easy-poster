@@ -66,4 +66,10 @@ public class Dimension {
         this.xOffset += x;
         this.yOffset += y;
     }
+
+
+    public void setOffset(int x, int y) {
+        this.xOffset = x;
+        this.yOffset = y;
+    }
 }

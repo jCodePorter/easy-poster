@@ -54,7 +54,8 @@ public class QrCodeElementTest {
                                 .setPosition(RelativePosition.of(Direction.CENTER)))
                 .bottom(new RectangleElement(100, 20)
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(5))))
-                .setPosition(RelativePosition.of(Direction.CENTER));
+                .setPosition(RelativePosition.of(Direction.CENTER))
+                ;
 
         poster.addElement(composeElement);
         poster.asFile("png", "qrcode_compose.png");

@@ -327,8 +327,8 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         // 计算差值
         dimensionMap.forEach((k, v) -> {
             Point point = v.getPoint();
-            int xOffset = point.getX() - markPoint.getX();
-            int yOffset = point.getY() - markPoint.getY();
+            int xOffset = point.getX() + v.getXOffset() - markPoint.getX();
+            int yOffset = point.getY() + v.getYOffset() - markPoint.getY();
             PointOffset pointOffset = new PointOffset(xOffset, yOffset);
             pointOffsetMap.put(k, pointOffset);
         });
@@ -343,8 +343,8 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
             // 如果组合元素整体设置位置参数，则基于整体宽高重新计算
             Point markPoint = getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
 
-            int xDiff = markPoint.getX() - basicDimension.getPoint().getX();
-            int yDiff = markPoint.getY() - basicDimension.getPoint().getY();
+            int xDiff = markPoint.getX() - dimension.getPoint().getX();
+            int yDiff = markPoint.getY() - dimension.getPoint().getY();
 
             // 组合元素设置位置属性，重新调整坐标点
             basicDimension.addOffset(xDiff, yDiff);
@@ -362,8 +362,8 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
                 // elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
                 // elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
 
-                elementDimension.addOffset(xDiff + pointOffsetMap.get(element).xOffset,
-                        xDiff + pointOffsetMap.get(element).yOffset);
+                elementDimension.setOffset(xDiff + pointOffsetMap.get(element).xOffset,
+                        yDiff + pointOffsetMap.get(element).yOffset);
 
                 element.beforeRender(context);
                 element.doRender(context, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());
