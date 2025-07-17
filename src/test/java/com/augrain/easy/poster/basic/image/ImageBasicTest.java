@@ -27,7 +27,7 @@ public class ImageBasicTest {
         InputStream inputStream = ImageBasicTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage read = ImageIO.read(inputStream);
         poster.addImageElement(read);
-        poster.asFile("png", "img_basic.png");
+        poster.asFile("png", "out_img_basic.png");
     }
 
     @Test
@@ -41,7 +41,7 @@ public class ImageBasicTest {
             poster.addImageElement(read)
                     .setPosition(RelativePosition.of(position, Margin.of(10)));
         }
-        poster.asFile("png", "img_position.png");
+        poster.asFile("png", "out_img_position.png");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ImageBasicTest {
         BufferedImage read = ImageIO.read(inputStream);
 
         BufferedImage rotate = ImageUtils.rotate(read, -45);
-        ImageIO.write(rotate, "png", new File("img_rotate.png"));
+        ImageIO.write(rotate, "png", new File("out_img_rotate.png"));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class ImageBasicTest {
         BufferedImage read = ImageIO.read(inputStream);
 
         BufferedImage roundedCorner = ImageUtils.roundedCorner(read, 1000);
-        ImageIO.write(roundedCorner, "png", new File("img_round_corner.png"));
+        ImageIO.write(roundedCorner, "png", new File("out_img_round_corner.png"));
     }
 
 }

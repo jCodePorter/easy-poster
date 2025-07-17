@@ -27,7 +27,7 @@ public class FivePointStarTest {
 
         poster.addElement(fivePointedStarElement);
 
-        poster.asFile("png", "five_point_star.png");
+        poster.asFile("png", "out_five_point_star.png");
     }
 
 }

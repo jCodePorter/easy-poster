@@ -34,7 +34,7 @@ public class RepeatElementTest {
         for (Direction position : Direction.values()) {
             Margin margin = Margin.of(30);
             AbstractElement textElement = new TextElement("叮有鱼科技")
-                    .setFontColor(Color.red)
+                    .setColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
             composeElement.next(textElement, RelativeDirection.IN, false);
@@ -57,12 +57,12 @@ public class RepeatElementTest {
                 .scale(Scale.byWidth(50))
                 .setPosition(RelativePosition.of(Direction.CENTER)))
                 .bottom(new TextElement("叮叮智能")
-                        .setFontColor(Color.red)
+                        .setColor(Color.red)
                         .setFontSize(18)
                         .setFontName("仿宋")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))))
                 .bottom(new TextElement("郑州叮有鱼科技")
-                        .setFontColor(Color.red)
+                        .setColor(Color.red)
                         .setFontSize(18)
                         .setFontName("楷体")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(40))));
@@ -86,7 +86,7 @@ public class RepeatElementTest {
                 .scale(Scale.byWidth(50))
                 .setPosition(RelativePosition.of(Direction.CENTER)))
                 .bottom(new TextElement("叮有鱼科技有限公司专注于无人自助场景")
-                        .setFontColor(Color.red)
+                        .setColor(Color.red)
                         .setFontSize(18)
                         .setAutoWrapText(200)
                         .setFontName("仿宋")

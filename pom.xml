@@ -47,6 +47,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>cn.augrain</groupId>
+            <artifactId>easy-tool</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>

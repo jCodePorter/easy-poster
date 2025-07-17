@@ -25,7 +25,7 @@ public class QrCodeElementTest {
         qrcodeElement.setPosition(RelativePosition.of(Direction.CENTER));
         poster.addElement(qrcodeElement);
 
-        poster.asFile("png", "qrcode.png");
+        poster.asFile("png", "out_qrcode.png");
     }
 
     @Test
@@ -40,6 +40,6 @@ public class QrCodeElementTest {
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.addElement(composeElement);
-        poster.asFile("png", "qrcode_compose.png");
+        poster.asFile("png", "out_qrcode_compose.png");
     }
 }

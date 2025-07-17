@@ -26,7 +26,7 @@ public class RectangleBasicTest {
                 .setArc(20)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        poster.asFile("png", "rectangle_basic.png");
+        poster.asFile("png", "out_rectangle_basic.png");
     }
 
     @Test
@@ -40,7 +40,7 @@ public class RectangleBasicTest {
                 .setGradient(Gradient.of(new String[]{"#EA9381", "#F0B09F", "#FFDBBD"}, GradientDirection.TOP_BOTTOM))
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
-        poster.asFile("png", "rectangle_gradient.png");
+        poster.asFile("png", "out_rectangle_gradient.png");
     }
 
 }

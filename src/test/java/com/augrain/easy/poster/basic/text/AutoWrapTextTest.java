@@ -27,6 +27,6 @@ public class AutoWrapTextTest {
                 .setAutoWrapText(400)
                 .setPosition(AbsolutePosition.of(Point.of(30, 0), Direction.TOP_LEFT));
 
-        poster.asFile("png", "text_auto_split.png");
+        poster.asFile("png", "out_text_auto_split.png");
     }
 }
