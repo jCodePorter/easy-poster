@@ -1,5 +1,6 @@
 package com.augrain.easy.poster.element;
 
+import cn.augrain.easy.tool.support.ColorUtils;
 import com.augrain.easy.poster.element.advance.ComposeElement;
 import com.augrain.easy.poster.exception.PosterException;
 import com.augrain.easy.poster.geometry.Point;
@@ -39,6 +40,26 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
      * 渐变设置
      */
     protected Gradient gradient;
+
+    /**
+     * 颜色
+     */
+    protected Color color = Color.BLACK;
+
+    public T setColor(final Color color) {
+        this.color = color;
+        return (T) this;
+    }
+
+    /**
+     * 设置文本颜色，十六进制模式
+     *
+     * @param fontColor 字体颜色，比如 #FF0000
+     */
+    public T setFontColor(String fontColor) {
+        this.color = ColorUtils.hexToColor(fontColor);
+        return (T) this;
+    }
 
     public T setAlpha(float alpha) {
         if (alpha < 0 || alpha > 1) {

@@ -2,8 +2,8 @@ package com.augrain.easy.poster.element.special;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.PosterContext;
 
 import java.awt.*;
@@ -22,11 +22,6 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
     private final int edges;
 
     /**
-     * 填充颜色或者边框颜色
-     */
-    private Color color = Color.BLACK;
-
-    /**
      * N边形
      *
      * @param radius 半径
@@ -36,11 +31,6 @@ public class RegularPolygonElement extends AbstractDimensionElement<RegularPolyg
         this.width = radius * 2;
         this.height = radius * 2;
         this.edges = edges;
-    }
-
-    public RegularPolygonElement setColor(final Color color) {
-        this.color = color;
-        return this;
     }
 
     @Override

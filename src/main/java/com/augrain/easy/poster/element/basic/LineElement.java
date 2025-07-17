@@ -1,5 +1,6 @@
 package com.augrain.easy.poster.element.basic;
 
+import cn.augrain.easy.tool.support.ColorUtils;
 import com.augrain.easy.poster.element.AbstractElement;
 import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.geometry.Point;
@@ -34,11 +35,6 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
     private int borderSize = 1;
 
     /**
-     * 颜色
-     */
-    private Color color = Color.BLACK;
-
-    /**
      * 线段样式
      */
     private LineStyle lineStyle;
@@ -52,11 +48,6 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
         this.start = start;
         this.end = end;
         this.borderSize = borderSize;
-    }
-
-    public LineElement setColor(final Color color) {
-        this.color = color;
-        return this;
     }
 
     public LineElement setLineStyle(final LineStyle lineStyle) {

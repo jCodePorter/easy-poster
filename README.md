@@ -110,6 +110,11 @@ public void testRelativePosition() throws Exception {
 
 ## 3.2 更新记录
 
+### 0.0.5.2
+- 解决文本自动换行不根据position属性的bug
+- 解决debug模式空指针bug
+- 文本颜色支持字符串
+
 ### 0.0.5
 
 - 代码结构调整，部分类重命名

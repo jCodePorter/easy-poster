@@ -1,5 +1,6 @@
 package com.augrain.easy.poster.element.basic;
 
+import cn.augrain.easy.tool.support.ColorUtils;
 import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
@@ -22,11 +23,6 @@ public class CircleElement extends AbstractDimensionElement<CircleElement> {
      * 线宽
      */
     private double borderSize = 0;
-
-    /**
-     * 填充颜色或者边框颜色
-     */
-    private Color color = Color.BLACK;
 
     /**
      * 圆形构造器

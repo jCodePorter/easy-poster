@@ -40,11 +40,6 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     private final String text;
 
     /**
-     * 字体颜色，默认为黑色
-     */
-    private Color fontColor;
-
-    /**
      * 字体名称，默认为微软雅黑
      */
     private String fontName;
@@ -98,11 +93,6 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
     public static TextElement of(String text) {
         return new TextElement(text);
-    }
-
-    public TextElement setFontColor(Color fontColor) {
-        this.fontColor = fontColor;
-        return this;
     }
 
     public TextElement setFontName(String fontName) {
@@ -275,7 +265,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         super.beforeRender(context);
         Graphics2D g = context.getGraphics();
         g.setFont(getFont(context.getConfig()));
-        g.setColor(Optional.ofNullable(this.fontColor).orElse(context.getConfig().getColor()));
+        g.setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.augrain.easy.poster.element.special;
 
 import com.augrain.easy.poster.element.AbstractDimensionElement;
-import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.PosterContext;
 
 import java.awt.*;
@@ -13,14 +13,9 @@ import java.awt.*;
  * @author biaoy
  * @since 2025/03/18
  */
-public class FivePointedStarElement extends AbstractDimensionElement {
+public class FivePointedStarElement extends AbstractDimensionElement<FivePointedStarElement> {
 
     private int borderSize = 0;
-
-    /**
-     * 填充颜色或者边框颜色
-     */
-    private Color color = Color.BLACK;
 
     /**
      * 五角星构造器
@@ -30,16 +25,6 @@ public class FivePointedStarElement extends AbstractDimensionElement {
     public FivePointedStarElement(final int radius) {
         this.width = radius * 2;
         this.height = radius * 2;
-    }
-
-    public FivePointedStarElement setColor(final Color color) {
-        this.color = color;
-        return this;
-    }
-
-    public FivePointedStarElement setBorderSize(final int borderSize) {
-        this.borderSize = borderSize;
-        return this;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.augrain.easy.poster.model;
 
+import cn.augrain.easy.tool.support.ColorUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -54,4 +55,12 @@ public class Config {
      * 行高
      */
     private Integer lineHeight;
+
+    public void setColor(String color) {
+        this.color = ColorUtils.hexToColor(color);
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
 }

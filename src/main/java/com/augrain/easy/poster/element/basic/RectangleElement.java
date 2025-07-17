@@ -1,5 +1,6 @@
 package com.augrain.easy.poster.element.basic;
 
+import cn.augrain.easy.tool.support.ColorUtils;
 import com.augrain.easy.poster.element.AbstractDimensionElement;
 import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
@@ -35,11 +36,6 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
      */
     private double arcHeight = 0;
 
-    /**
-     * 填充颜色或者边框颜色
-     */
-    private Color color = Color.BLACK;
-
     public RectangleElement(final int width, final int height) {
         this.width = width;
         this.height = height;
@@ -54,11 +50,6 @@ public class RectangleElement extends AbstractDimensionElement<RectangleElement>
     public RectangleElement setArc(final int arcWidth, final int arcHeight) {
         this.arcWidth = arcWidth;
         this.arcHeight = arcHeight;
-        return this;
-    }
-
-    public RectangleElement setColor(final Color color) {
-        this.color = color;
         return this;
     }
 

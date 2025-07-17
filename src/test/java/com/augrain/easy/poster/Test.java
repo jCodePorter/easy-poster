@@ -34,7 +34,7 @@ public class Test {
                                 .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 635))))
                 .bottom(new TextElement(textMsg).setFontSize(36).setFontName("微软雅黑")
                         .setAutoWrapText(600)
-                        .setFontColor(new Color(Integer.parseInt("56", 16), Integer.parseInt("6C", 16), Integer.parseInt("91", 16)))
+                        .setFontColor("#566C91")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(35))));
 
         poster.addElement(composeElement);
