@@ -27,6 +27,11 @@ public class FivePointedStarElement extends AbstractDimensionElement<FivePointed
         this.height = radius * 2;
     }
 
+    public FivePointedStarElement setBorderSize(int borderSize) {
+        this.borderSize = borderSize;
+        return this;
+    }
+
     @Override
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         // 绘制五角星。五角星分别有5个顶点，1个中心。绘制五个四边形，绘制方法：每个顶点（称为'A'点）连接不相邻的两个顶点（称为'B'点、'C'点）,五角星的正中心点（称为'D'点），'B'点、'C'点分别连接'D'点。

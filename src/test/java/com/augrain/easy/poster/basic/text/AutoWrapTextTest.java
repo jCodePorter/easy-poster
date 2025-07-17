@@ -22,7 +22,7 @@ public class AutoWrapTextTest {
 
         poster.addTextElement("这是一段测试的超长文本，用来测试自动换行，目前是简单实现一版，用于验证自动换行功能逻辑，处于Alpha版")
                 .setFontSize(15)
-                .setFontColor(Color.red)
+                .setColor(Color.red)
                 .setLineHeight(50)
                 .setAutoWrapText(400)
                 .setPosition(AbsolutePosition.of(Point.of(30, 0), Direction.TOP_LEFT));

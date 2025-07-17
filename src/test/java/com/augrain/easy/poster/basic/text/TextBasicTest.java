@@ -25,18 +25,18 @@ public class TextBasicTest {
 
         poster.addTextElement("正常文字")
                 .setFontSize(25)
-                .setFontColor(Color.red)
+                .setColor(Color.red)
                 .setPosition(AbsolutePosition.of(Point.of(30, 0), Direction.TOP_LEFT));
 
         poster.addTextElement("旋转文字")
                 .setFontSize(25)
-                .setFontColor(Color.red)
+                .setColor(Color.red)
                 .setRotate(-30)
                 .setPosition(AbsolutePosition.of(Point.of(30, 50), Direction.TOP_LEFT));
 
         poster.addTextElement("透明度为50%")
                 .setFontSize(25)
-                .setFontColor(Color.red)
+                .setColor(Color.red)
                 .setAlpha(0.5f)
                 .setPosition(AbsolutePosition.of(Point.of(30, 100), Direction.TOP_LEFT));
 
@@ -67,7 +67,7 @@ public class TextBasicTest {
 
         poster.addTextElement("旋转文字")
                 .setRotate(-30)
-                .setFontColor(Color.red)
+                .setColor(Color.red)
                 .setPosition(AbsolutePosition.of(Point.of(30, 50)));
 
         poster.addTextElement("透明度为50%")

@@ -37,13 +37,13 @@ public class ComposeElementTest {
 
         Margin margin = Margin.of().setMarginTop(10);
         TextElement textElement = new TextElement("叮叮智能")
-                .setFontColor(Color.red)
+                .setColor(Color.red)
                 .setFontSize(18)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT, margin));
 
         Margin margin2 = Margin.of().setMarginTop(40);
         TextElement textElement2 = new TextElement("郑州叮有鱼科技")
-                .setFontColor(Color.red)
+                .setColor(Color.red)
                 .setFontSize(18)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT, margin2));
 
@@ -52,7 +52,7 @@ public class ComposeElementTest {
                 .next(textElement2, RelativeDirection.BOTTOM, false);
 
         poster.addElement(composeElement);
-        poster.asFile("png", "out/compose_bottom.png");
+        poster.asFile("png", "out_compose_bottom.png");
     }
 
     @Test
@@ -69,13 +69,13 @@ public class ComposeElementTest {
         for (Direction position : Direction.values()) {
             Margin margin = Margin.of(10);
             TextElement textElement = new TextElement("叮叮智能")
-                    .setFontColor(Color.red)
+                    .setColor(Color.red)
                     .setFontSize(18)
                     .setPosition(RelativePosition.of(position, margin));
             composeElement.next(textElement, RelativeDirection.TOP, false);
         }
         poster.addElement(composeElement);
-        poster.asFile("png", "compose_top.png");
+        poster.asFile("png", "out_compose_top.png");
     }
 
     @Test
@@ -92,14 +92,14 @@ public class ComposeElementTest {
         for (Direction position : Direction.values()) {
             Margin margin = Margin.of(0);
             TextElement textElement = new TextElement("叮有鱼科技")
-                    .setFontColor(Color.red)
+                    .setColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
             composeElement.next(textElement, RelativeDirection.LEFT, true);
         }
         poster.addElement(composeElement);
 
-        poster.asFile("png", "compose_left.png");
+        poster.asFile("png", "out_compose_left.png");
     }
 
     @Test
@@ -116,13 +116,13 @@ public class ComposeElementTest {
         for (Direction position : Direction.values()) {
             Margin margin = Margin.of(0);
             TextElement textElement = new TextElement("叮有鱼科技")
-                    .setFontColor(Color.red)
+                    .setColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
             composeElement.next(textElement, RelativeDirection.RIGHT, false);
         }
         poster.addElement(composeElement);
-        poster.asFile("png", "compose_right.png");
+        poster.asFile("png", "out_compose_right.png");
     }
 
     @Test
@@ -139,7 +139,7 @@ public class ComposeElementTest {
         for (Direction position : Direction.values()) {
             Margin margin = Margin.of(0);
             TextElement textElement = new TextElement("叮有鱼科技")
-                    .setFontColor(Color.red)
+                    .setColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
             composeElement.next(textElement, RelativeDirection.IN, false);
@@ -147,6 +147,61 @@ public class ComposeElementTest {
         poster.addElement(composeElement);
 
         poster.asFile("png", "compose_in.png");
+        poster.asFile("png", "out_compose_in.png");
+    }
+
+    @Test
+    public void testComposeTile() throws Exception {
+        EasyPoster poster = new EasyPoster(500, 500);
+
+        InputStream inputStream = ComposeElementTest.class.getClassLoader().getResourceAsStream("logo.png");
+        BufferedImage inputImg = ImageIO.read(inputStream);
+
+        ComposeElement composeElement = new ComposeElement(new ImageElement(inputImg)
+                .scale(Scale.byWidth(50))
+                .setPosition(RelativePosition.of(Direction.CENTER)))
+                .bottom(new TextElement("叮叮智能")
+                        .setColor(Color.red)
+                        .setFontSize(18)
+                        .setFontName("仿宋")
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))))
+                .bottom(new TextElement("郑州叮有鱼科技")
+                        .setColor(Color.red)
+                        .setFontSize(18)
+                        .setFontName("楷体")
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(40))));
+
+        RepeatElement tileElement = new RepeatElement(composeElement)
+                .setPadding(20, 20);
+        poster.addElement(tileElement);
+
+        poster.asFile("png", "out_compose_tile.png");
+    }
+
+    @Test
+    public void testInTile() throws Exception {
+        EasyPoster poster = new EasyPoster(3000, 3000);
+
+        InputStream inputStream = ComposeElementTest.class.getClassLoader().getResourceAsStream("logo.png");
+        BufferedImage inputImg = ImageIO.read(inputStream);
+        AbstractElement imageElement = new ImageElement(inputImg)
+                .scale(Scale.byWidth(500))
+                .setPosition(RelativePosition.of(Direction.CENTER));
+
+        ComposeElement composeElement = new ComposeElement(imageElement);
+        for (Direction position : Direction.values()) {
+            Margin margin = Margin.of(30);
+            AbstractElement textElement = new TextElement("叮有鱼科技")
+                    .setColor(Color.red)
+                    .setFontSize(25)
+                    .setPosition(RelativePosition.of(position, margin));
+            composeElement.next(textElement, RelativeDirection.IN, false);
+        }
+
+        RepeatElement tileElement = new RepeatElement(composeElement)
+                .setPadding(100, 100);
+        poster.addElement(tileElement);
+        poster.asFile("png", "out_compose_in_tile.png");
     }
 
     @Test
@@ -168,13 +223,13 @@ public class ComposeElementTest {
                 .setFontName("楷体")
                 .setBaseLine(baseLine)
                 .follow(TextElement.of("6")
-                        .setFontColor(Color.red)
+                        .setColor(Color.red)
                         .setFontSize(50)
                         .setFontName("仿宋")
                         .setBaseLine(baseLine)
                         .setPosition(RelativePosition.of(Direction.LEFT_CENTER)), RelativeDirection.RIGHT, true)
                 .follow(follow, RelativeDirection.RIGHT, true));
 
-        poster.asFile("png", "compose_follow.png");
+        poster.asFile("png", "out_compose_follow.png");
     }
 }
