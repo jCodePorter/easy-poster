@@ -3,11 +3,11 @@ package com.augrain.easy.poster.element;
 import cn.augrain.easy.tool.support.ColorUtils;
 import com.augrain.easy.poster.element.advance.ComposeElement;
 import com.augrain.easy.poster.exception.PosterException;
-import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Position;
-import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.Gradient;
+import com.augrain.easy.poster.model.PosterContext;
 import com.augrain.easy.poster.model.RelativeDirection;
 import lombok.Getter;
 
@@ -54,10 +54,10 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     /**
      * 设置文本颜色，十六进制模式
      *
-     * @param fontColor 字体颜色，比如 #FF0000
+     * @param color 颜色，比如 #FF0000
      */
-    public T setFontColor(String fontColor) {
-        this.color = ColorUtils.hexToColor(fontColor);
+    public T setColor(String color) {
+        this.color = ColorUtils.hexToColor(color);
         return (T) this;
     }
 

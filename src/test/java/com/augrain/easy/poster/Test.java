@@ -8,7 +8,6 @@ import com.augrain.easy.poster.geometry.Margin;
 import com.augrain.easy.poster.geometry.RelativePosition;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +33,7 @@ public class Test {
                                 .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 635))))
                 .bottom(new TextElement(textMsg).setFontSize(36).setFontName("微软雅黑")
                         .setAutoWrapText(600)
-                        .setFontColor("#566C91")
+                        .setColor("#566C91")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(35))));
 
         poster.addElement(composeElement);
