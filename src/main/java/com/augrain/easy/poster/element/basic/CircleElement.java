@@ -1,9 +1,8 @@
 package com.augrain.easy.poster.element.basic;
 
-import cn.augrain.easy.tool.support.ColorUtils;
 import com.augrain.easy.poster.element.AbstractDimensionElement;
-import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.geometry.Dimension;
+import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.PosterContext;
 
 import java.awt.*;

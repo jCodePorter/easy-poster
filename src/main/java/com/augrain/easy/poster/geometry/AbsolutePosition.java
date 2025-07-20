@@ -16,7 +16,7 @@ public class AbsolutePosition implements Position {
     /**
      * {@link Direction} 相对位置枚举实现，相当于以 {@link Point} 点为基准点，进行绝对位置的相对偏移
      * 比如，输入 point(10,10), 元素宽高为10,10
-     * 如果 referencePosition = Positions.LEFT_CENTER, 则绘制起始点为(10,5)，相当于绘制起始坐标点在元素左侧居中位置
+     * 如果 direction = Positions.LEFT_CENTER, 则绘制起始点为(10,5)，相当于绘制起始坐标点在元素左侧居中位置
      */
     private final Direction direction;
 
