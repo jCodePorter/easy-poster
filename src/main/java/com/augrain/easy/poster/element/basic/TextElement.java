@@ -5,6 +5,7 @@ import com.augrain.easy.poster.element.IElement;
 import com.augrain.easy.poster.geometry.AbsolutePosition;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.geometry.Point;
+import com.augrain.easy.poster.geometry.RelativePosition;
 import com.augrain.easy.poster.model.BaseLine;
 import com.augrain.easy.poster.model.Config;
 import com.augrain.easy.poster.model.PosterContext;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * 文本元素，java中文本字符串在绘制时，按照字体排印学中原则，坐标点 y 值，即绘制文本的base line
- *
+ * <p>
  * TODO 文本，不应该支持 AbsolutePosition中的direction属性，而应该使用左对齐和右对齐；同时当为RelativePosition时，不支持baseline，相关属性互相冲突
  *
  * @author biaoy
@@ -192,11 +193,14 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
     private List<SplitTextWrapper> calcPoint(int posterWidth, int posterHeight, List<SplitTextInfo> splitTextInfos, int height) {
         return splitTextInfos.stream().map(t -> {
-            if (position != null) {
+            if (position instanceof RelativePosition) {
                 Point textPoint = position.calculate(posterWidth, posterHeight, t.getWidth(), height);
                 return new SplitTextWrapper(t, textPoint);
+            } else if (position instanceof AbsolutePosition) {
+                return new SplitTextWrapper(t, ((AbsolutePosition) position).getPoint());
+            } else {
+                return new SplitTextWrapper(t, Point.ORIGIN_COORDINATE);
             }
-            return new SplitTextWrapper(t, Point.ORIGIN_COORDINATE);
         }).collect(Collectors.toList());
     }
 

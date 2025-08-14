@@ -1,5 +1,7 @@
 package com.augrain.easy.poster.geometry;
 
+import lombok.Getter;
+
 /**
  * 绝对定位
  *
@@ -11,6 +13,7 @@ public class AbsolutePosition implements Position {
     /**
      * 坐标点
      */
+    @Getter
     private final Point point;
 
     /**
