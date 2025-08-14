@@ -24,7 +24,7 @@ public class Config {
     /**
      * 文本对齐方式，默认居中对齐
      */
-    private BaseLine baseLine = BaseLine.CENTER;
+    private BaseLine baseLine = BaseLine.BASE_LINE;
 
     /**
      * 颜色，默认为黑色（用于字体颜色、填充颜色等）
