@@ -27,27 +27,27 @@ public class BaseLineTest {
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.CENTER)
-                .setPosition(AbsolutePosition.of(Point.of(0, 00), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(0, 250), Direction.LEFT_CENTER));
 
         poster.addTextElement("顶部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.TOP)
-                .setPosition(AbsolutePosition.of(Point.of(120, 0), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(120, 250), Direction.LEFT_CENTER));
 
         poster.addTextElement("底部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BOTTOM)
-                .setPosition(AbsolutePosition.of(Point.of(240, 0), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(240, 250), Direction.LEFT_CENTER));
 
         poster.addTextElement("基线对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BASE_LINE)
-                .setPosition(AbsolutePosition.of(Point.of(360, 0), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(360, 250), Direction.LEFT_CENTER));
 
-        poster.addLineElement(Point.of(0, 0), Point.of(500, 0))
+        poster.addLineElement(Point.of(0, 250), Point.of(500, 250))
                 .setColor(Color.BLUE);
 
         poster.asFile("png", "out_text_absolute_base_line.png");

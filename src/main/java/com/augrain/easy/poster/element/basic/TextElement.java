@@ -2,6 +2,7 @@ package com.augrain.easy.poster.element.basic;
 
 import com.augrain.easy.poster.element.AbstractRepeatableElement;
 import com.augrain.easy.poster.element.IElement;
+import com.augrain.easy.poster.geometry.AbsolutePosition;
 import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.BaseLine;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 
 /**
  * 文本元素，java中文本字符串在绘制时，按照字体排印学中原则，坐标点 y 值，即绘制文本的base line
+ *
+ * TODO 文本，不应该支持 AbsolutePosition中的direction属性，而应该使用左对齐和右对齐；同时当为RelativePosition时，不支持baseline，相关属性互相冲突
  *
  * @author biaoy
  * @since 2025/02/21
@@ -177,7 +180,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(width)
                 .height(height)
-                .yOffset(baseLineCfg.getOffset(fm, height))
+                .yOffset(getPosition() instanceof AbsolutePosition ? baseLineCfg.getOffset(fm, height) : 0)
                 .point(Point.of(firstPoint.getX(), firstPoint.getY()));
         if (this.getRotate() != 0) {
             int[] newBounds = RotateUtils.newBounds(width, height, this.getRotate());
