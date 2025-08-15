@@ -173,11 +173,12 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
         // 计算折算文本的起始坐标点
         this.splitText = calcPoint(posterWidth, posterHeight, splitTextInfos, height);
-        int width = this.splitText.stream().map(s -> s.getInfo().getWidth()).max(Integer::compareTo).orElse(maxTextWidth);
+        int width = this.splitText.stream().map(s -> s.getInfo().getWidth())
+                .max(Integer::compareTo).orElse(maxTextWidth);
         // 返回第一个坐标点作为基准元素
         Point firstPoint = this.splitText.get(0).getPoint();
 
-        BaseLine baseLineCfg = Optional.ofNullable(this.baseLine).orElse(context.getConfig().getBaseLine());
+        BaseLine baseLineCfg = getBaseLineCfg(context);
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(width)
                 .height(height)
@@ -189,6 +190,10 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
                     .rotateHeight(newBounds[1]);
         }
         return builder.build();
+    }
+
+    private BaseLine getBaseLineCfg(PosterContext context) {
+        return Optional.ofNullable(this.baseLine).orElse(context.getConfig().getBaseLine());
     }
 
     private List<SplitTextWrapper> calcPoint(int posterWidth, int posterHeight, List<SplitTextInfo> splitTextInfos, int height) {
@@ -255,7 +260,15 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
             LineMetrics lineMetrics = fontMetrics.getLineMetrics(text, g);
             float ascent = lineMetrics.getAscent();
             int diffHeight = (Optional.ofNullable(this.lineHeight).orElse(fontMetrics.getHeight()) - fontMetrics.getHeight()) / 2;
-            g.drawRect(startX, (int) (startY - ascent - diffHeight), dimension.getWidth(), dimension.getHeight());
+
+            int baseY = (int) (startY - ascent - diffHeight);
+            BaseLine baseLineCfg = getBaseLine();
+            if (baseLineCfg == BaseLine.TOP) {
+                baseY += diffHeight;
+            } else if (baseLineCfg == BaseLine.BOTTOM) {
+                baseY -= diffHeight;
+            }
+            g.drawRect(startX, baseY, dimension.getWidth(), dimension.getHeight());
         }
         if (this.strikeThrough) {
             AttributedString as = new AttributedString(text);
