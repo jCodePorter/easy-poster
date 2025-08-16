@@ -41,7 +41,7 @@ public class RepeatElementTest {
         }
 
         RepeatElement tileElement = new RepeatElement(composeElement)
-                .setPadding(100, 100);
+                .setInterval(100, 100);
         poster.addElement(tileElement);
         poster.asFile("png", "out_text_in_tile.png");
     }
@@ -68,7 +68,7 @@ public class RepeatElementTest {
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(40))));
 
         RepeatElement tileElement = new RepeatElement(composeElement)
-                .setPadding(20, 20);
+                .setInterval(20, 20);
         poster.addElement(tileElement);
 
         poster.asFile("png", "out_text_follow_tile.png");
@@ -93,7 +93,7 @@ public class RepeatElementTest {
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))));
 
         RepeatElement tileElement = new RepeatElement(composeElement)
-                .setPadding(20, 20);
+                .setInterval(20, 20);
         poster.addElement(tileElement);
 
         poster.asFile("png", "out_text_follow_wrap_tile.png");

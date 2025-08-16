@@ -2,7 +2,6 @@ package com.augrain.easy.poster.element.advance;
 
 import com.augrain.easy.poster.element.AbstractRepeatableElement;
 import com.augrain.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.Dimension;
 import com.augrain.easy.poster.geometry.*;
 import com.augrain.easy.poster.model.PosterContext;
 import lombok.AllArgsConstructor;
@@ -24,12 +23,12 @@ public class RepeatElement implements IElement {
     /**
      * 水平间隔
      */
-    private int xPadding = 0;
+    private int xInterval = 0;
 
     /**
      * 垂直间隔
      */
-    private int yPadding = 0;
+    private int yInterval = 0;
 
     /**
      * 自定义布局
@@ -40,27 +39,59 @@ public class RepeatElement implements IElement {
         this.basicElement = basicElement;
     }
 
-    public RepeatElement setXPadding(int xPadding) {
-        this.xPadding = xPadding;
+    /**
+     * 设置水平间隔
+     *
+     * @param xInterval 水平间隔
+     * @return this
+     */
+    public RepeatElement setXInterval(int xInterval) {
+        this.xInterval = xInterval;
         return this;
     }
 
-    public RepeatElement setYPadding(int yPadding) {
-        this.yPadding = yPadding;
+    /**
+     * 设置垂直间隔
+     *
+     * @param yInterval 垂直间隔
+     * @return this
+     */
+    public RepeatElement setYInterval(int yInterval) {
+        this.yInterval = yInterval;
         return this;
     }
 
-    public RepeatElement setPadding(int xPadding, int yPadding) {
-        this.xPadding = xPadding;
-        this.yPadding = yPadding;
+    /**
+     * 设置间隔
+     *
+     * @param xInterval 水平间隔
+     * @param yInterval 垂直间隔
+     * @return this
+     */
+    public RepeatElement setInterval(int xInterval, int yInterval) {
+        this.xInterval = xInterval;
+        this.yInterval = yInterval;
         return this;
     }
 
+    /**
+     * 自定义平铺布局
+     *
+     * @param rows 行数
+     * @param cols 列数
+     */
     public RepeatElement setLayout(int rows, int cols) {
         this.layout = new Layout(rows, cols, null);
         return this;
     }
 
+    /**
+     * 自定义平铺布局
+     *
+     * @param rows   行数
+     * @param cols   列数
+     * @param margin 页边距
+     */
     public RepeatElement setLayout(int rows, int cols, Margin margin) {
         this.layout = new Layout(rows, cols, margin);
         return this;
@@ -82,8 +113,8 @@ public class RepeatElement implements IElement {
 
         for (int j = 0; j < result.cols; j++) {
             for (int i = 0; i < result.rows; i++) {
-                int x = i * (elementWidth + result.xPadding) + result.xOffset;
-                int y = j * (elementHeight + result.yPadding) + result.yOffset;
+                int x = i * (elementWidth + result.xInterval) + result.xOffset;
+                int y = j * (elementHeight + result.yInterval) + result.yOffset;
 
                 Margin elementMargin = Margin.of().setMarginLeft(x).setMarginTop(y);
                 basicElement.setPosition(RelativePosition.of(Direction.TOP_LEFT, elementMargin));
@@ -122,21 +153,21 @@ public class RepeatElement implements IElement {
         } else {
             int xOffset = dimension.widthDiff() / 2;
             int yOffset = Math.abs(dimension.heightDiff()) / 2;
-            int rows = getRowNumber(elementWidth, posterWidth);
-            int cols = getColumnsNumber(elementHeight, posterHeight);
-            return new RepeatConfig(this.xPadding, this.yPadding, xOffset, yOffset, rows, cols);
+            int rows = calcRowNumber(elementWidth, posterWidth);
+            int cols = calcColumnsNumber(elementHeight, posterHeight);
+            return new RepeatConfig(this.xInterval, this.yInterval, xOffset, yOffset, rows, cols);
         }
     }
 
     /**
      * 获取行数
-     * x * elementWidth + (x - 1) * xPadding = posterWidth
-     * x * (elementWidth + xPadding) = xPadding + posterWidth
-     * x = (xPadding + posterWidth) / (elementWidth + xPadding)
+     * x * elementWidth + (x - 1) * xInterval = posterWidth
+     * x * (elementWidth + xInterval) = xInterval + posterWidth
+     * x = (xInterval + posterWidth) / (elementWidth + xInterval)
      **/
-    private int getRowNumber(int elementWidth, int posterWidth) {
-        int rows = (xPadding + posterWidth) / (elementWidth + xPadding);
-        int left = (xPadding + posterWidth) % (elementWidth + xPadding);
+    private int calcRowNumber(int elementWidth, int posterWidth) {
+        int rows = (xInterval + posterWidth) / (elementWidth + xInterval);
+        int left = (xInterval + posterWidth) % (elementWidth + xInterval);
         if (left == 0) {
             return rows;
         }
@@ -146,26 +177,52 @@ public class RepeatElement implements IElement {
     /**
      * 获取列数
      **/
-    private int getColumnsNumber(int elementHeight, int posterHeight) {
-        int cols = (yPadding + posterHeight) / (elementHeight + yPadding);
-        int left = (yPadding + posterHeight) % (elementHeight + yPadding);
+    private int calcColumnsNumber(int elementHeight, int posterHeight) {
+        int cols = (yInterval + posterHeight) / (elementHeight + yInterval);
+        int left = (yInterval + posterHeight) % (elementHeight + yInterval);
         if (left == 0) {
             return cols;
         }
         return cols + 1;
     }
 
+    /**
+     * 平铺配置
+     */
     private static class RepeatConfig {
-        public final int xPadding;
-        public final int yPadding;
+        /**
+         * x轴间隔
+         */
+        public final int xInterval;
+
+        /**
+         * y轴间隔
+         */
+        public final int yInterval;
+
+        /**
+         * x轴坐标修正偏移量
+         */
         public final int xOffset;
+
+        /**
+         * y轴坐标修正偏移量
+         */
         public final int yOffset;
+
+        /**
+         * 行数
+         */
         public final int rows;
+
+        /**
+         * 列数
+         */
         public final int cols;
 
-        public RepeatConfig(int xPadding, int yPadding, int xOffset, int yOffset, int rows, int cols) {
-            this.xPadding = xPadding;
-            this.yPadding = yPadding;
+        public RepeatConfig(int xInterval, int yInterval, int xOffset, int yOffset, int rows, int cols) {
+            this.xInterval = xInterval;
+            this.yInterval = yInterval;
             this.xOffset = xOffset;
             this.yOffset = yOffset;
             this.rows = rows;
