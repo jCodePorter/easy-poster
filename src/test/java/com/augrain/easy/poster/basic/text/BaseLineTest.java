@@ -1,9 +1,8 @@
 package com.augrain.easy.poster.basic.text;
 
 import com.augrain.easy.poster.EasyPoster;
-import com.augrain.easy.poster.element.AbstractElement;
-import com.augrain.easy.poster.element.basic.TextElement;
-import com.augrain.easy.poster.geometry.*;
+import com.augrain.easy.poster.geometry.AbsolutePosition;
+import com.augrain.easy.poster.geometry.Direction;
 import com.augrain.easy.poster.geometry.Point;
 import com.augrain.easy.poster.model.BaseLine;
 import org.junit.Test;
@@ -53,6 +52,28 @@ public class BaseLineTest {
                 .setColor(Color.BLUE);
 
         poster.asFile("png", "out_text_absolute_base_line.png");
+    }
+
+    /**
+     * 绝对定位，并自动换行
+     */
+    @Test
+    public void testBaseLineAutoNewline() {
+        EasyPoster poster = new EasyPoster(500, 500);
+
+        poster.getConfig().setDebug(true);
+        poster.getConfig().setFont(new Font("华文新魏", Font.PLAIN, 25));
+
+        poster.addTextElement("测试顶部对齐并自动换行，这是一个全新的测试")
+                .setLineHeight(40)
+                .setAutoWrapText(320)
+                .setBaseLine(BaseLine.TOP)
+                .setPosition(AbsolutePosition.of(Point.of(150, 250), Direction.LEFT_CENTER));
+
+        poster.addLineElement(Point.of(0, 250), Point.of(500, 250))
+                .setColor(Color.BLUE);
+
+        poster.asFile("png", "out_text_absolute_base_line_auto_newline.png");
     }
 
 }
