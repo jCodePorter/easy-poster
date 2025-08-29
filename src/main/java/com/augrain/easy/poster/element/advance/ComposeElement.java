@@ -325,42 +325,30 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         Dimension basicDimension = dimensionMap.get(basicElement);
 
-        if (getPosition() != null) {
-            // 如果组合元素整体设置位置参数，则基于整体宽高重新计算
-            Point markPoint = getPosition().calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
+        // 如果组合元素整体设置位置参数，则基于整体宽高重新计算
+        Point markPoint = dimension.getPoint();
 
-            // 组合元素设置位置属性，重新调整坐标点
-            Point point = basicDimension.getPoint();
-            point.setX(markPoint.getX() + pointOffsetMap.get(basicElement).xOffset);
-            point.setY(markPoint.getY() + pointOffsetMap.get(basicElement).yOffset);
+        // 组合元素设置位置属性，重新调整坐标点
+        Point point = basicDimension.getPoint();
+        point.setX(markPoint.getX() + pointOffsetMap.get(basicElement).xOffset);
+        point.setY(markPoint.getY() + pointOffsetMap.get(basicElement).yOffset);
 
-            basicElement.beforeRender(context);
-            basicElement.doRender(context, basicDimension, basicDimension.getWidth(), basicDimension.getHeight());
+        basicElement.beforeRender(context);
+        basicElement.doRender(context, basicDimension, basicDimension.getWidth(), basicDimension.getHeight());
+        basicElement.afterRender(context);
 
-            for (ElementWrapper elementWrapper : elementWrapper) {
-                AbstractElement element = elementWrapper.getElement();
-                Dimension elementDimension = dimensionMap.get(element);
-                Point elementPoint = elementDimension.getPoint();
-                elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
-                elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
+        for (ElementWrapper elementWrapper : elementWrapper) {
+            AbstractElement element = elementWrapper.getElement();
+            Dimension elementDimension = dimensionMap.get(element);
+            Point elementPoint = elementDimension.getPoint();
+            elementPoint.setX(markPoint.getX() + pointOffsetMap.get(element).xOffset);
+            elementPoint.setY(markPoint.getY() + pointOffsetMap.get(element).yOffset);
 
-                element.beforeRender(context);
-                element.doRender(context, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());
-                element.afterRender(context);
-            }
-            return null;
-        } else {
-            basicElement.beforeRender(context);
-            Point basicPoint = basicElement.doRender(context, basicDimension, posterWidth, posterHeight);
-
-            for (ElementWrapper elementWrapper : elementWrapper) {
-                AbstractElement element = elementWrapper.getElement();
-                element.beforeRender(context);
-                element.doRender(context, dimensionMap.get(element), basicDimension.getWidth(), basicDimension.getHeight());
-                element.afterRender(context);
-            }
-            return basicPoint;
+            element.beforeRender(context);
+            element.doRender(context, elementDimension, basicDimension.getWidth(), basicDimension.getHeight());
+            element.afterRender(context);
         }
+        return markPoint;
     }
 
     @Override

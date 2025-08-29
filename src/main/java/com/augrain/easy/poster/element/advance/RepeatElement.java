@@ -116,8 +116,12 @@ public class RepeatElement implements IElement {
                 int x = i * (elementWidth + result.xInterval) + result.xOffset;
                 int y = j * (elementHeight + result.yInterval) + result.yOffset;
 
+                // 计算新的坐标点
                 Margin elementMargin = Margin.of().setMarginLeft(x).setMarginTop(y);
-                basicElement.setPosition(RelativePosition.of(Direction.TOP_LEFT, elementMargin));
+                RelativePosition relativePosition = RelativePosition.of(Direction.TOP_LEFT, elementMargin);
+                Point newPoint = relativePosition.calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight());
+                dimension.setPoint(newPoint);
+
                 basicElement.doRender(context, dimension, posterWidth, posterHeight);
             }
         }
