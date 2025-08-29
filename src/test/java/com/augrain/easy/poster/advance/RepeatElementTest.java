@@ -48,7 +48,7 @@ public class RepeatElementTest {
 
     @Test
     public void testTextFollowTile() throws Exception {
-        EasyPoster poster = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 300);
 
         InputStream inputStream = ComposeElementTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage inputImg = ImageIO.read(inputStream);
@@ -57,12 +57,12 @@ public class RepeatElementTest {
                 .scale(Scale.byWidth(50))
                 .setPosition(RelativePosition.of(Direction.CENTER)))
                 .bottom(new TextElement("叮叮智能")
-                        .setColor(Color.red)
+                        .setColor(Color.blue)
                         .setFontSize(18)
                         .setFontName("仿宋")
-                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))))
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(20))))
                 .bottom(new TextElement("郑州叮有鱼科技")
-                        .setColor(Color.red)
+                        .setColor(Color.blue)
                         .setFontSize(18)
                         .setFontName("楷体")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(40))));

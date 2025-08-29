@@ -19,7 +19,7 @@ public class BaseLineTest {
 
     @Test
     public void testAbsoluteBaseLine() {
-        EasyPoster poster = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 200);
 
         poster.getConfig().setDebug(true);
 
@@ -28,27 +28,27 @@ public class BaseLineTest {
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.CENTER)
-                .setPosition(AbsolutePosition.of(Point.of(0, 250), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(0, 100), Direction.LEFT_CENTER));
 
         poster.addTextElement("顶部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.TOP)
-                .setPosition(AbsolutePosition.of(Point.of(120, 250), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(120, 100), Direction.LEFT_CENTER));
 
         poster.addTextElement("底部对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BOTTOM)
-                .setPosition(AbsolutePosition.of(Point.of(240, 250), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(240, 100), Direction.LEFT_CENTER));
 
         poster.addTextElement("基线对齐")
                 .setFont(font)
                 .setLineHeight(40)
                 .setBaseLine(BaseLine.BASE_LINE)
-                .setPosition(AbsolutePosition.of(Point.of(360, 250), Direction.LEFT_CENTER));
+                .setPosition(AbsolutePosition.of(Point.of(360, 100), Direction.LEFT_CENTER));
 
-        poster.addLineElement(Point.of(0, 250), Point.of(500, 250))
+        poster.addLineElement(Point.of(0, 100), Point.of(500, 100))
                 .setColor(Color.BLUE);
 
         poster.asFile("png", "out_text_absolute_base_line.png");

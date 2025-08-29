@@ -18,14 +18,14 @@ public class AutoWrapTextTest {
 
     @Test
     public void testAutoWrapText() {
-        EasyPoster poster = new EasyPoster(500, 500);
+        EasyPoster poster = new EasyPoster(500, 200);
 
-        poster.addTextElement("这是一段测试的超长文本，用来测试自动换行，目前是简单实现一版，用于验证自动换行功能逻辑，处于Alpha版")
+        poster.addTextElement("这是一段测试的超长文本，用来测试自动换行，目前是简单实现一版，用于验证自动换行功能逻辑，自动换行的算法目前处于Alpha版")
                 .setFontSize(15)
                 .setColor(Color.red)
                 .setLineHeight(50)
                 .setAutoWrapText(400)
-                .setPosition(AbsolutePosition.of(Point.of(30, 0), Direction.TOP_LEFT));
+                .setPosition(AbsolutePosition.of(Point.of(30, 50), Direction.TOP_LEFT));
 
         poster.asFile("png", "out_text_auto_split.png");
     }
