@@ -13,8 +13,14 @@ import lombok.Setter;
 @Setter
 public class SplitTextInfo {
 
+    /**
+     * 单行文本内容
+     */
     private String text;
 
+    /**
+     * 单行文本实际宽度
+     */
     private int width;
 
     private SplitTextInfo(String text, int width) {

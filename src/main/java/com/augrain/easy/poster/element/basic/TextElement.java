@@ -90,7 +90,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     private boolean strikeThrough = false;
 
     // 程序处理过程中所需数据
-    private List<SplitTextWrapper> splitText;
+    private List<SplitTextPointWrapper> splitTextPointWrapper;
 
     public TextElement(String text) {
         this.text = text;
@@ -137,12 +137,22 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         return this;
     }
 
+    /**
+     * 设置文本自动换行
+     *
+     * @param maxTextWidth 单行文本最大宽度
+     */
     public TextElement setAutoWrapText(int maxTextWidth) {
         this.autoWordWrap = true;
         this.maxTextWidth = maxTextWidth;
         return this;
     }
 
+    /**
+     * 设置删除线
+     *
+     * @param strikeThrough 是否展示删除线
+     */
     public TextElement setStrikeThrough(boolean strikeThrough) {
         this.strikeThrough = strikeThrough;
         return this;
@@ -173,17 +183,17 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         List<SplitTextInfo> splitTextInfos = getSplitTextInfos(fm, g);
 
         // 计算折算文本的起始坐标点
-        this.splitText = calcPoint(posterWidth, posterHeight, splitTextInfos, height);
-        int width = this.splitText.stream().map(s -> s.getInfo().getWidth())
+        this.splitTextPointWrapper = populatePoint(posterWidth, posterHeight, splitTextInfos, height);
+        int width = this.splitTextPointWrapper.stream().map(s -> s.getInfo().getWidth())
                 .max(Integer::compareTo).orElse(maxTextWidth);
         // 返回第一个坐标点作为基准元素
-        Point firstPoint = this.splitText.get(0).getPoint();
+        Point firstPoint = this.splitTextPointWrapper.get(0).getPoint();
 
         BaseLine baseLineCfg = getBaseLineCfg(context);
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(width)
                 .height(height)
-                .yOffset(getPosition() instanceof AbsolutePosition ? baseLineCfg.getOffset(fm, height) : 0)
+                .yOffset(getYOffset(baseLineCfg, fm, height))
                 .point(Point.of(firstPoint.getX(), firstPoint.getY()));
         if (this.getRotate() != 0) {
             int[] newBounds = RotateUtils.newBounds(width, height, this.getRotate());
@@ -193,19 +203,33 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         return builder.build();
     }
 
+    /**
+     * 获取垂直方向偏移量
+     *
+     * @param baseLineCfg 文本对齐方式配置
+     * @param fm          FontMetrics对象
+     * @param height      行高
+     * @return 偏移量
+     */
+    private int getYOffset(BaseLine baseLineCfg, FontMetrics fm, int height) {
+        // 如果是绝对布局，通过文本对齐方式进行便宜，
+        // 如果是相对布局，则直接偏移 fm.getAscent() 的距离
+        return getPosition() instanceof AbsolutePosition ? baseLineCfg.getOffset(fm, height) : fm.getAscent();
+    }
+
     private BaseLine getBaseLineCfg(PosterContext context) {
         return Optional.ofNullable(this.baseLine).orElse(context.getConfig().getBaseLine());
     }
 
-    private List<SplitTextWrapper> calcPoint(int posterWidth, int posterHeight, List<SplitTextInfo> splitTextInfos, int height) {
+    private List<SplitTextPointWrapper> populatePoint(int posterWidth, int posterHeight, List<SplitTextInfo> splitTextInfos, int height) {
         return splitTextInfos.stream().map(t -> {
             if (position instanceof RelativePosition) {
                 Point textPoint = position.calculate(posterWidth, posterHeight, t.getWidth(), height);
-                return new SplitTextWrapper(t, textPoint);
+                return new SplitTextPointWrapper(t, textPoint);
             } else if (position instanceof AbsolutePosition) {
-                return new SplitTextWrapper(t, ((AbsolutePosition) position).getPoint());
+                return new SplitTextPointWrapper(t, ((AbsolutePosition) position).getPoint());
             } else {
-                return new SplitTextWrapper(t, Point.ORIGIN_COORDINATE);
+                return new SplitTextPointWrapper(t, Point.ORIGIN_COORDINATE);
             }
         }).collect(Collectors.toList());
     }
@@ -229,11 +253,11 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
         // 计算基准坐标被父元素修改调整的差值
         Point point = dimension.getPoint();
-        int xDiff = dimension.getPoint().getX() - this.splitText.get(0).getPoint().getX();
-        int yDiff = dimension.getPoint().getY() - this.splitText.get(0).getPoint().getY();
+        int xDiff = dimension.getPoint().getX() - this.splitTextPointWrapper.get(0).getPoint().getX();
+        int yDiff = dimension.getPoint().getY() - this.splitTextPointWrapper.get(0).getPoint().getY();
 
-        for (int i = 0; i < this.splitText.size(); i++) {
-            SplitTextWrapper wrapper = this.splitText.get(i);
+        for (int i = 0; i < this.splitTextPointWrapper.size(); i++) {
+            SplitTextPointWrapper wrapper = this.splitTextPointWrapper.get(i);
 
             int startX = wrapper.getPoint().getX() + dimension.getXOffset() + xDiff;
             int startY = wrapper.getPoint().getY() + dimension.getYOffset() + i * dimension.getHeight() + yDiff;
@@ -295,12 +319,12 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     @Data
-    private static class SplitTextWrapper {
+    private static class SplitTextPointWrapper {
         private SplitTextInfo info;
 
         private Point point;
 
-        public SplitTextWrapper(SplitTextInfo info, Point point) {
+        public SplitTextPointWrapper(SplitTextInfo info, Point point) {
             this.info = info;
             this.point = point;
         }

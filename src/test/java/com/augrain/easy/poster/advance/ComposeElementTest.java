@@ -67,7 +67,7 @@ public class ComposeElementTest {
 
         ComposeElement composeElement = new ComposeElement(imageElement);
         for (Direction position : Direction.values()) {
-            Margin margin = Margin.of(10);
+            Margin margin = Margin.of(0);
             TextElement textElement = new TextElement("叮叮智能")
                     .setColor(Color.red)
                     .setFontSize(18)
