@@ -23,6 +23,16 @@
 
 按照这个思路，目前已经完成了高级元素中的平铺元素、组合元素（组合各基础元素）等
 
+## 1.3 项目引用
+```xml
+<dependency>
+    <groupId>cn.augrain</groupId>
+    <artifactId>easy-poster</artifactId>
+    <version>0.0.5.2</version>
+</dependency>
+```
+更新的版本，请去maven中央仓库搜索
+
 # 2. 示例代码
 
 更多示例请参考 `test` 包下测试源码
