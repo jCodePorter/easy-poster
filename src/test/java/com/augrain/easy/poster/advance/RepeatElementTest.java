@@ -24,7 +24,7 @@ public class RepeatElementTest {
     public void testTextInTile() throws Exception {
         EasyPoster poster = new EasyPoster(3000, 3000);
 
-        InputStream inputStream = ComposeElementTest.class.getClassLoader().getResourceAsStream("logo.png");
+        InputStream inputStream = RepeatElementTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage inputImg = ImageIO.read(inputStream);
         AbstractElement imageElement = new ImageElement(inputImg)
                 .scale(Scale.byWidth(500))
@@ -56,12 +56,12 @@ public class RepeatElementTest {
         ComposeElement composeElement = new ComposeElement(new ImageElement(inputImg)
                 .scale(Scale.byWidth(50))
                 .setPosition(RelativePosition.of(Direction.CENTER)))
-                .bottom(new TextElement("叮叮智能")
+                .bottom(new TextElement("ByteFuture")
                         .setColor(Color.blue)
                         .setFontSize(18)
                         .setFontName("仿宋")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(20))))
-                .bottom(new TextElement("郑州叮有鱼科技")
+                .bottom(new TextElement("一个技术分享的公众号")
                         .setColor(Color.blue)
                         .setFontSize(18)
                         .setFontName("楷体")
@@ -97,5 +97,31 @@ public class RepeatElementTest {
         poster.addElement(tileElement);
 
         poster.asFile("png", "out_text_follow_wrap_tile.png");
+    }
+
+    @Test
+    public void testInTile() throws Exception {
+        EasyPoster poster = new EasyPoster(1500, 1500);
+
+        InputStream inputStream = ComposeElementTest.class.getClassLoader().getResourceAsStream("logo.png");
+        BufferedImage inputImg = ImageIO.read(inputStream);
+        AbstractElement imageElement = new ImageElement(inputImg)
+                .scale(Scale.byWidth(500))
+                .setPosition(RelativePosition.of(Direction.CENTER));
+
+        ComposeElement composeElement = new ComposeElement(imageElement);
+        for (Direction position : Direction.values()) {
+            Margin margin = Margin.of(30);
+            AbstractElement textElement = new TextElement("公众号")
+                    .setColor(Color.red)
+                    .setFontSize(25)
+                    .setPosition(RelativePosition.of(position, margin));
+            composeElement.next(textElement, RelativeDirection.IN, false);
+        }
+
+        RepeatElement tileElement = new RepeatElement(composeElement)
+                .setInterval(100, 100);
+        poster.addElement(tileElement);
+        poster.asFile("png", "out_compose_in_tile.png");
     }
 }

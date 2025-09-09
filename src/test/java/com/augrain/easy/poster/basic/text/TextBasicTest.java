@@ -40,7 +40,7 @@ public class TextBasicTest {
                 .setAlpha(0.5f)
                 .setPosition(AbsolutePosition.of(Point.of(30, 180), Direction.TOP_LEFT));
 
-        poster.addTextElement("叮有鱼专注于无人自助场景全套解决方案")
+        poster.addTextElement("这是一段渐变色同时加上删除线的文字")
                 .setFontSize(25)
                 .setStrikeThrough(true)
                 .setPosition(AbsolutePosition.of(Point.of(30, 250), Direction.TOP_LEFT))
