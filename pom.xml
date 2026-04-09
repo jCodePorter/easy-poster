@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.augrain</groupId>
+    <groupId>cn.com.bytefuture</groupId>
     <artifactId>easy-poster</artifactId>
-    <version>0.0.5.2</version>
+    <version>0.0.6</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
