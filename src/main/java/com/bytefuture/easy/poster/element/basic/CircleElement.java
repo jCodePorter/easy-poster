@@ -1,0 +1,83 @@
+package com.bytefuture.easy.poster.element.basic;
+
+import com.bytefuture.easy.poster.element.AbstractDimensionElement;
+import com.bytefuture.easy.poster.geometry.Dimension;
+import com.bytefuture.easy.poster.geometry.Point;
+import com.bytefuture.easy.poster.model.PosterContext;
+
+import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.util.Optional;
+
+/**
+ * 圆形
+ *
+ * @author biaoy
+ * @since 2025/03/17
+ */
+public class CircleElement extends AbstractDimensionElement<CircleElement> {
+
+    /**
+     * 线宽
+     */
+    private double borderSize = 0;
+
+    /**
+     * 圆形构造器
+     *
+     * @param radius 半径
+     */
+    public CircleElement(final int radius) {
+        this.width = radius * 2;
+        this.height = radius * 2;
+    }
+
+    /**
+     * 圆形构造器，当 width != height 时，绘制的是椭圆
+     *
+     * @param width  宽度
+     * @param height 高度
+     */
+    public CircleElement(final int width, final int height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    public CircleElement setBorderSize(final int borderSize) {
+        this.borderSize = borderSize;
+        return this;
+    }
+
+    public CircleElement setColor(final Color color) {
+        this.color = color;
+        return this;
+    }
+
+    @Override
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+        super.gradient(context, dimension);
+        Point point = dimension.getPoint();
+        Graphics2D g = context.getGraphics();
+        if (this.borderSize > 0 && this.borderSize < Math.max(this.width, this.height)) {
+            Ellipse2D outer = new Ellipse2D.Double(point.getX(), point.getY(), this.width, this.height);
+            Ellipse2D inner = new Ellipse2D.Double(
+                    point.getX() + borderSize,
+                    point.getY() + borderSize,
+                    width - 2 * borderSize,
+                    height - 2 * borderSize
+            );
+            Area ring = new Area(outer);
+            ring.subtract(new Area(inner));
+            g.fill(ring);
+        } else {
+            g.fillOval(point.getX(), point.getY(), this.width, this.height);
+        }
+        return dimension.getPoint();
+    }
+
+    @Override
+    public void beforeRender(PosterContext context) {
+        context.getGraphics().setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
+    }
+}

@@ -1,0 +1,63 @@
+package com.bytefuture.easy.poster.element.special;
+
+import com.bytefuture.easy.poster.element.AbstractDimensionElement;
+import com.bytefuture.easy.poster.element.IElement;
+import com.bytefuture.easy.poster.geometry.Dimension;
+import com.bytefuture.easy.poster.geometry.Point;
+import com.bytefuture.easy.poster.model.PosterContext;
+
+import java.awt.*;
+
+/**
+ * 正N边形
+ *
+ * @author biaoy
+ * @since 2025/03/29
+ */
+public class RegularPolygonElement extends AbstractDimensionElement<RegularPolygonElement> implements IElement {
+
+    /**
+     * 边数
+     */
+    private final int edges;
+
+    /**
+     * N边形
+     *
+     * @param radius 半径
+     * @param edges  边数
+     */
+    public RegularPolygonElement(final int radius, final int edges) {
+        this.width = radius * 2;
+        this.height = radius * 2;
+        this.edges = edges;
+    }
+
+    @Override
+    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+        int r = this.width / 2;
+        int centerX = dimension.getPoint().getX() + r;
+        int centerY = dimension.getPoint().getY() + r;
+
+        double thetaOffset = Math.PI / this.edges;
+        Point[] points = new Point[this.edges + 1];
+        for (int i = 0; i < this.edges; i++) {
+            double xi = centerX + r * Math.cos(Math.PI * 2 * i / this.edges - thetaOffset);
+            double yi = centerY + r * Math.sin(Math.PI * 2 * i / this.edges - thetaOffset);
+            points[i] = Point.of((int) xi, (int) yi);
+        }
+        points[this.edges] = points[0];
+
+        Graphics2D g = context.getGraphics();
+        for (int i = 0; i < this.edges; i++) {
+            g.drawLine(points[i].getX(), points[i].getY(), points[i + 1].getX(), points[i + 1].getY());
+        }
+        return dimension.getPoint();
+    }
+
+    @Override
+    public void beforeRender(PosterContext context) {
+        super.beforeRender(context);
+        context.getGraphics().setColor(color);
+    }
+}
