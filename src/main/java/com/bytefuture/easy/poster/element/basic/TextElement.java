@@ -149,6 +149,65 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     /**
+     * 自适应调整文本大小以适应指定宽度
+     * 如果达到最小字体大小后仍无法单行显示，则使用最小字体大小并启用自动换行
+     *
+     * @param targetWidth 目标宽度
+     * @param minFontSize 最小字体大小
+     * @return this
+     */
+    public TextElement setAutoFitText(int targetWidth, int minFontSize) {
+        if (this.fontSize == null || this.fontSize < minFontSize) {
+            this.fontSize = minFontSize;
+        }
+
+        // 临时创建Graphics2D对象来测量文本宽度
+        Graphics2D g = createTempGraphics2D();
+
+        // 从当前字体大小开始递减，直到找到适合的字体大小或达到最小字体大小
+        int optimalFontSize = this.fontSize;
+        FontMetrics fm = g.getFontMetrics(new Font(this.fontName, this.fontStyle != null ? this.fontStyle : Font.PLAIN, optimalFontSize));
+
+        // 计算当前字体大小下的文本宽度
+        Rectangle2D textBounds = fm.getStringBounds(this.text, g);
+        int textWidth = (int) textBounds.getWidth();
+
+        // 如果文本宽度大于目标宽度，则需要调整字体大小
+        if (textWidth > targetWidth) {
+            // 估算合适的字体大小
+            double scaleRatio = (double) targetWidth / textWidth;
+            optimalFontSize = (int) Math.floor(optimalFontSize * scaleRatio);
+
+            // 确保不小于最小字体大小
+            optimalFontSize = Math.max(optimalFontSize, minFontSize);
+
+            // 重新计算字体度量
+            fm = g.getFontMetrics(new Font(this.fontName, this.fontStyle != null ? this.fontStyle : Font.PLAIN, optimalFontSize));
+            textBounds = fm.getStringBounds(this.text, g);
+            textWidth = (int) textBounds.getWidth();
+
+            // 如果即使使用最小字体大小仍然超出宽度，则启用自动换行
+            if (optimalFontSize == minFontSize && textWidth > targetWidth) {
+                this.autoWordWrap = true;
+                this.maxTextWidth = targetWidth;
+            }
+        }
+
+        this.fontSize = optimalFontSize;
+        return this;
+    }
+
+    /**
+     * 创建临时的Graphics2D对象用于文本测量
+     * @return Graphics2D对象
+     */
+    private Graphics2D createTempGraphics2D() {
+        // 创建一个临时的BufferedImage来获取Graphics2D对象
+        java.awt.image.BufferedImage tempImage = new java.awt.image.BufferedImage(1, 1, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        return tempImage.createGraphics();
+    }
+
+    /**
      * 设置删除线
      *
      * @param strikeThrough 是否展示删除线

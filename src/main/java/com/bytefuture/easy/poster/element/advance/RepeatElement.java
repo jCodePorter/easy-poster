@@ -2,7 +2,6 @@ package com.bytefuture.easy.poster.element.advance;
 
 import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
 import com.bytefuture.easy.poster.element.IElement;
-import com.augrain.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.model.PosterContext;
 import lombok.AllArgsConstructor;

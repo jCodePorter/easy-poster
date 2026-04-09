@@ -1,7 +1,6 @@
 package com.bytefuture.easy.poster;
 
 import com.bytefuture.easy.poster.element.IElement;
-import com.augrain.easy.poster.element.basic.*;
 import com.bytefuture.easy.poster.element.basic.*;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Point;
