@@ -40,7 +40,7 @@ public class AutoFitTextTest {
                 .setFontSize(30)
                 .setColor(Color.red)
                 .setPosition(RelativePosition.of(Direction.CENTER))
-                .setAutoFitText(200, 12);
+                .setAutoFitText(200, 20);
 
         poster.asFile("png", "out_text_auto_fit_min_limit.png");
     }

@@ -235,14 +235,17 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         // 行高处理
         Integer lineHeightCfg = Optional.ofNullable(context.getConfig().getLineHeight()).orElse(this.lineHeight);
 
-        // 文本宽高
-        int height = Optional.ofNullable(lineHeightCfg).orElse(fm.getHeight());
+        // 单行高度
+        int singleLineHeight = Optional.ofNullable(lineHeightCfg).orElse(fm.getHeight());
 
         // 文本拆分
         List<SplitTextInfo> splitTextInfos = getSplitTextInfos(fm, g);
 
+        // 计算文本总高度（考虑多行）
+        int totalHeight = singleLineHeight * splitTextInfos.size();
+
         // 计算折算文本的起始坐标点
-        this.splitTextPointWrapper = populatePoint(posterWidth, posterHeight, splitTextInfos, height);
+        this.splitTextPointWrapper = populatePoint(posterWidth, posterHeight, splitTextInfos, totalHeight);
         int width = this.splitTextPointWrapper.stream().map(s -> s.getInfo().getWidth())
                 .max(Integer::compareTo).orElse(maxTextWidth);
         // 返回第一个坐标点作为基准元素
@@ -251,11 +254,11 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         BaseLine baseLineCfg = getBaseLineCfg(context);
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(width)
-                .height(height)
-                .yOffset(getYOffset(baseLineCfg, fm, height))
+                .height(singleLineHeight)
+                .yOffset(getYOffset(baseLineCfg, fm, singleLineHeight))
                 .point(Point.of(firstPoint.getX(), firstPoint.getY()));
         if (this.getRotate() != 0) {
-            int[] newBounds = RotateUtils.newBounds(width, height, this.getRotate());
+            int[] newBounds = RotateUtils.newBounds(width, totalHeight, this.getRotate());
             builder.rotateWidth(newBounds[0])
                     .rotateHeight(newBounds[1]);
         }
