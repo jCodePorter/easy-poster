@@ -85,6 +85,21 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     private int maxTextWidth;
 
     /**
+     * 是否启用自适应文本
+     */
+    private boolean autoFitText = false;
+
+    /**
+     * 自适应文本的目标宽度
+     */
+    private int autoFitTargetWidth;
+
+    /**
+     * 自适应文本的最小字体大小
+     */
+    private int autoFitMinFontSize;
+
+    /**
      * 删除线
      */
     private boolean strikeThrough = false;
@@ -149,62 +164,93 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     }
 
     /**
-     * 自适应调整文本大小以适应指定宽度
-     * 如果达到最小字体大小后仍无法单行显示，则使用最小字体大小并启用自动换行
+     * 设置自适应调整文本大小以适应指定宽度
+     * 注意：这是一个延迟计算的方法，实际计算会在 calculateDimension 时执行
+     * 这样可以确保在调用此方法后，修改字体样式等参数仍然生效
      *
      * @param targetWidth 目标宽度
      * @param minFontSize 最小字体大小
      * @return this
      */
     public TextElement setAutoFitText(int targetWidth, int minFontSize) {
-        if (this.fontSize == null || this.fontSize < minFontSize) {
-            this.fontSize = minFontSize;
+        this.autoFitText = true;
+        this.autoFitTargetWidth = targetWidth;
+        this.autoFitMinFontSize = minFontSize;
+        return this;
+    }
+
+    /**
+     * 执行自适应文本大小计算
+     * 此方法会在 calculateDimension 时自动调用
+     */
+    private void performAutoFitText(Graphics2D g) {
+        if (!this.autoFitText) {
+            return;
         }
 
-        // 临时创建Graphics2D对象来测量文本宽度
-        Graphics2D g = createTempGraphics2D();
+        // 如果已经计算过，跳过
+        if (this.fontSize != null && this.fontSize >= this.autoFitMinFontSize) {
+            // 检查当前字体是否仍然适合目标宽度
+            Font currentFont = new Font(
+                Optional.ofNullable(this.fontName).orElse(g.getFont().getFamily()),
+                Optional.ofNullable(this.fontStyle).orElse(g.getFont().getStyle()),
+                this.fontSize
+            );
+            FontMetrics fm = g.getFontMetrics(currentFont);
+            Rectangle2D textBounds = fm.getStringBounds(this.text, g);
+            int textWidth = (int) textBounds.getWidth();
+            
+            // 如果当前字体大小已经适合，不需要重新计算
+            if (textWidth <= this.autoFitTargetWidth) {
+                return;
+            }
+        }
 
-        // 从当前字体大小开始递减，直到找到适合的字体大小或达到最小字体大小
-        int optimalFontSize = this.fontSize;
-        FontMetrics fm = g.getFontMetrics(new Font(this.fontName, this.fontStyle != null ? this.fontStyle : Font.PLAIN, optimalFontSize));
+        int currentFontSize = Optional.ofNullable(this.fontSize).orElse(this.autoFitMinFontSize);
+        if (currentFontSize < this.autoFitMinFontSize) {
+            currentFontSize = this.autoFitMinFontSize;
+        }
+
+        // 从当前字体大小开始计算
+        int optimalFontSize = currentFontSize;
+        Font font = new Font(
+            Optional.ofNullable(this.fontName).orElse(g.getFont().getFamily()),
+            Optional.ofNullable(this.fontStyle).orElse(g.getFont().getStyle()),
+            optimalFontSize
+        );
+        FontMetrics fm = g.getFontMetrics(font);
 
         // 计算当前字体大小下的文本宽度
         Rectangle2D textBounds = fm.getStringBounds(this.text, g);
         int textWidth = (int) textBounds.getWidth();
 
         // 如果文本宽度大于目标宽度，则需要调整字体大小
-        if (textWidth > targetWidth) {
+        if (textWidth > this.autoFitTargetWidth) {
             // 估算合适的字体大小
-            double scaleRatio = (double) targetWidth / textWidth;
+            double scaleRatio = (double) this.autoFitTargetWidth / textWidth;
             optimalFontSize = (int) Math.floor(optimalFontSize * scaleRatio);
 
             // 确保不小于最小字体大小
-            optimalFontSize = Math.max(optimalFontSize, minFontSize);
+            optimalFontSize = Math.max(optimalFontSize, this.autoFitMinFontSize);
 
             // 重新计算字体度量
-            fm = g.getFontMetrics(new Font(this.fontName, this.fontStyle != null ? this.fontStyle : Font.PLAIN, optimalFontSize));
+            font = new Font(
+                Optional.ofNullable(this.fontName).orElse(g.getFont().getFamily()),
+                Optional.ofNullable(this.fontStyle).orElse(g.getFont().getStyle()),
+                optimalFontSize
+            );
+            fm = g.getFontMetrics(font);
             textBounds = fm.getStringBounds(this.text, g);
             textWidth = (int) textBounds.getWidth();
 
             // 如果即使使用最小字体大小仍然超出宽度，则启用自动换行
-            if (optimalFontSize == minFontSize && textWidth > targetWidth) {
+            if (optimalFontSize == this.autoFitMinFontSize && textWidth > this.autoFitTargetWidth) {
                 this.autoWordWrap = true;
-                this.maxTextWidth = targetWidth;
+                this.maxTextWidth = this.autoFitTargetWidth;
             }
         }
 
         this.fontSize = optimalFontSize;
-        return this;
-    }
-
-    /**
-     * 创建临时的Graphics2D对象用于文本测量
-     * @return Graphics2D对象
-     */
-    private Graphics2D createTempGraphics2D() {
-        // 创建一个临时的BufferedImage来获取Graphics2D对象
-        java.awt.image.BufferedImage tempImage = new java.awt.image.BufferedImage(1, 1, java.awt.image.BufferedImage.TYPE_INT_RGB);
-        return tempImage.createGraphics();
     }
 
     /**
@@ -230,6 +276,12 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
         Graphics2D g = context.getGraphics();
+        
+        // 执行自适应文本大小计算（延迟计算）
+        performAutoFitText(g);
+        
+        // 设置字体，确保后续计算使用正确的字体
+        g.setFont(getFont(context.getConfig()));
         FontMetrics fm = g.getFontMetrics();
 
         // 行高处理
