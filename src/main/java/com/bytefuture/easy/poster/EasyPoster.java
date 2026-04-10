@@ -92,6 +92,12 @@ public class EasyPoster {
         return textElement;
     }
 
+    public EnhanceTextElement addTextElementUpgrade(String text) {
+        EnhanceTextElement textElement = new EnhanceTextElement(text);
+        renderedElements.add(textElement);
+        return textElement;
+    }
+
     /**
      * 添加图片
      *
