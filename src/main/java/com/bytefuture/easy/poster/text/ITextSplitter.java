@@ -11,5 +11,9 @@ import java.util.List;
  */
 public interface ITextSplitter {
 
-    List<SplitTextInfo> splitText(String text, int width, FontMetrics fontMetrics);
+    TextSplitResult split(TextSplitRequest request);
+
+    default List<SplitTextInfo> splitText(String text, int width, FontMetrics fontMetrics) {
+        return split(TextSplitRequest.of(text, width, fontMetrics)).getLines();
+    }
 }

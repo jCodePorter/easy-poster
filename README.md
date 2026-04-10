@@ -123,6 +123,7 @@ public void testRelativePosition() throws Exception {
 ### 0.0.6 
 - 文本元素
   - 增加根据宽度自适应调整字体大小功能
+  - 自动折行文本拆分优化
 
 ### 0.0.5.2
 - 解决文本自动换行不根据position属性的bug

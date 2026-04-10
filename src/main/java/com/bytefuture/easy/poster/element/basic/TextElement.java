@@ -11,6 +11,8 @@ import com.bytefuture.easy.poster.model.Config;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.text.ITextSplitter;
 import com.bytefuture.easy.poster.text.SplitTextInfo;
+import com.bytefuture.easy.poster.text.TextSplitRequest;
+import com.bytefuture.easy.poster.text.TextSplitResult;
 import com.bytefuture.easy.poster.text.TextSplitterSimpleImpl;
 import com.bytefuture.easy.poster.utils.RotateUtils;
 import lombok.Data;
@@ -352,7 +354,8 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         List<SplitTextInfo> splitTextInfos;
         if (autoWordWrap) {
             ITextSplitter splitter = new TextSplitterSimpleImpl();
-            splitTextInfos = splitter.splitText(text, maxTextWidth, fm);
+            TextSplitResult result = splitter.split(TextSplitRequest.of(text, maxTextWidth, fm));
+            splitTextInfos = result.getLines();
         } else {
             Rectangle2D textBounds = fm.getStringBounds(text, g);
             splitTextInfos = Collections.singletonList(SplitTextInfo.of(this.text, (int) textBounds.getWidth()));
