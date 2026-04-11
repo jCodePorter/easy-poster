@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.verify;
 
-import com.bytefuture.easy.poster.basic.image.ImageBasicTest;
+import com.bytefuture.easy.poster.ui.basic.image.ImageBasicTest;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
