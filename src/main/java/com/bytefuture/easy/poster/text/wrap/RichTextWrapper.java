@@ -34,6 +34,7 @@ public final class RichTextWrapper {
         List<RichToken> tokens = tokenizeRichText(spec, spans, graphics, measurer);
 
         if (tokens.isEmpty()) {
+            // 空富文本也返回一行空行，避免后续布局逻辑额外判空。
             RichLine emptyLine = createEmptyRichLine();
             return new ResolvedRichTextLines(Collections.singletonList(emptyLine),
                     resolveRichLayoutWidth(Collections.singletonList(emptyLine), overflowStrategy, widthLimit),
@@ -42,6 +43,7 @@ public final class RichTextWrapper {
 
         List<RichLine> rawLines;
         if (overflowStrategy == TextOverflowStrategy.WRAP && widthLimit > 0) {
+            // 富文本按 token 换行，尽量保留词和标点的语义边界。
             rawLines = resolveWrappedRichLines(tokens, widthLimit, spec.getLetterSpacing(), measurer);
         } else {
             rawLines = splitRichLinesByExplicitNewLine(tokens, spec.getLetterSpacing(), measurer);
@@ -53,6 +55,7 @@ public final class RichTextWrapper {
 
         List<RichLine> visibleLines = rawLines;
         if (overflowStrategy == TextOverflowStrategy.ELLIPSIS && widthLimit > 0) {
+            // 富文本省略需要保留片段样式，因此单独走富文本省略流程。
             visibleLines = ELLIPSIS_PROCESSOR.applyRichWidthEllipsis(spec, visibleLines, widthLimit, baseFont, defaultColor,
                     graphics, new EllipsisProcessor.RichTextMeasurer() {
                         @Override
@@ -80,6 +83,7 @@ public final class RichTextWrapper {
         List<ResolvedTextSpan> spans = new ArrayList<ResolvedTextSpan>();
         Font baseFont = spec.getBaseFont();
         if (spec.getText() != null && !spec.getText().isEmpty()) {
+            // 兼容普通文本与富文本片段混合输入。
             spans.add(new ResolvedTextSpan(spec.getText(), baseFont, defaultColor,
                     spec.isUnderline(), spec.isStrikeThrough()));
         }
@@ -91,6 +95,7 @@ public final class RichTextWrapper {
 
     private ResolvedTextSpan resolveTextSpan(TextRenderSpec spec, TextSpan textSpan,
                                              Font baseFont, Color defaultColor) {
+        // span 未设置的样式字段回退到元素级默认样式。
         int resolvedStyle = textSpan.getFontStyle() != null ? textSpan.getFontStyle() : baseFont.getStyle();
         Font spanFont = resolvedStyle == baseFont.getStyle()
                 ? baseFont
@@ -115,6 +120,7 @@ public final class RichTextWrapper {
             for (int i = 0; i < normalized.length(); i++) {
                 char current = normalized.charAt(i);
                 if (current == '\n') {
+                    // 显式换行会先冲刷缓冲 token，再插入换行标记。
                     flushRichToken(tokens, bufferGlyphs, bufferType, specLetterSpacing(spec), measurer);
                     bufferType = null;
                     tokens.add(RichToken.newLine());
@@ -128,6 +134,7 @@ public final class RichTextWrapper {
                 RichTokenType currentType = resolveRichTokenType(current);
                 if (currentType == RichTokenType.WORD
                         || currentType == RichTokenType.WHITESPACE) {
+                    // 连续单词或空白尽量合并，便于后续按词换行。
                     if (bufferType != currentType) {
                         flushRichToken(tokens, bufferGlyphs, bufferType, specLetterSpacing(spec), measurer);
                         bufferType = currentType;
@@ -211,6 +218,7 @@ public final class RichTextWrapper {
             }
 
             if (shouldForceAppendToCurrentRichLine(token, lineBuffer)) {
+                // 收尾标点不希望单独掉到下一行。
                 lineBuffer.append(token, letterSpacing);
                 flushRichLine(lines, lineBuffer, false, letterSpacing, measurer);
                 continue;
@@ -228,6 +236,7 @@ public final class RichTextWrapper {
                 continue;
             }
 
+            // 单个 token 自身超宽时，再退化为逐字切分。
             lines.addAll(splitOversizedRichToken(token, maxWidth, letterSpacing, measurer));
         }
 
@@ -239,6 +248,7 @@ public final class RichTextWrapper {
                                boolean explicitNewLine, int letterSpacing, Measurer measurer) {
         if (lineBuffer.isEmpty()) {
             if (explicitNewLine) {
+                // 连续显式换行要保留为空行。
                 lines.add(createEmptyRichLine());
             }
             return;
@@ -295,6 +305,7 @@ public final class RichTextWrapper {
             return new ResolvedRichTextLines(rawLines, layoutWidth, false, false);
         }
 
+        // 富文本超出最大行数时，最后一行需要重新生成带样式的省略结果。
         List<RichLine> visibleLines =
                 new ArrayList<RichLine>(rawLines.subList(0, spec.getMaxLines()));
         int lastIndex = visibleLines.size() - 1;
@@ -373,6 +384,7 @@ public final class RichTextWrapper {
             }
 
             if (fragmentStyle == null || !fragmentStyle.hasSameStyle(glyph)) {
+                // 样式变化时切分 fragment，确保同一 fragment 内的样式一致。
                 if (fragmentStyle != null) {
                     fragments.add(new RichTextFragment(fragmentText.toString(), fragmentStartX,
                             fragmentWidth, fragmentStyle.getFont(), fragmentStyle.getColor(),

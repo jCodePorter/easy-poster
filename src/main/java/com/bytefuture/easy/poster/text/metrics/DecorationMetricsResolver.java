@@ -22,6 +22,7 @@ public final class DecorationMetricsResolver {
         int bottom = 0;
 
         if (spec.getStroke() != null) {
+            // 描边会向四周扩展半个线宽。
             int strokeInset = (int) Math.ceil(spec.getStroke().getWidth() / 2.0d);
             left = Math.max(left, strokeInset);
             right = Math.max(right, strokeInset);
@@ -30,6 +31,7 @@ public final class DecorationMetricsResolver {
         }
 
         if (spec.getShadow() != null) {
+            // 阴影偏移可能把可见区域推到文本外部任一方向。
             left = Math.max(left, Math.max(0, -spec.getShadow().getOffsetX()));
             right = Math.max(right, Math.max(0, spec.getShadow().getOffsetX()));
             top = Math.max(top, Math.max(0, -spec.getShadow().getOffsetY()));
@@ -38,12 +40,14 @@ public final class DecorationMetricsResolver {
 
         LineMetrics lineMetrics = fontMetrics.getLineMetrics(resolveMetricsSampleText(spec.getText()), graphics);
         if (spec.isUnderline()) {
+            // 下划线基于 baseline 绘制，需要计算其是否超出行框上下边界。
             top = Math.max(top, resolveDecorationTopOverflow(lineMetrics.getUnderlineOffset(),
                     lineMetrics.getUnderlineThickness(), baselineOffset));
             bottom = Math.max(bottom, resolveDecorationBottomOverflow(lineMetrics.getUnderlineOffset(),
                     lineMetrics.getUnderlineThickness(), baselineOffset, lineHeight));
         }
         if (spec.isStrikeThrough()) {
+            // 删除线同样可能超出标准行框。
             top = Math.max(top, resolveDecorationTopOverflow(lineMetrics.getStrikethroughOffset(),
                     lineMetrics.getStrikethroughThickness(), baselineOffset));
             bottom = Math.max(bottom, resolveDecorationBottomOverflow(lineMetrics.getStrikethroughOffset(),
@@ -87,6 +91,7 @@ public final class DecorationMetricsResolver {
         }
 
         if (!hasUnderlineDecoration && !hasStrikeThroughDecoration) {
+            // 富文本没有任何装饰线时，无需再计算 lineMetrics。
             return new TextDecorationInsets(left, top, right, bottom);
         }
 

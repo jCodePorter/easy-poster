@@ -4,23 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 拆分的文本信息
- *
- * @author biaoy
- * @since 2025/07/13
+ * 单行拆分结果。
  */
 @Getter
 @Setter
 public class SplitTextInfo {
 
-    /**
-     * 单行文本内容
-     */
+    /** 单行文本内容。 */
     private String text;
 
-    /**
-     * 单行文本实际宽度
-     */
+    /** 单行文本实际宽度。 */
     private int width;
 
     private SplitTextInfo(String text, int width) {
@@ -28,6 +21,7 @@ public class SplitTextInfo {
         this.width = width;
     }
 
+    /** 创建单行拆分结果。 */
     public static SplitTextInfo of(String text, int width) {
         return new SplitTextInfo(text, width);
     }

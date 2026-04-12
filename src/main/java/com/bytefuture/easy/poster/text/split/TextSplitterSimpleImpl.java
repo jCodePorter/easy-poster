@@ -1,23 +1,22 @@
 package com.bytefuture.easy.poster.text.split;
 
-import java.awt.*;
+import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 文本拆分器简单实现，属于功能验证的实验版本
- *
- * @author biaoy
- * @since 2025/03/16
+ * 简单文本拆分器实现。
+ * 通过分词、标点规避和必要时的逐字切分完成自动换行。
  */
 public class TextSplitterSimpleImpl implements ITextSplitter {
-    private static final Map<Character, Integer> charSizeMap = new HashMap<>();
+    /** ASCII 字符宽度缓存，减少重复调用 FontMetrics。 */
+    private static final Map<Character, Integer> charSizeMap = new HashMap<Character, Integer>();
 
     @Override
     public TextSplitResult split(TextSplitRequest request) {
-        List<SplitTextInfo> lines = new ArrayList<>();
+        List<SplitTextInfo> lines = new ArrayList<SplitTextInfo>();
         if (request == null || request.getFontMetrics() == null) {
             return TextSplitResult.of(lines);
         }
@@ -30,6 +29,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         int maxWidth = request.getMaxWidth();
         FontMetrics fontMetrics = request.getFontMetrics();
         if (maxWidth <= 0) {
+            // 无宽度限制时直接整段返回。
             lines.add(SplitTextInfo.of(text, fontMetrics.stringWidth(text)));
             return TextSplitResult.of(lines);
         }
@@ -39,11 +39,13 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
 
         for (Token token : tokens) {
             if (token.type == TokenType.NEW_LINE) {
+                // 显式换行直接结束当前行。
                 flushCurrentLine(lines, lineBuffer, request, true);
                 continue;
             }
 
             if (request.isTrimLeadingWhitespace() && lineBuffer.isEmpty() && token.type == TokenType.WHITESPACE) {
+                // 行首空白按配置忽略，避免新行保留多余空格。
                 continue;
             }
 
@@ -53,6 +55,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
             }
 
             if (shouldForceAppendToCurrentLine(token, lineBuffer)) {
+                // 收尾标点尽量跟随前一段，避免新行以标点开头。
                 lineBuffer.append(token);
                 flushCurrentLine(lines, lineBuffer, request, false);
                 continue;
@@ -70,6 +73,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
                 continue;
             }
 
+            // 单个 token 超宽时，退化为逐字切分。
             List<SplitTextInfo> overflowLines = splitOversizedToken(token, maxWidth, fontMetrics);
             for (SplitTextInfo info : overflowLines) {
                 lines.add(info);
@@ -84,6 +88,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
                                          TextSplitRequest request, boolean explicitNewLine) {
         if (lineBuffer.isEmpty()) {
             if (explicitNewLine && request.isPreserveEmptyLine()) {
+                // 连续换行时按配置保留空行。
                 lines.add(SplitTextInfo.of("", 0));
             }
             return;
@@ -104,7 +109,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
     }
 
     private static List<Token> tokenize(String text, FontMetrics fontMetrics) {
-        List<Token> tokens = new ArrayList<>();
+        List<Token> tokens = new ArrayList<Token>();
         String normalized = text.replace("\r\n", "\n").replace('\r', '\n');
 
         int index = 0;
@@ -117,6 +122,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
             }
 
             if (Character.isWhitespace(current)) {
+                // 连续空白合并成一个 token，便于整体处理。
                 int start = index;
                 index++;
                 while (index < normalized.length()) {
@@ -131,6 +137,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
             }
 
             if (isAsciiWordLikeChar(current)) {
+                // 英文单词连续合并，优先按词换行而不是逐字断开。
                 int start = index;
                 index++;
                 while (index < normalized.length() && isAsciiWordLikeChar(normalized.charAt(index))) {
@@ -159,7 +166,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
     }
 
     private static List<SplitTextInfo> splitOversizedToken(Token token, int width, FontMetrics fontMetrics) {
-        List<SplitTextInfo> result = new ArrayList<>();
+        List<SplitTextInfo> result = new ArrayList<SplitTextInfo>();
         if (token == null || token.text == null || token.text.isEmpty()) {
             return result;
         }
@@ -205,20 +212,21 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
     }
 
     private static boolean isOpeningPunctuation(char c) {
-        return "([{\"'“‘《「『【〈".indexOf(c) >= 0;
+        return "([{<\"'“‘《「『【".indexOf(c) >= 0;
     }
 
     private static boolean isClosingPunctuation(char c) {
-        return ")]}\"'”’》」』】〉，。！？；：、,.!?;:".indexOf(c) >= 0;
+        return ")]}>\"'”’》」』】,，。.!?！？;；:：".indexOf(c) >= 0;
     }
 
     /**
-     * 判断字符是否是全角字符
+     * 判断字符是否为常见全角字符。
+     * 全角字符在简单测量策略下按字号近似处理。
      */
     private static boolean isFullWidthChar(char c) {
-        return (c >= '\u4E00' && c <= '\u9FFF') ||
-                (c >= '\u3040' && c <= '\u30FF') ||
-                (c >= '\uFF01' && c <= '\uFF5E');
+        return (c >= '\u4E00' && c <= '\u9FFF')
+                || (c >= '\u3040' && c <= '\u30FF')
+                || (c >= '\uFF01' && c <= '\uFF5E');
     }
 
     private enum TokenType {
@@ -231,8 +239,11 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
     }
 
     private static class Token {
+        /** token 原始文本。 */
         private final String text;
+        /** token 预估宽度。 */
         private final int width;
+        /** token 类型。 */
         private final TokenType type;
 
         private Token(String text, int width, TokenType type) {
@@ -271,41 +282,42 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
     }
 
     private static class LineBuffer {
-        private final List<Token> tokens = new ArrayList<>();
+        /** 当前行暂存的 token。 */
+        private final List<Token> tokens = new ArrayList<Token>();
+        /** 当前行累计宽度。 */
         private int width = 0;
 
         private boolean isEmpty() {
-            return tokens.isEmpty();
+            return this.tokens.isEmpty();
         }
 
         private boolean canAppend(Token token, int maxWidth) {
-            return token.width + width <= maxWidth;
+            return token.width + this.width <= maxWidth;
         }
 
         private void append(Token token) {
-            tokens.add(token);
-            width += token.width;
+            this.tokens.add(token);
+            this.width += token.width;
         }
 
         private void clear() {
-            tokens.clear();
-            width = 0;
+            this.tokens.clear();
+            this.width = 0;
         }
 
         private String buildText(boolean trimTrailingWhitespace) {
-            int end = tokens.size();
+            int end = this.tokens.size();
             if (trimTrailingWhitespace) {
-                while (end > 0 && tokens.get(end - 1).type == TokenType.WHITESPACE) {
+                while (end > 0 && this.tokens.get(end - 1).type == TokenType.WHITESPACE) {
                     end--;
                 }
             }
 
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < end; i++) {
-                builder.append(tokens.get(i).text);
+                builder.append(this.tokens.get(i).text);
             }
             return builder.toString();
         }
-
     }
 }

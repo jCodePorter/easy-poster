@@ -9,8 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class TextMetricsService {
 
+    /** 不带字间距的基础字符串宽度缓存。 */
     private final Map<String, Integer> baseWidthCache = new ConcurrentHashMap<String, Integer>();
+    /** 单行文本宽度缓存。 */
     private final Map<String, Integer> lineWidthCache = new ConcurrentHashMap<String, Integer>();
+    /** 段落最大宽度缓存。 */
     private final Map<String, Integer> paragraphWidthCache = new ConcurrentHashMap<String, Integer>();
 
     public Font deriveFont(Font baseFont, int size) {
@@ -37,6 +40,7 @@ public final class TextMetricsService {
         String[] segments = normalizeLineBreaks(content).split("\n", -1);
         int maxWidth = 0;
         for (String segment : segments) {
+            // 段落宽度取显式分行后各行的最大值。
             maxWidth = Math.max(maxWidth, measureLineWidth(segment, fontMetrics, graphics, letterSpacing));
         }
         this.paragraphWidthCache.put(cacheKey, Integer.valueOf(maxWidth));
@@ -53,6 +57,7 @@ public final class TextMetricsService {
             return cached.intValue();
         }
 
+        // 字间距只作用于相邻字符之间，因此总共增加 length - 1 次。
         int width = measureBaseStringWidth(line, fontMetrics, graphics)
                 + Math.max(0, line.length() - 1) * letterSpacing;
         this.lineWidthCache.put(cacheKey, Integer.valueOf(width));
@@ -79,6 +84,7 @@ public final class TextMetricsService {
         if (spaceRunLength <= 0) {
             return 0;
         }
+        // 两端对齐时，空白段左右两侧也要算入一次字符间隔。
         return measureLineWidth(repeat(' ', spaceRunLength), fontMetrics, graphics, letterSpacing) + 2 * letterSpacing;
     }
 

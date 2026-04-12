@@ -41,71 +41,106 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Upgraded text element with a side-effect free layout pipeline.
+ * 增强版文本元素。
+ * 负责承载文本样式配置，并串联文本规格解析、布局测量与最终绘制流程。
  */
 @Getter
 public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextElement> implements IElement {
 
+    /** 默认文本拆分器，用于普通文本自动换行。 */
     private static final ITextSplitter DEFAULT_TEXT_SPLITTER = new TextSplitterSimpleImpl();
+    /** 文本布局引擎，负责缓存并产出布局结果。 */
     private static final TextLayoutEngine LAYOUT_ENGINE = new TextLayoutEngine();
+    /** 文本绘制器，负责背景、装饰线与正文绘制。 */
     private static final TextPainter TEXT_PAINTER = new TextPainter();
+    /** 纯文本换行处理器。 */
     private static final PlainTextWrapper PLAIN_TEXT_LAYOUT_PROCESSOR = new PlainTextWrapper();
+    /** 富文本换行处理器。 */
     private static final RichTextWrapper RICH_TEXT_LAYOUT_PROCESSOR = new RichTextWrapper();
+    /** 文本宽度、高度等基础度量服务。 */
     private static final TextMetricsService TEXT_METRICS = new TextMetricsService();
+    /** 文本描边、阴影、下划线等装饰的额外占位计算器。 */
     private static final DecorationMetricsResolver DECORATION_METRICS = new DecorationMetricsResolver();
 
+    /** 主文本内容；富文本场景下通常为空字符串。 */
     private final String text;
 
+    /** 字体名称，未设置时回退到全局配置。 */
     private String fontName;
 
+    /** 字体样式，如普通、粗体、斜体。 */
     private Integer fontStyle;
 
+    /** 字体大小。 */
     private Integer fontSize;
 
+    /** 直接指定的基础字体对象，优先级高于配置默认字体。 */
     private Font font;
 
+    /** 文本锚点所采用的基线类型。 */
     private BaseLine baseLine;
 
+    /** 行高；为空时使用字体默认高度。 */
     private Integer lineHeight;
 
+    /** 是否启用自动换行。 */
     private boolean autoWordWrap = false;
 
+    /** 文本布局宽度或自动换行时的最大宽度。 */
     private int maxTextWidth;
 
+    /** 是否启用自动缩放字体以适配宽度。 */
     private boolean autoFitText = false;
 
+    /** 自动缩放目标宽度。 */
     private int autoFitTargetWidth;
 
+    /** 自动缩放允许收缩到的最小字号。 */
     private int autoFitMinFontSize;
 
+    /** 是否绘制删除线。 */
     private boolean strikeThrough = false;
 
+    /** 是否绘制下划线。 */
     private boolean underline = false;
 
+    /** 文本对齐方式。 */
     private TextAlign textAlign;
 
+    /** 文本溢出策略，如换行、裁剪、省略。 */
     private TextOverflowStrategy overflowStrategy;
 
+    /** 最大显示行数。 */
     private Integer maxLines;
 
+    /** 省略策略使用的省略符。 */
     private String ellipsis = "...";
 
+    /** 文本阴影效果。 */
     private TextShadow shadow;
 
+    /** 文本描边效果。 */
     private TextStroke stroke;
 
+    /** 字间距。 */
     private int letterSpacing = 0;
 
+    /** 文本背景色。 */
     private Color textBackgroundColor;
 
+    /** 文本背景内边距。 */
     private Margin textPadding = Margin.of(0);
 
+    /** 文本背景圆角宽度。 */
     private int textBackgroundArcWidth = 0;
 
+    /** 文本背景圆角高度。 */
     private int textBackgroundArcHeight = 0;
 
+    /** 富文本片段集合，按顺序参与布局和绘制。 */
     private final List<TextSpan> textSpans = new ArrayList<TextSpan>();
 
+    /** 文本拆分器，实现自动换行时的分词/切分逻辑。 */
     private ITextSplitter textSplitter = DEFAULT_TEXT_SPLITTER;
 
     public EnhanceTextElement(String text) {
@@ -370,11 +405,13 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
 
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
+        // 尺寸计算与实际绘制共用同一套布局流程，确保测量结果与渲染结果一致。
         return LAYOUT_ENGINE.layout(this, context, posterWidth, posterHeight).toDimension(this.rotate);
     }
 
     @Override
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+        // 绘制前先拿到布局结果，避免绘制期再次推导行信息导致前后不一致。
         TextLayoutResult layout = LAYOUT_ENGINE.layout(this, context, posterWidth, posterHeight);
         return TEXT_PAINTER.paint(this, context, dimension, layout);
     }
@@ -384,6 +421,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
         super.beforeRender(context);
         Graphics2D graphics = context.getGraphics();
         TextRenderSpec spec = TextRenderSpecFactory.from(this, context.getConfig());
+        // 预先把画笔颜色和字体切到文本最终使用的基准样式，便于后续流程复用。
         graphics.setColor(spec.getColor());
         graphics.setFont(spec.getBaseFont());
     }
@@ -402,6 +440,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
     }
 
     public TextLayoutResult measureLayoutInternal(TextRenderSpec spec, PosterContext context, int posterWidth, int posterHeight) {
+        // 富文本与纯文本的布局模型不同，先按数据类型分流。
         if (spec.hasRichTextSpans()) {
             return measureRichLayoutInternal(spec, context, posterWidth, posterHeight);
         }
@@ -422,6 +461,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
         TextDecorationInsets decorationInsets = DECORATION_METRICS.resolveTextInsets(spec, graphics, fontMetrics, resolvedLineHeight, baselineOffset);
         TextPaddingInsets paddingInsets = resolveTextPaddingInsets(spec);
 
+        // 总尺寸 = 文本内容 + 背景内边距 + 装饰外扩（描边、阴影、装饰线等）。
         int textWidth = resolvedTextLines.getLayoutWidth();
         int textHeight = resolvedLineHeight * resolvedTextLines.getLines().size();
         int backgroundWidth = textWidth + paddingInsets.getLeft() + paddingInsets.getRight();
@@ -438,6 +478,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
         List<LayoutLine> layoutLines = new ArrayList<LayoutLine>(resolvedTextLines.getLines().size());
         for (int i = 0; i < resolvedTextLines.getLines().size(); i++) {
             SplitTextInfo line = resolvedTextLines.getLines().get(i);
+            // 两端对齐只对非末行、且仍有剩余空间的行生效。
             boolean justified = shouldJustifyLine(resolvedTextAlign, line, i, resolvedTextLines);
             int offsetX = justified ? 0 : resolvedTextAlign.offset(resolvedTextLines.getLayoutWidth(), line.getWidth());
             int renderWidth = resolveLineRenderWidth(line, resolvedTextLines.getLayoutWidth(), justified, resolvedTextLines.isClipOverflow());
@@ -497,6 +538,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
 
         List<LayoutLine> layoutLines = new ArrayList<LayoutLine>(richLines.size());
         for (RichLine richLine : richLines) {
+            // 富文本按整行做水平偏移，片段自身再保留相对 xOffset。
             int offsetX = resolvedTextAlign.offset(textWidth, richLine.getWidth());
             List<RichTextFragment> fragments = new ArrayList<RichTextFragment>(richLine.getFragments().size());
             for (RichTextFragment fragment : richLine.getFragments()) {
@@ -531,9 +573,11 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
     }
 
     private void validateRichTextConfig(TextRenderSpec spec) {
+        // 目前富文本还未支持缩放字体，因为不同片段样式缩放后需要统一重算。
         if (spec.isAutoFitText()) {
             throw new PosterException("rich text span does not support autoFitText yet");
         }
+        // 富文本两端对齐需要片段级空白扩展逻辑，当前实现尚未覆盖。
         if (spec.getTextAlign() == TextAlign.JUSTIFY) {
             throw new PosterException("rich text span does not support justify yet");
         }
@@ -561,6 +605,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
     }
 
     private Font resolveRenderFont(TextRenderSpec spec, String content, Font baseFont, Graphics2D graphics) {
+        // 未开启自动缩放、目标宽度非法或文本为空时，直接沿用基础字体。
         if (!spec.isAutoFitText() || spec.getAutoFitTargetWidth() <= 0 || content.isEmpty()) {
             return baseFont;
         }
@@ -568,15 +613,18 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
         int baseSize = Math.max(1, Math.round(baseFont.getSize2D()));
         int minSize = Math.max(1, Math.min(baseSize, spec.getAutoFitMinFontSize()));
         int baseWidth = measureParagraphWidth(content, graphics.getFontMetrics(baseFont), graphics);
+        // 初始字体已经满足宽度，或者最小字号等于当前字号时，无需继续二分。
         if (baseWidth <= spec.getAutoFitTargetWidth() || baseSize == minSize) {
             return baseSize == minSize ? TEXT_METRICS.deriveFont(baseFont, minSize) : baseFont;
         }
 
         Font floorFont = TEXT_METRICS.deriveFont(baseFont, minSize);
+        // 即便缩到最小字号仍超宽时，返回最小字号，后续再交给换行/裁剪策略处理。
         if (measureParagraphWidth(content, graphics.getFontMetrics(floorFont), graphics) > spec.getAutoFitTargetWidth()) {
             return floorFont;
         }
 
+        // 在最小字号与基础字号之间二分搜索可容纳的最大字号。
         Font bestFont = floorFont;
         int low = minSize;
         int high = baseSize;
@@ -622,9 +670,11 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
         if (resolvedTextAlign != TextAlign.JUSTIFY) {
             return false;
         }
+        // 最后一行通常不做两端对齐，避免单词间距被拉得不自然。
         if (index >= resolvedTextLines.getLines().size() - 1) {
             return false;
         }
+        // 行内容已占满布局宽度时，无需再做额外拉伸。
         if (resolvedTextLines.getLayoutWidth() <= line.getWidth()) {
             return false;
         }
@@ -633,9 +683,11 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
 
     private int resolveLineRenderWidth(SplitTextInfo line, int layoutWidth, boolean justified, boolean clipOverflow) {
         if (justified) {
+            // 两端对齐后的可绘制宽度就是整行布局宽度。
             return layoutWidth;
         }
         if (clipOverflow && layoutWidth > 0) {
+            // 裁剪模式下记录真实可见宽度，便于调试框和后续裁剪区域计算。
             return Math.min(line.getWidth(), layoutWidth);
         }
         return line.getWidth();
@@ -646,6 +698,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
                                     TextDecorationInsets decorationInsets, TextPaddingInsets paddingInsets) {
         if (this.position instanceof AbsolutePosition) {
             Point anchor = ((AbsolutePosition) this.position).getPoint();
+            // 绝对定位传入的是“文本锚点”，需要反推出包含装饰和内边距后的整体左上角。
             int contentTopY = anchor.getY() - resolveAbsoluteAnchorOffset(resolvedBaseLine, baselineOffset, resolvedLineHeight);
             return Point.of(
                     anchor.getX() - decorationInsets.getLeft() - paddingInsets.getLeft(),
@@ -653,9 +706,11 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
             );
         }
         if (this.position != null) {
+            // 相对定位直接以整体块尺寸参与位置计算。
             Position blockPosition = this.position;
             return blockPosition.calculate(posterWidth, posterHeight, layoutWidth, totalHeight);
         }
+        // 未设置位置时默认从原点开始绘制。
         return Point.ORIGIN_COORDINATE;
     }
 
@@ -673,11 +728,13 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
             return 0;
         }
         if (resolvedBaseLine == BaseLine.CENTER) {
+            // 以行框中线作为锚点时，回退半个行高即可得到内容顶部。
             return resolvedLineHeight / 2;
         }
         if (resolvedBaseLine == BaseLine.BOTTOM) {
             return resolvedLineHeight;
         }
+        // 默认使用字体基线偏移，兼容传统 baseline 定位。
         return baselineOffset;
     }
 
@@ -700,6 +757,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
         int width = 0;
         for (int i = 0; i < glyphs.size(); i++) {
             if (i > 0) {
+                // 富文本逐字测量时，字间距只在相邻字形之间追加一次。
                 width += letterSpacing;
             }
             width += glyphs.get(i).getWidth();
@@ -717,6 +775,7 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
     }
 
     private boolean hasJustifiableGap(String lineText) {
+        // 当前实现仅对包含空格的文本做两端对齐扩展。
         return lineText != null && lineText.indexOf(' ') >= 0;
     }
 
@@ -732,10 +791,18 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
         }
     }
 
+    /**
+     * 纯文本换行结果载体。
+     * 当前类内部未直接使用，保留在此用于兼容早期布局阶段的结构抽象。
+     */
     private static final class ResolvedTextLines {
+        /** 分行后的文本列表。 */
         private final List<SplitTextInfo> lines;
+        /** 本次布局采用的宽度。 */
         private final int layoutWidth;
+        /** 是否因为最大行数或省略策略发生截断。 */
         private final boolean truncated;
+        /** 是否需要在绘制阶段裁剪超出部分。 */
         private final boolean clipOverflow;
 
         private ResolvedTextLines(List<SplitTextInfo> lines, int layoutWidth, boolean truncated, boolean clipOverflow) {

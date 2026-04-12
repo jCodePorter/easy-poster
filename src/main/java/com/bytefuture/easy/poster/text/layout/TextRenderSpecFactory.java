@@ -21,6 +21,7 @@ public final class TextRenderSpecFactory {
     }
 
     public static TextRenderSpec from(EnhanceTextElement element, Config config) {
+        // 这里负责把“元素局部配置 + 全局默认配置”折叠成一份不可变渲染规格。
         return new TextRenderSpec(
                 element.getText(),
                 new ArrayList<>(element.getTextSpans()),
@@ -55,6 +56,7 @@ public final class TextRenderSpecFactory {
         Font baseFont = Optional.ofNullable(element.getFont()).orElse(config.getFont());
         if (baseFont != null) {
             if (element.getFontName() != null) {
+                // 显式指定了 fontName 时，直接构建新字体，避免继承旧字体名称。
                 return new Font(
                         element.getFontName(),
                         Optional.ofNullable(element.getFontStyle()).orElse(baseFont.getStyle()),
@@ -65,11 +67,13 @@ public final class TextRenderSpecFactory {
             int resolvedStyle = Optional.ofNullable(element.getFontStyle()).orElse(baseFont.getStyle());
             int resolvedSize = Optional.ofNullable(element.getFontSize()).orElse(baseFont.getSize());
             if (resolvedStyle == baseFont.getStyle() && resolvedSize == baseFont.getSize()) {
+                // 样式和字号都未变化时直接复用，减少对象创建。
                 return baseFont;
             }
             return baseFont.deriveFont(resolvedStyle, (float) resolvedSize);
         }
 
+        // 连基础字体对象都没有时，退化为按配置项直接 new Font。
         return new Font(
                 Optional.ofNullable(element.getFontName()).orElse(config.getFontName()),
                 Optional.ofNullable(element.getFontStyle()).orElse(config.getFontStyle()),
@@ -81,6 +85,7 @@ public final class TextRenderSpecFactory {
         if (element.getOverflowStrategy() != null) {
             return element.getOverflowStrategy();
         }
+        // 开启自动换行但未显式指定溢出策略时，默认使用 WRAP。
         if (element.isAutoWordWrap()) {
             return TextOverflowStrategy.WRAP;
         }
@@ -94,6 +99,7 @@ public final class TextRenderSpecFactory {
         Position position = element.getPosition();
         if (position instanceof RelativePosition) {
             Direction direction = ((RelativePosition) position).getDirection();
+            // 相对定位在未显式设置对齐方式时，会推导一个更符合视觉预期的默认对齐。
             if (direction == Direction.CENTER || direction == Direction.TOP_CENTER || direction == Direction.BOTTOM_CENTER) {
                 return TextAlign.CENTER;
             }

@@ -7,17 +7,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 文本拆分结果
- *
- * @author biaoy
- * @since 2026/04/10
+ * 文本拆分结果。
  */
 @Getter
 @Setter
 public class TextSplitResult {
 
+    /** 分行结果列表。 */
     private final List<SplitTextInfo> lines;
 
+    /** 结果中最宽一行的宽度。 */
     private final int maxLineWidth;
 
     private TextSplitResult(List<SplitTextInfo> lines, int maxLineWidth) {
@@ -28,6 +27,7 @@ public class TextSplitResult {
     public static TextSplitResult of(List<SplitTextInfo> lines) {
         int maxWidth = 0;
         for (SplitTextInfo line : lines) {
+            // 预先计算最大行宽，供上层布局直接复用。
             maxWidth = Math.max(maxWidth, line.getWidth());
         }
         return new TextSplitResult(lines, maxWidth);

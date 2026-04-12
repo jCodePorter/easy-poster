@@ -29,6 +29,7 @@ public final class TextPainter {
                        TextLayoutResult layout) {
         Graphics2D graphics = context.getGraphics();
 
+        // 渐变依赖最终绘制区域，因此在真正绘制前再应用。
         element.applyGradient(context, dimension);
         graphics.setFont(layout.getFont());
 
@@ -39,6 +40,7 @@ public final class TextPainter {
         Shape savedClip = graphics.getClip();
         try {
             if (element.getRotate() != 0) {
+                // 旋转围绕文本块中心进行，这样与外层测得的旋转包围盒保持一致。
                 AffineTransform rotatedTransform = new AffineTransform(savedTransform);
                 rotatedTransform.rotate(Math.toRadians(element.getRotate()),
                         dimension.getPoint().getX() + dimension.getWidth() / 2.0,
@@ -47,6 +49,7 @@ public final class TextPainter {
             }
             BACKGROUND_PAINTER.paint(element, graphics, dimension, layout);
             if (layout.isClipOverflow()) {
+                // 裁剪区域只覆盖文本内容区，不包含装饰外扩和背景内边距。
                 graphics.clip(new Rectangle(
                         dimension.getPoint().getX() + layout.getDecorationInsets().getLeft() + layout.getTextPadding().getLeft(),
                         dimension.getPoint().getY() + layout.getDecorationInsets().getTop() + layout.getTextPadding().getTop(),
@@ -58,6 +61,7 @@ public final class TextPainter {
             for (int i = 0; i < layout.getLines().size(); i++) {
                 LayoutLine line = layout.getLines().get(i);
                 int startX = line.getPoint().getX() + xDiff;
+                // 每一行的绘制 Y 基于块顶部、基线偏移和行高累加得到。
                 int startY = line.getPoint().getY() + layout.getBaselineOffset() + yDiff + i * layout.getLineHeight();
 
                 if (context.getConfig().isDebug()) {
@@ -83,6 +87,7 @@ public final class TextPainter {
 
         int topY = (int) (startY - ascent - diffHeight);
         if (element.getPosition() instanceof AbsolutePosition) {
+            // TOP/BOTTOM 基线下，调试框需要跟随锚点语义修正顶部位置。
             if (layout.getBaseLine() == BaseLine.TOP) {
                 topY += diffHeight;
             } else if (layout.getBaseLine() == BaseLine.BOTTOM) {
@@ -95,6 +100,7 @@ public final class TextPainter {
     private void paintLine(EnhanceTextElement element, Graphics2D graphics,
                            LayoutLine line, TextLayoutResult layout, int startX, int startY) {
         if (line.hasRichFragments()) {
+            // 富文本按片段分别绘制，不走普通文本绘制逻辑。
             RICH_TEXT_PAINTER.paint(element, graphics, line.getRichFragments(), startX, startY);
             return;
         }

@@ -20,31 +20,57 @@ import java.util.Objects;
 @Getter
 public final class TextRenderSpec {
 
+    /** 纯文本内容。 */
     private final String text;
+    /** 富文本片段集合。 */
     private final List<TextSpan> textSpans;
+    /** 文本块定位方式。 */
     private final Position position;
+    /** 默认文本颜色。 */
     private final Color color;
+    /** 基础字体。 */
     private final Font baseFont;
+    /** 文本锚点基线。 */
     private final BaseLine baseLine;
+    /** 行高。 */
     private final Integer lineHeight;
+    /** 水平对齐方式。 */
     private final TextAlign textAlign;
+    /** 溢出策略。 */
     private final TextOverflowStrategy overflowStrategy;
+    /** 最大显示行数。 */
     private final Integer maxLines;
+    /** 省略符文本。 */
     private final String ellipsis;
+    /** 阴影效果。 */
     private final TextShadow shadow;
+    /** 描边效果。 */
     private final TextStroke stroke;
+    /** 字间距。 */
     private final int letterSpacing;
+    /** 背景色。 */
     private final Color textBackgroundColor;
+    /** 背景内边距。 */
     private final Margin textPadding;
+    /** 背景圆角宽度。 */
     private final int textBackgroundArcWidth;
+    /** 背景圆角高度。 */
     private final int textBackgroundArcHeight;
+    /** 旋转角度。 */
     private final int rotate;
+    /** 是否自动换行。 */
     private final boolean autoWordWrap;
+    /** 布局宽度或换行上限宽度。 */
     private final int maxTextWidth;
+    /** 是否自动缩放字体。 */
     private final boolean autoFitText;
+    /** 自动缩放目标宽度。 */
     private final int autoFitTargetWidth;
+    /** 自动缩放最小字号。 */
     private final int autoFitMinFontSize;
+    /** 是否绘制下划线。 */
     private final boolean underline;
+    /** 是否绘制删除线。 */
     private final boolean strikeThrough;
 
     public TextRenderSpec(String text, List<TextSpan> textSpans, Position position, Color color, Font baseFont,
@@ -86,6 +112,7 @@ public final class TextRenderSpec {
     }
 
     public int resolveWidthLimit() {
+        // 显式布局宽度优先；未设置时，自动缩放目标宽度也可作为宽度约束参与换行/裁剪。
         if (this.maxTextWidth > 0) {
             return this.maxTextWidth;
         }
@@ -96,10 +123,12 @@ public final class TextRenderSpec {
     }
 
     public String normalizedText() {
+        // 统一换行符，避免 Windows/Unix 文本在布局上出现分支差异。
         return this.text == null ? "" : this.text.replace("\r\n", "\n").replace('\r', '\n');
     }
 
     public String cacheKey() {
+        // 仅把影响布局和绘制结果的字段纳入缓存 key。
         StringBuilder builder = new StringBuilder();
         builder.append(Objects.toString(this.text, "")).append('|')
                 .append(this.textSpans.size()).append('|')
@@ -131,6 +160,7 @@ public final class TextRenderSpec {
                 .append(this.underline).append('|')
                 .append(this.strikeThrough);
         for (TextSpan span : this.textSpans) {
+            // 富文本缓存需要把片段级样式一并纳入，否则不同片段样式会误命中缓存。
             builder.append('|')
                     .append(Objects.toString(span.getText(), ""))
                     .append(':').append(Objects.toString(span.getColor(), ""))

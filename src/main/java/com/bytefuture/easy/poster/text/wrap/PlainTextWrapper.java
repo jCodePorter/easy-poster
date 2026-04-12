@@ -25,9 +25,13 @@ public final class PlainTextWrapper {
     }
 
     public static final class ResolvedLines {
+        /** 分行结果。 */
         private final List<SplitTextInfo> lines;
+        /** 本次布局使用的宽度。 */
         private final int layoutWidth;
+        /** 是否发生截断。 */
         private final boolean truncated;
+        /** 是否需要绘制阶段裁剪。 */
         private final boolean clipOverflow;
 
         public ResolvedLines(List<SplitTextInfo> lines, int layoutWidth, boolean truncated, boolean clipOverflow) {
@@ -62,12 +66,15 @@ public final class PlainTextWrapper {
 
         TextOverflowStrategy overflowStrategy = spec.getOverflowStrategy();
         int widthLimit = spec.resolveWidthLimit();
+        // 自动缩放已经收缩到最小字号时，仍可能需要改走换行兜底。
         int effectiveWrapWidth = resolveEffectiveWrapWidth(spec, content, fontMetrics, graphics, renderFont,
                 overflowStrategy, widthLimit, measurer);
         List<SplitTextInfo> rawLines;
         if (overflowStrategy == TextOverflowStrategy.WRAP && effectiveWrapWidth > 0) {
+            // 换行模式优先委托拆分器做分词切行。
             rawLines = resolveWrappedLines(content, effectiveWrapWidth, fontMetrics, graphics, textSplitter, measurer);
         } else if (containsLineBreak(content)) {
+            // 即使不是自动换行模式，也需要保留显式换行。
             rawLines = splitExplicitLines(content, fontMetrics, graphics, measurer);
         } else {
             rawLines = Collections.singletonList(SplitTextInfo.of(content,
@@ -80,6 +87,7 @@ public final class PlainTextWrapper {
 
         List<SplitTextInfo> visibleLines = rawLines;
         if (overflowStrategy == TextOverflowStrategy.ELLIPSIS && widthLimit > 0) {
+            // 先做单行宽度省略，再处理最大行数限制。
             visibleLines = ELLIPSIS_PROCESSOR.applyPlainWidthEllipsis(spec, visibleLines, widthLimit, fontMetrics, graphics,
                     new EllipsisProcessor.PlainTextMeasurer() {
                         @Override
@@ -93,6 +101,7 @@ public final class PlainTextWrapper {
                 resolveLayoutWidth(visibleLines, overflowStrategy, widthLimit, effectiveWrapWidth),
                 fontMetrics, graphics, measurer);
         if (overflowStrategy == TextOverflowStrategy.CLIP && widthLimit > 0) {
+            // 裁剪模式不改文本内容，只标记需要裁剪。
             return new ResolvedLines(limitedLines.getLines(), widthLimit, limitedLines.isTruncated(), true);
         }
         return limitedLines;
@@ -114,6 +123,7 @@ public final class PlainTextWrapper {
                 normalized.add(SplitTextInfo.of(textValue, measuredWidth));
                 continue;
             }
+            // 拆分器结果若仍超宽，再做字符级兜底切分。
             normalized.addAll(splitOverflowLine(textValue, maxWidth, fontMetrics, graphics, measurer));
         }
         return normalized;
@@ -129,6 +139,7 @@ public final class PlainTextWrapper {
             String visibleSegment = trimTrailingWhitespace(rawSegment);
 
             if (visibleSegment.isEmpty()) {
+                // 至少切出一个字符，避免在空白或不可断片段上死循环。
                 visibleSegment = remaining.substring(0, 1);
                 lineEnd = 1;
             }
@@ -175,6 +186,7 @@ public final class PlainTextWrapper {
             return new ResolvedLines(rawLines, layoutWidth, false, false);
         }
 
+        // 超出最大行数时，仅保留前 N 行，并在最后一行追加省略符。
         List<SplitTextInfo> visibleLines = new ArrayList<SplitTextInfo>(rawLines.subList(0, spec.getMaxLines()));
         int lastIndex = visibleLines.size() - 1;
         int widthLimit = layoutWidth > 0 ? layoutWidth : Integer.MAX_VALUE;
@@ -206,6 +218,7 @@ public final class PlainTextWrapper {
         if (!needsFallbackWrap) {
             return wrapWidth;
         }
+        // 最小字号仍超宽时，使用目标宽度作为最终换行宽度。
         if (wrapWidth <= 0) {
             return spec.getAutoFitTargetWidth();
         }
