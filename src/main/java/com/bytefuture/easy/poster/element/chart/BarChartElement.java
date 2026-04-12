@@ -5,6 +5,8 @@ import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.PosterContext;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -16,13 +18,17 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 柱状图
+ * 柱状图元素。
+ * 用于在海报中绘制分组柱状图、堆叠柱状图以及百分比堆叠柱状图。
  *
  * @author biaoy
  * @since 2026/04/11
  */
 public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
 
+    /**
+     * 默认系列配色，未为系列单独指定颜色时按顺序循环使用。
+     */
     private static final List<Color> DEFAULT_PALETTE = Arrays.asList(
             new Color(72, 133, 237),
             new Color(234, 67, 53),
@@ -32,44 +38,158 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             new Color(0, 172, 193)
     );
 
+    /**
+     * X 轴类目名称列表，例如月份、城市、部门等。
+     */
     private final List<String> categories = new ArrayList<String>();
 
+    /**
+     * 图表系列数据集合，每个系列都需要与类目数量一一对应。
+     */
     private final List<BarChartSeries> seriesList = new ArrayList<BarChartSeries>();
+    /**
+     * 数值格式化器，用于坐标轴和数值标签的文本展示。
+     */
     private final DecimalFormat decimalFormat = new DecimalFormat("0.##");
+    /**
+     * 图表内容内边距，控制标题、图例、绘图区与外边界的距离。
+     */
     private Insets padding = new Insets(24, 24, 24, 24);
+    /**
+     * 背景色，为 null 时不绘制背景。
+     */
     private Color backgroundColor;
+    /**
+     * 坐标轴颜色。
+     */
     private Color axisColor = new Color(85, 92, 110);
+    /**
+     * 网格线颜色。
+     */
     private Color gridColor = new Color(225, 229, 238);
+    /**
+     * 标题、坐标轴标签、图例文本颜色。
+     */
     private Color labelColor = new Color(71, 77, 92);
+    /**
+     * 柱体外部数值标签颜色。
+     */
     private Color valueLabelColor = new Color(55, 60, 72);
+    /**
+     * 图表标题文本。
+     */
     private String title;
+    /**
+     * 是否显示图例。
+     */
     private boolean showLegend = true;
+    /**
+     * 是否显示横向网格线。
+     */
     private boolean showGrid = true;
+    /**
+     * 是否显示柱体数值标签。
+     */
     private boolean showValueLabel = true;
+    /**
+     * 是否显示坐标轴。
+     */
     private boolean showAxis = true;
+    /**
+     * 是否显示标题。
+     */
     private boolean showTitle = true;
+    /**
+     * 是否启用堆叠柱状图模式。
+     */
     private boolean stacked = false;
+    /**
+     * 是否启用百分比堆叠模式。开启后会自动进入堆叠模式。
+     */
     private boolean percentStacked = false;
+    /**
+     * 是否显示堆叠总计标签。当前类中暂未实际使用，但保留配置入口。
+     */
     private boolean showStackTotalLabel = false;
+    /**
+     * Y 轴刻度数量，至少为 2。
+     */
     private int yAxisTickCount = 5;
+    /**
+     * 坐标轴线宽。
+     */
     private int axisStrokeWidth = 1;
+    /**
+     * 标题字号。
+     */
     private int titleFontSize = 18;
+    /**
+     * 坐标轴标签字号。
+     */
     private int labelFontSize = 12;
+    /**
+     * 图例字号。
+     */
     private int legendFontSize = 12;
+    /**
+     * 柱体数值标签字号。
+     */
     private int valueLabelFontSize = 11;
+    /**
+     * 图例项之间的水平间距。
+     */
     private int legendItemGap = 18;
+    /**
+     * 图例色块尺寸。
+     */
     private int legendMarkerSize = 10;
+    /**
+     * 柱体允许的最大宽度。
+     */
     private int maxBarWidth = 56;
+    /**
+     * 柱体允许的最小宽度。
+     */
     private int minBarWidth = 6;
+    /**
+     * 柱体圆角大小，0 表示直角。
+     */
     private int barArc = 8;
+    /**
+     * 堆叠总计标签与柱体之间的间距。当前类中暂未实际使用。
+     */
     private int stackTotalLabelGap = 6;
+    /**
+     * 外部标签与柱体之间的间距。
+     */
     private int externalLabelGap = 4;
+    /**
+     * 堆叠标签允许绘制在柱体内部的最小高度阈值。
+     */
     private int minInsideLabelHeight = 18;
+    /**
+     * 堆叠标签展示模式：值、百分比，或值加百分比。
+     */
     private StackLabelMode stackLabelMode = StackLabelMode.VALUE_PERCENT;
+    /**
+     * 堆叠段太小时，是否将标签绘制到柱体外部。
+     */
     private boolean showSmallStackLabelOutside = true;
+    /**
+     * 类目之间的间隔比例，基于单个类目宽度计算。
+     */
     private double categoryGapRatio = 0.24D;
+    /**
+     * 同一类目下柱子之间的间隔比例，基于单根柱宽计算。
+     */
     private double barGapRatio = 0.18D;
+    /**
+     * 手动指定的最小值，为 null 时自动推导。
+     */
     private Double minValue;
+    /**
+     * 手动指定的最大值，为 null 时自动推导。
+     */
     private Double maxValue;
 
     public BarChartElement(int width, int height) {
@@ -137,6 +257,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return this;
     }
 
+    /**
+     * 设置是否为普通堆叠柱状图。
+     * 开启后会关闭堆叠总计标签，避免与堆叠内部标签冲突。
+     */
     public BarChartElement setStacked(boolean stacked) {
         this.stacked = stacked;
         if (stacked) {
@@ -145,6 +269,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return this;
     }
 
+    /**
+     * 设置是否为百分比堆叠柱状图。
+     * 开启后会自动启用堆叠模式，并关闭堆叠总计标签。
+     */
     public BarChartElement setPercentStacked(boolean percentStacked) {
         this.percentStacked = percentStacked;
         if (percentStacked) {
@@ -252,6 +380,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return this;
     }
 
+    /**
+     * 设置 Y 轴显示范围。
+     * 任一端为 null 时表示沿用自动计算结果。
+     */
     public BarChartElement setValueRange(Double minValue, Double maxValue) {
         if (minValue != null && maxValue != null && minValue >= maxValue) {
             throw new PosterException("minValue must be less than maxValue");
@@ -261,6 +393,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return this;
     }
 
+    /**
+     * 设置所有类目名称，会覆盖原有类目列表。
+     */
     public BarChartElement setCategories(List<String> categories) {
         this.categories.clear();
         if (categories != null) {
@@ -274,6 +409,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return this;
     }
 
+    /**
+     * 添加一个数据系列。
+     */
     public BarChartElement addSeries(BarChartSeries series) {
         if (series == null) {
             return this;
@@ -292,42 +430,50 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
 
     @Override
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
+        // 先校验输入数据，避免在绘制阶段出现数组越界或无效尺寸。
         validateData();
         Graphics2D graphics = context.getGraphics();
         Graphics2D g = (Graphics2D) graphics.create();
         try {
             Point origin = dimension.getPoint();
+            // 有背景色时，先绘制图表背景区域。
             if (backgroundColor != null) {
                 g.setColor(backgroundColor);
                 g.fillRect(origin.getX(), origin.getY(), width, height);
             }
 
+            // 优先使用上下文中已构造好的字体，否则按配置动态创建默认字体。
             Font baseFont = Optional.ofNullable(context.getConfig().getFont()).orElse(
                     new Font(context.getConfig().getFontName(), context.getConfig().getFontStyle(), context.getConfig().getFontSize())
             );
 
+            // 先计算数值区间，再派生不同用途的字体。
             ValueRange valueRange = resolveValueRange();
             Font titleFont = baseFont.deriveFont(Font.BOLD, (float) titleFontSize);
             Font labelFont = baseFont.deriveFont(Font.PLAIN, (float) labelFontSize);
             Font legendFont = baseFont.deriveFont(Font.PLAIN, (float) legendFontSize);
             Font valueFont = baseFont.deriveFont(Font.PLAIN, (float) valueLabelFontSize);
 
+            // 先扣除内边距，得到图表内部可用区域。
             int innerLeft = origin.getX() + padding.left;
             int innerTop = origin.getY() + padding.top;
             int innerRight = origin.getX() + width - padding.right;
             int innerBottom = origin.getY() + height - padding.bottom;
 
+            // 标题和图例会逐步占用顶部空间。
             int titleHeight = drawTitle(g, innerLeft, innerTop, innerRight, titleFont);
             innerTop += titleHeight;
 
             int legendHeight = drawLegend(g, innerLeft, innerTop, innerRight, legendFont);
             innerTop += legendHeight;
 
+            // 根据刻度文本宽度预留 Y 轴标签区域。
             List<Double> ticks = createTicks(valueRange);
             g.setFont(labelFont);
             FontMetrics labelMetrics = g.getFontMetrics();
             int yAxisLabelWidth = calcYAxisLabelWidth(labelMetrics, ticks);
 
+            // X 轴类目标签和数值标签都需要预留底部空间。
             int xAxisLabelAreaHeight = labelMetrics.getHeight() + 8;
             if (showValueLabel) {
                 g.setFont(valueFont);
@@ -345,6 +491,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
 
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+            // 0 刻度所在位置既决定 X 轴绘制位置，也决定正负柱子的生长方向。
             int zeroY = calculateZeroY(plotTop, plotBottom, plotHeight, valueRange);
 
             drawGridAndAxis(g, plotLeft, plotTop, plotRight, plotBottom, zeroY, ticks, valueRange, labelFont);
@@ -361,6 +508,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         super.beforeRender(context);
     }
 
+    /**
+     * 校验图表尺寸和数据结构是否合法。
+     */
     private void validateData() {
         if (width <= 0 || height <= 0) {
             throw new PosterException("chart width and height must be greater than 0");
@@ -378,6 +528,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         }
     }
 
+    /**
+     * 绘制标题，并返回标题实际占用的高度。
+     */
     private int drawTitle(Graphics2D g, int left, int top, int right, Font titleFont) {
         if (!showTitle || title == null || title.trim().isEmpty()) {
             return 0;
@@ -390,6 +543,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return metrics.getHeight() + 10;
     }
 
+    /**
+     * 绘制图例，并返回图例实际占用的高度。
+     */
     private int drawLegend(Graphics2D g, int left, int top, int right, Font legendFont) {
         if (!showLegend) {
             return 0;
@@ -402,9 +558,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         int usedHeight = rowHeight;
         for (int i = 0; i < seriesList.size(); i++) {
             BarChartSeries series = seriesList.get(i);
-            String text = Optional.ofNullable(series.getName()).orElse("绯诲垪" + (i + 1));
+            String text = Optional.ofNullable(series.getName()).orElse(String.valueOf((i + 1)));
             int textWidth = metrics.stringWidth(text);
             int itemWidth = legendMarkerSize + 6 + textWidth + legendItemGap;
+            // 当前行放不下时自动换行，避免图例越界。
             if (x + itemWidth > right && x > left) {
                 x = left;
                 baseline += rowHeight;
@@ -420,6 +577,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return usedHeight + 4;
     }
 
+    /**
+     * 计算 Y 轴标签所需的最大宽度，用于为绘图区留出左边距。
+     */
     private int calcYAxisLabelWidth(FontMetrics metrics, List<Double> ticks) {
         int max = 0;
         for (Double tick : ticks) {
@@ -428,6 +588,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return max;
     }
 
+    /**
+     * 绘制网格线、Y 轴刻度文本以及坐标轴线。
+     */
     private void drawGridAndAxis(Graphics2D g, int plotLeft, int plotTop, int plotRight, int plotBottom,
                                  int zeroY, List<Double> ticks, ValueRange valueRange, Font labelFont) {
         g.setFont(labelFont);
@@ -435,6 +598,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         Stroke oldStroke = g.getStroke();
         g.setStroke(new BasicStroke(axisStrokeWidth));
         for (Double tick : ticks) {
+            // 每个刻度都要换算到绘图区中的实际像素坐标。
             double ratio = (tick - valueRange.min) / (valueRange.max - valueRange.min);
             int y = plotBottom - (int) Math.round(ratio * (plotBottom - plotTop));
             if (showGrid) {
@@ -446,6 +610,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             int textWidth = metrics.stringWidth(tickText);
             g.drawString(tickText, plotLeft - textWidth - 10, y + metrics.getAscent() / 2 - 2);
         }
+        // 坐标轴可单独关闭，此时仅保留网格线与文字。
         if (showAxis) {
             g.setColor(axisColor);
             g.drawLine(plotLeft, plotTop, plotLeft, plotBottom);
@@ -454,6 +619,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         g.setStroke(oldStroke);
     }
 
+    /**
+     * 计算数值 0 对应的 Y 坐标。
+     * 全正数时基线在底部，全负数时基线在顶部，正负混合时按比例计算。
+     */
     private int calculateZeroY(int plotTop, int plotBottom, int plotHeight, ValueRange valueRange) {
         if (valueRange.min >= 0) {
             return plotBottom;
@@ -465,6 +634,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return plotBottom - (int) Math.round(plotHeight * baselineRatio);
     }
 
+    /**
+     * 按当前模式分发绘制逻辑：
+     * `stacked=true` 时绘制堆叠柱，否则绘制分组柱。
+     */
     private void drawBars(Graphics2D g, int plotLeft, int plotTop, int plotRight, int plotBottom, int zeroY,
                           int plotWidth, int plotHeight, ValueRange valueRange, Font valueFont) {
         if (stacked) {
@@ -474,6 +647,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         drawGroupedBars(g, plotLeft, plotBottom, zeroY, plotWidth, plotHeight, valueRange, valueFont);
     }
 
+    /**
+     * 绘制分组柱状图。
+     * 同一类目下每个系列独立成柱，并按间距依次排开。
+     */
     private void drawGroupedBars(Graphics2D g, int plotLeft, int plotBottom, int zeroY,
                                  int plotWidth, int plotHeight, ValueRange valueRange, Font valueFont) {
         int categoryCount = categories.size();
@@ -481,6 +658,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         double categoryWidth = (double) plotWidth / categoryCount;
         double categoryGap = Math.max(4D, categoryWidth * categoryGapRatio);
         double groupWidth = categoryWidth - categoryGap;
+        // 如果类目间距过大导致组宽度小于等于 0，则回退为类目宽度的 80%。
         if (groupWidth <= 0) {
             groupWidth = categoryWidth * 0.8D;
         }
@@ -499,6 +677,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
                 int barHeight = (int) Math.round(normalized * plotHeight);
                 int barWidth = Math.max(1, (int) Math.round(computedBarWidth));
                 int x = (int) Math.round(groupStart + seriesIndex * (computedBarWidth + barGap));
+                // 分组模式下，正值向上生长，负值向下生长。
                 int y = value >= 0 ? zeroY - barHeight : zeroY;
 
                 g.setColor(resolveSeriesColor(series, seriesIndex));
@@ -511,6 +690,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         }
     }
 
+    /**
+     * 绘制堆叠柱状图。
+     * 正值和负值分别以 0 为基线向两侧堆叠，百分比模式下会先换算为百分比后再绘制。
+     */
     private void drawStackedBars(Graphics2D g, int plotLeft, int plotTop, int plotBottom, int zeroY,
                                  int plotWidth, int plotHeight, ValueRange valueRange, Font valueFont) {
         int categoryCount = categories.size();
@@ -521,6 +704,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
             int barWidth = Math.max(1, (int) Math.round(barWidthDouble));
             int x = (int) Math.round(plotLeft + categoryIndex * categoryWidth + (categoryWidth - barWidthDouble) / 2D);
+            // 正负值分别累计，避免同一类目同时包含正负值时相互覆盖。
             double positiveBase = 0D;
             double negativeBase = 0D;
             double positiveTotal = getCategoryPositiveTotal(categoryIndex);
@@ -534,15 +718,18 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             for (int seriesIndex = 0; seriesIndex < seriesList.size(); seriesIndex++) {
                 BarChartSeries series = seriesList.get(seriesIndex);
                 double value = series.getValues().get(categoryIndex);
+                // 0 值段不绘制，可减少无意义的极细线段。
                 if (Double.compare(value, 0D) == 0) {
                     continue;
                 }
                 double displayValue = value;
                 if (percentStacked) {
+                    // 百分比堆叠需要按当前正向/负向总量归一化。
                     double divisor = value > 0 ? positiveTotal : Math.abs(negativeTotal);
                     if (Double.compare(divisor, 0D) != 0) {
                         displayValue = value / divisor * 100D;
                     } else {
+                        // 总量为 0 时无法计算占比，直接按 0 处理，避免除零。
                         displayValue = 0D;
                     }
                 }
@@ -568,6 +755,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
                     barHeight = 1;
                 }
 
+                // 通过正负方向分别判断当前段是否位于外层，从而决定哪一端需要圆角。
                 boolean roundStart = positive ? positiveIndex == positiveCount - 1 : negativeIndex == 0;
                 boolean roundEnd = positive ? positiveIndex == 0 : negativeIndex == negativeCount - 1;
                 if (positive) {
@@ -587,10 +775,14 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         }
     }
 
+    /**
+     * 绘制单根柱体，并按需要控制顶部/底部圆角。
+     */
     private void fillBar(Graphics2D g, int x, int y, int barWidth, int barHeight, boolean roundTop, boolean roundBottom) {
         if (barHeight <= 0 || barWidth <= 0) {
             return;
         }
+        // 不需要圆角时，直接走矩形填充即可。
         if (barArc <= 0 || (!roundTop && !roundBottom)) {
             g.fillRect(x, y, barWidth, barHeight);
             return;
@@ -600,6 +792,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             return;
         }
 
+        // 只保留一端圆角时，先画圆角矩形，再补一段直角矩形覆盖另一端。
         int arcInset = Math.min(barHeight / 2, Math.max(1, barArc / 2));
         if (roundTop) {
             g.fill(new RoundRectangle2D.Double(x, y, barWidth, barHeight, barArc, barArc));
@@ -615,6 +808,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         }
     }
 
+    /**
+     * 统计指定类目下正向或负向的有效堆叠段数量。
+     */
     private int countVisibleSegments(int categoryIndex, boolean positive) {
         int count = 0;
         for (BarChartSeries series : seriesList) {
@@ -628,6 +824,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return count;
     }
 
+    /**
+     * 计算指定类目下所有正值之和。
+     */
     private double getCategoryPositiveTotal(int categoryIndex) {
         double total = 0D;
         for (BarChartSeries series : seriesList) {
@@ -639,6 +838,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return total;
     }
 
+    /**
+     * 计算指定类目下所有负值之和。
+     */
     private double getCategoryNegativeTotal(int categoryIndex) {
         double total = 0D;
         for (BarChartSeries series : seriesList) {
@@ -650,6 +852,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return total;
     }
 
+    /**
+     * 将数值映射为绘图区中的 Y 坐标。
+     */
     private int valueToY(double value, int plotTop, int plotBottom, ValueRange valueRange) {
         double ratio = (value - valueRange.min) / (valueRange.max - valueRange.min);
         return plotBottom - (int) Math.round(ratio * (plotBottom - plotTop));
@@ -665,6 +870,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         g.drawString(text, textX, baselineY);
     }
 
+    /**
+     * 根据最大宽度自适应缩小字体，避免文本超出柱体可用宽度。
+     */
     private Font fitFontToWidth(Graphics2D g, Font baseFont, String text, int maxWidth) {
         Font font = baseFont;
         FontMetrics metrics = g.getFontMetrics(font);
@@ -672,6 +880,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             return font;
         }
 
+        // 最小缩小到 8 号字体，避免文本不可读。
         float size = font.getSize2D();
         while (size > 8F) {
             size -= 1F;
@@ -684,6 +893,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return font.deriveFont(8F);
     }
 
+    /**
+     * 计算堆叠段在其所属正向或负向总量中的占比。
+     */
     private double resolveStackSegmentPercent(double value, double positiveTotal, double negativeTotal) {
         if (Double.compare(value, 0D) > 0) {
             if (Double.compare(positiveTotal, 0D) == 0) {
@@ -700,6 +912,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return 0D;
     }
 
+    /**
+     * 绘制堆叠段标签。
+     * 优先绘制在柱体内部，空间不足时可退化为外部标签。
+     */
     private void drawStackedValueLabel(Graphics2D g, Font valueFont, double rawValue, double percent,
                                        int x, int y, int barWidth, int barHeight, boolean positive, int zeroY) {
         String text = formatStackedValueLabel(rawValue, percent);
@@ -708,6 +924,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         }
         Font targetFont = fitFontToWidth(g, valueFont, text, Math.max(12, barWidth - 4));
         FontMetrics metrics = g.getFontMetrics(targetFont);
+        // 堆叠段过矮时，内部标签会遮挡或溢出，因此按配置转为外部标签。
         if (barHeight < Math.max(minInsideLabelHeight, metrics.getHeight() + 4)) {
             if (showSmallStackLabelOutside) {
                 drawExternalStackedValueLabel(g, targetFont, text, x, y, barWidth, barHeight, positive, zeroY);
@@ -723,6 +940,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         g.drawString(text, textX, textY);
     }
 
+    /**
+     * 为较小的堆叠段绘制外部标签。
+     */
     private void drawExternalStackedValueLabel(Graphics2D g, Font font, String text, int x, int y,
                                                int barWidth, int barHeight, boolean positive, int zeroY) {
         Font targetFont = fitFontToWidth(g, font, text, Math.max(16, barWidth + 28));
@@ -732,6 +952,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         int textWidth = metrics.stringWidth(text);
         int textX = x + (barWidth - textWidth) / 2;
         int textY;
+        // 正值标签绘制在段上方，负值标签绘制在段下方。
         if (positive) {
             textY = Math.max(metrics.getAscent(), y - externalLabelGap);
         } else {
@@ -741,6 +962,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         g.drawString(text, textX, textY);
     }
 
+    /**
+     * 根据背景色亮度自动选择深色或浅色文字，提升可读性。
+     */
     private Color chooseReadableLabelColor(Color background) {
         if (background == null) {
             return Color.WHITE;
@@ -749,6 +973,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return brightness < 150 ? Color.WHITE : new Color(33, 37, 41);
     }
 
+    /**
+     * 绘制普通柱状图的数值标签。
+     */
     private void drawValueLabel(Graphics2D g, Font valueFont, double value, int x, int y,
                                 int barWidth, int barHeight, int zeroY) {
         g.setFont(valueFont);
@@ -758,6 +985,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         int textWidth = metrics.stringWidth(text);
         int textX = x + (barWidth - textWidth) / 2;
         int textY;
+        // 正值标签放在柱顶上方，负值标签放在柱底下方。
         if (value >= 0) {
             textY = Math.max(metrics.getAscent(), y - 4);
         } else {
@@ -766,6 +994,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         g.drawString(text, textX, textY);
     }
 
+    /**
+     * 绘制 X 轴类目标签。
+     */
     private void drawXAxisLabels(Graphics2D g, int plotLeft, int plotBottom, int plotWidth, Font labelFont) {
         g.setFont(labelFont);
         g.setColor(labelColor);
@@ -780,10 +1011,17 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         }
     }
 
+    /**
+     * 解析系列颜色，优先使用系列自定义颜色，否则回退到默认调色板。
+     */
     private Color resolveSeriesColor(BarChartSeries series, int index) {
         return Optional.ofNullable(series.getColor()).orElse(DEFAULT_PALETTE.get(index % DEFAULT_PALETTE.size()));
     }
 
+    /**
+     * 解析图表的数值范围。
+     * 普通模式按单值范围计算，堆叠模式按类目累计值范围计算。
+     */
     private ValueRange resolveValueRange() {
         if (stacked) {
             return resolveStackedValueRange();
@@ -802,14 +1040,20 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             dataMax = 0D;
         }
 
+        // 未显式指定范围时，至少保证 0 在坐标轴可见范围内。
         double finalMin = minValue != null ? minValue : Math.min(0D, dataMin);
         double finalMax = maxValue != null ? maxValue : Math.max(0D, dataMax);
         if (Double.compare(finalMin, finalMax) == 0) {
+            // 避免最大值和最小值相同导致后续比例计算除零。
             finalMax = finalMin + 1D;
         }
         return new ValueRange(finalMin, finalMax);
     }
 
+    /**
+     * 解析堆叠柱状图的数值范围。
+     * 每个类目分别累计正值和负值，再取全局最小/最大。
+     */
     private ValueRange resolveStackedValueRange() {
         if (percentStacked) {
             return resolvePercentStackedValueRange();
@@ -836,6 +1080,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             dataMax = 0D;
         }
 
+        // 堆叠模式同样默认保证 0 在可见范围内。
         double finalMin = minValue != null ? minValue : Math.min(0D, dataMin);
         double finalMax = maxValue != null ? maxValue : Math.max(0D, dataMax);
         if (Double.compare(finalMin, finalMax) == 0) {
@@ -844,6 +1089,10 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return new ValueRange(finalMin, finalMax);
     }
 
+    /**
+     * 解析百分比堆叠模式的数值范围。
+     * 仅正值时范围为 0~100，仅负值时范围为 -100~0，混合时范围为 -100~100。
+     */
     private ValueRange resolvePercentStackedValueRange() {
         boolean hasPositive = false;
         boolean hasNegative = false;
@@ -863,6 +1112,9 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return new ValueRange(finalMin, finalMax);
     }
 
+    /**
+     * 按当前数值范围生成等距 Y 轴刻度。
+     */
     private List<Double> createTicks(ValueRange valueRange) {
         List<Double> ticks = new ArrayList<Double>();
         double step = (valueRange.max - valueRange.min) / (yAxisTickCount - 1);
@@ -872,14 +1124,24 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return ticks;
     }
 
+    /**
+     * 普通数值格式化。
+     */
     private String formatValue(double value) {
         return decimalFormat.format(value);
     }
 
+    /**
+     * 坐标轴数值格式化。
+     * 百分比堆叠模式下会自动追加百分号。
+     */
     private String formatAxisValue(double value) {
         return percentStacked ? formatValue(value) + "%" : formatValue(value);
     }
 
+    /**
+     * 生成堆叠段标签文本。
+     */
     private String formatStackedValueLabel(double rawValue, double percent) {
         if (stackLabelMode == StackLabelMode.VALUE) {
             return formatValue(rawValue);
@@ -890,14 +1152,29 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         return formatValue(rawValue) + "(" + formatValue(percent) + "%)";
     }
 
+    /**
+     * 堆叠标签展示模式。
+     */
+    @Getter
+    @AllArgsConstructor
     public enum StackLabelMode {
-        VALUE,
-        PERCENT,
-        VALUE_PERCENT
+        VALUE("数值"),
+        PERCENT("百分比"),
+        VALUE_PERCENT("数值（百分比）");
+        private String desc;
     }
 
+    /**
+     * 数值范围对象，保存渲染时使用的最小值与最大值。
+     */
     private static class ValueRange {
+        /**
+         * 当前渲染范围的最小值。
+         */
         private final double min;
+        /**
+         * 当前渲染范围的最大值。
+         */
         private final double max;
 
         private ValueRange(double min, double max) {
