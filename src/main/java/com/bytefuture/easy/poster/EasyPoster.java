@@ -2,6 +2,7 @@ package com.bytefuture.easy.poster;
 
 import com.bytefuture.easy.poster.element.IElement;
 import com.bytefuture.easy.poster.element.basic.*;
+import com.bytefuture.easy.poster.element.chart.BarChartElement;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.Config;
@@ -148,6 +149,12 @@ public class EasyPoster {
         LineElement lineElement = new LineElement(start, end);
         renderedElements.add(lineElement);
         return lineElement;
+    }
+
+    public BarChartElement addBarChartElement(int width, int height) {
+        BarChartElement barChartElement = new BarChartElement(width, height);
+        renderedElements.add(barChartElement);
+        return barChartElement;
     }
 
     /**
