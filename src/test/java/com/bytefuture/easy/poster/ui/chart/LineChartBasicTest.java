@@ -48,6 +48,66 @@ public class LineChartBasicTest {
     }
 
     @Test
+    public void testSmoothLineChartRender() {
+        EasyPoster poster = buildBasePoster();
+        poster.addLineChartElement(840, 480)
+                .setTitle("平滑趋势")
+                .setSmoothTension(0.65D)
+                .setBackgroundColor(new Color(248, 250, 252))
+                .setCategories(Arrays.asList("第一季度", "第二季度", "第三季度", "第四季度"))
+                .addSeries("营收", Arrays.asList(128, 156, 120, 203), new Color(59, 130, 246))
+                .addSeries("利润", Arrays.asList(52, 68, 44, 94), new Color(16, 185, 129))
+                .setPosition(RelativePosition.of(Direction.CENTER));
+
+        poster.asFile("png", "out_line_chart_smooth.png");
+    }
+
+    @Test
+    public void testBezierSmoothLineChartRender() {
+        EasyPoster poster = buildBasePoster();
+        poster.addLineChartElement(840, 480)
+                .setTitle("贝塞尔平滑趋势")
+                .setSmoothAlgorithm(com.bytefuture.easy.poster.element.chart.LineChartElement.SmoothAlgorithm.BEZIER)
+                .setSmoothTension(0.65D)
+                .setBackgroundColor(new Color(248, 250, 252))
+                .setCategories(Arrays.asList("第一季度", "第二季度", "第三季度", "第四季度"))
+                .addSeries("营收", Arrays.asList(128, 156, 120, 203), new Color(59, 130, 246))
+                .setPosition(RelativePosition.of(Direction.CENTER));
+
+        poster.asFile("png", "out_line_chart_bezier_smooth.png");
+    }
+
+    @Test
+    public void testMonotoneSmoothLineChartRender() {
+        EasyPoster poster = buildBasePoster();
+        poster.addLineChartElement(840, 480)
+                .setTitle("单调平滑趋势")
+                .setSmoothAlgorithm(com.bytefuture.easy.poster.element.chart.LineChartElement.SmoothAlgorithm.MONOTONE)
+                .setSmoothTension(0.65D)
+                .setBackgroundColor(new Color(248, 250, 252))
+                .setCategories(Arrays.asList("第一季度", "第二季度", "第三季度", "第四季度"))
+                .addSeries("营收", Arrays.asList(128, 156, 120, 203), new Color(59, 130, 246))
+                .setPosition(RelativePosition.of(Direction.CENTER));
+
+        poster.asFile("png", "out_line_chart_monotone_smooth.png");
+    }
+
+    @Test
+    public void testZeroSmoothTensionShouldFallbackToStraightLine() {
+        EasyPoster poster = buildBasePoster();
+        poster.addLineChartElement(840, 480)
+                .setTitle("零张力仍为直线")
+                .setSmoothAlgorithm(com.bytefuture.easy.poster.element.chart.LineChartElement.SmoothAlgorithm.MONOTONE)
+                .setSmoothTension(0D)
+                .setBackgroundColor(new Color(248, 250, 252))
+                .setCategories(Arrays.asList("第一季度", "第二季度", "第三季度", "第四季度"))
+                .addSeries("营收", Arrays.asList(128, 156, 120, 203), new Color(59, 130, 246))
+                .setPosition(RelativePosition.of(Direction.CENTER));
+
+        poster.asFile("png", "out_line_chart_zero_tension.png");
+    }
+
+    @Test
     public void testCustomSeriesColorShouldBeUsed() throws IOException {
         Color lineColor = new Color(255, 0, 128);
         EasyPoster poster = buildBasePoster();
@@ -75,6 +135,28 @@ public class LineChartBasicTest {
         } catch (PosterException ex) {
             Assert.assertNotNull(ex.getCause());
             Assert.assertEquals("series value size must match category size", ex.getCause().getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidSmoothTensionShouldThrowException() {
+        try {
+            buildBasePoster().addLineChartElement(840, 480)
+                    .setSmoothTension(1.2D);
+            Assert.fail("Expected PosterException");
+        } catch (PosterException ex) {
+            Assert.assertEquals("smoothTension must be between 0 and 1", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testNullSmoothAlgorithmShouldThrowException() {
+        try {
+            buildBasePoster().addLineChartElement(840, 480)
+                    .setSmoothAlgorithm(null);
+            Assert.fail("Expected PosterException");
+        } catch (PosterException ex) {
+            Assert.assertEquals("smoothAlgorithm can not be null", ex.getMessage());
         }
     }
 

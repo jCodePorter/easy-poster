@@ -8,6 +8,7 @@ import com.bytefuture.easy.poster.model.PosterContext;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import java.util.Optional;
  * @since 2026/04/13
  */
 public class LineChartElement extends AbstractDimensionElement<LineChartElement> {
+    private static final LinePathBuilderFactory LINE_PATH_BUILDER_FACTORY = new LinePathBuilderFactory();
 
     private static final List<Color> DEFAULT_PALETTE = Arrays.asList(
             new Color(72, 133, 237),
@@ -80,6 +82,10 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
     private int legendItemGap = 18;
 
     private int legendMarkerSize = 10;
+
+    private SmoothAlgorithm smoothAlgorithm = SmoothAlgorithm.BEZIER;
+
+    private double smoothTension = 0D;
 
     private Double minValue;
 
@@ -203,6 +209,22 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
 
     public LineChartElement setLegendMarkerSize(int legendMarkerSize) {
         this.legendMarkerSize = Math.max(1, legendMarkerSize);
+        return this;
+    }
+
+    public LineChartElement setSmoothAlgorithm(SmoothAlgorithm smoothAlgorithm) {
+        if (smoothAlgorithm == null) {
+            throw new PosterException("smoothAlgorithm can not be null");
+        }
+        this.smoothAlgorithm = smoothAlgorithm;
+        return this;
+    }
+
+    public LineChartElement setSmoothTension(double smoothTension) {
+        if (smoothTension < 0D || smoothTension > 1D) {
+            throw new PosterException("smoothTension must be between 0 and 1");
+        }
+        this.smoothTension = smoothTension;
         return this;
     }
 
@@ -396,19 +418,22 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
     private void drawLines(Graphics2D g, int plotLeft, int plotTop, int plotWidth, int plotBottom,
                            ValueRange valueRange, Font valueFont) {
         Stroke oldStroke = g.getStroke();
+        LinePathBuilder pathBuilder = LINE_PATH_BUILDER_FACTORY.resolve(smoothTension, smoothAlgorithm);
         for (int seriesIndex = 0; seriesIndex < seriesList.size(); seriesIndex++) {
             LineChartSeries series = seriesList.get(seriesIndex);
             Color color = resolveSeriesColor(series, seriesIndex);
+            List<Point2D.Double> points = new ArrayList<Point2D.Double>();
             int[] xPoints = new int[categories.size()];
             int[] yPoints = new int[categories.size()];
             for (int i = 0; i < categories.size(); i++) {
                 xPoints[i] = resolvePointX(plotLeft, plotWidth, i);
                 yPoints[i] = valueToY(series.getValues().get(i), plotTop, plotBottom, valueRange);
+                points.add(new Point2D.Double(xPoints[i], yPoints[i]));
             }
 
             g.setColor(color);
             g.setStroke(new BasicStroke(lineStrokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g.drawPolyline(xPoints, yPoints, xPoints.length);
+            g.draw(pathBuilder.buildPath(points, smoothTension));
 
             for (int i = 0; i < xPoints.length; i++) {
                 drawMarker(g, color, xPoints[i], yPoints[i]);
@@ -522,5 +547,10 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
             this.min = min;
             this.max = max;
         }
+    }
+
+    public enum SmoothAlgorithm {
+        BEZIER,
+        MONOTONE
     }
 }
