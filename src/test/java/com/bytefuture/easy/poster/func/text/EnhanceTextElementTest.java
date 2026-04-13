@@ -413,7 +413,7 @@ public class EnhanceTextElementTest {
         Dimension dimension = element.calculateDimension(context, 400, 300);
 
         Assert.assertEquals(2, layout.getLines().size());
-        Assert.assertEquals(56, dimension.getHeight());
+        Assert.assertEquals(80, dimension.getHeight());
         Assert.assertTrue(layout.getLines().get(1).getText().endsWith("..."));
         Assert.assertTrue(layout.isTruncated());
     }

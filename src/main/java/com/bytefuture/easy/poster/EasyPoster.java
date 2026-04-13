@@ -3,6 +3,7 @@ package com.bytefuture.easy.poster;
 import com.bytefuture.easy.poster.element.IElement;
 import com.bytefuture.easy.poster.element.basic.*;
 import com.bytefuture.easy.poster.element.chart.BarChartElement;
+import com.bytefuture.easy.poster.element.chart.PieChartElement;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.Config;
@@ -155,6 +156,19 @@ public class EasyPoster {
         BarChartElement barChartElement = new BarChartElement(width, height);
         renderedElements.add(barChartElement);
         return barChartElement;
+    }
+
+    /**
+     * 添加饼图元素。
+     *
+     * @param width  元素宽度
+     * @param height 元素高度
+     * @return 饼图元素
+     */
+    public PieChartElement addPieChartElement(int width, int height) {
+        PieChartElement pieChartElement = new PieChartElement(width, height);
+        renderedElements.add(pieChartElement);
+        return pieChartElement;
     }
 
     /**
