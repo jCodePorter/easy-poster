@@ -3,6 +3,7 @@ package com.bytefuture.easy.poster;
 import com.bytefuture.easy.poster.element.IElement;
 import com.bytefuture.easy.poster.element.basic.*;
 import com.bytefuture.easy.poster.element.chart.BarChartElement;
+import com.bytefuture.easy.poster.element.chart.LineChartElement;
 import com.bytefuture.easy.poster.element.chart.PieChartElement;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Point;
@@ -156,6 +157,12 @@ public class EasyPoster {
         BarChartElement barChartElement = new BarChartElement(width, height);
         renderedElements.add(barChartElement);
         return barChartElement;
+    }
+
+    public LineChartElement addLineChartElement(int width, int height) {
+        LineChartElement lineChartElement = new LineChartElement(width, height);
+        renderedElements.add(lineChartElement);
+        return lineChartElement;
     }
 
     /**
