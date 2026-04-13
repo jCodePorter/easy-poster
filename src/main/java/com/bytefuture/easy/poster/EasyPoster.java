@@ -3,6 +3,7 @@ package com.bytefuture.easy.poster;
 import com.bytefuture.easy.poster.element.IElement;
 import com.bytefuture.easy.poster.element.basic.*;
 import com.bytefuture.easy.poster.element.chart.BarChartElement;
+import com.bytefuture.easy.poster.element.chart.FunnelChartElement;
 import com.bytefuture.easy.poster.element.chart.LineChartElement;
 import com.bytefuture.easy.poster.element.chart.PieChartElement;
 import com.bytefuture.easy.poster.exception.PosterException;
@@ -176,6 +177,19 @@ public class EasyPoster {
         PieChartElement pieChartElement = new PieChartElement(width, height);
         renderedElements.add(pieChartElement);
         return pieChartElement;
+    }
+
+    /**
+     * 创建漏斗图元素
+     *
+     * @param width  元素宽度
+     * @param height 元素高度
+     * @return 漏斗图元素
+     */
+    public FunnelChartElement addFunnelChartElement(int width, int height) {
+        FunnelChartElement funnelChartElement = new FunnelChartElement(width, height);
+        renderedElements.add(funnelChartElement);
+        return funnelChartElement;
     }
 
     /**
