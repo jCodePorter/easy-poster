@@ -520,6 +520,9 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
         return ticks;
     }
 
+    /**
+     * 计算横轴在绘图区中的 Y 坐标；当数据整体全为正数或全为负数时，横轴贴边绘制。
+     */
     private int resolveAxisY(int plotTop, int plotBottom, ValueRange valueRange) {
         if (valueRange.min > 0D) {
             return plotBottom;

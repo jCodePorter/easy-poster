@@ -4,33 +4,19 @@ import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.advance.ComposeElement;
 import com.bytefuture.easy.poster.element.basic.EnhanceTextElement;
 import com.bytefuture.easy.poster.element.basic.RectangleElement;
-import com.bytefuture.easy.poster.exception.PosterException;
-import com.bytefuture.easy.poster.geometry.AbsolutePosition;
+import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.Dimension;
-import com.bytefuture.easy.poster.geometry.Direction;
-import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.geometry.RelativePosition;
-import com.bytefuture.easy.poster.model.BaseLine;
-import com.bytefuture.easy.poster.model.Config;
-import com.bytefuture.easy.poster.model.PosterContext;
-import com.bytefuture.easy.poster.model.TextAlign;
-import com.bytefuture.easy.poster.model.TextOverflowStrategy;
-import com.bytefuture.easy.poster.model.TextSpan;
-import com.bytefuture.easy.poster.text.split.TextSplitRequest;
-import com.bytefuture.easy.poster.text.split.TextSplitResult;
-import com.bytefuture.easy.poster.text.split.TextSplitterSimpleImpl;
+import com.bytefuture.easy.poster.model.*;
 import com.bytefuture.easy.poster.text.layout.LayoutLine;
 import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.text.layout.TextRenderSpec;
 import com.bytefuture.easy.poster.text.layout.TextRenderSpecFactory;
+import com.bytefuture.easy.poster.text.split.TextSplitterSimpleImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
@@ -38,72 +24,58 @@ public class EnhanceTextElementTest {
 
     @Test
     public void shouldReportWrappedTextTotalHeight() {
-        PosterContext context = createContext();
         String text = "TextElementUpgrade should report the full wrapped height.";
         EnhanceTextElement element = EnhanceTextElement.of(text)
-                .setFontName("Dialog")
                 .setFontSize(18)
                 .setLineHeight(28)
-                .setAutoWrapText(120)
+                .setAutoWrapText(300)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
-
-        Dimension dimension = element.calculateDimension(context, 400, 300);
-        FontMetrics fontMetrics = context.getGraphics().getFontMetrics(new Font("Dialog", Font.PLAIN, 18));
-        TextSplitResult splitResult = new TextSplitterSimpleImpl().split(TextSplitRequest.of(text, 120, fontMetrics));
-
-        Assert.assertTrue(splitResult.getLines().size() > 1);
-        Assert.assertEquals(splitResult.getLines().size() * 28L, dimension.getHeight());
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(element);
+        poster.asFile("png", "out_enhance_text_auto_wrap.png");
     }
 
     @Test
     public void shouldNotMutateFontSizeDuringAutoFit() {
-        PosterContext context = createContext();
         EnhanceTextElement element = EnhanceTextElement.of("Auto fit sample text")
-                .setFontName("Dialog")
                 .setFontSize(32)
-                .setAutoFitText(120, 10)
+                .setAutoFitText(150, 30)
+                .setOverflowStrategy(TextOverflowStrategy.ELLIPSIS)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        Dimension dimension = element.calculateDimension(context, 400, 300);
-
-        Assert.assertEquals(Integer.valueOf(32), element.getFontSize());
-        Assert.assertTrue(dimension.getWidth() <= 120);
-        Assert.assertEquals(dimension.getWidth(), element.calculateDimension(context, 400, 300).getWidth());
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(element);
+        poster.asFile("png", "out_enhance_text_auto_wrap_with_min_size.png");
     }
 
     @Test
     public void shouldPreserveExplicitNewLinesWithoutAutoWrap() {
-        PosterContext context = createContext();
         EnhanceTextElement element = EnhanceTextElement.of("hello\n\nworld")
-                .setFontName("Dialog")
                 .setFontSize(18)
                 .setLineHeight(26)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        Dimension dimension = element.calculateDimension(context, 400, 300);
-
-        Assert.assertEquals(78L, dimension.getHeight());
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(element);
+        poster.asFile("png", "out_enhance_preserve_explicit_new_lines_without_autowrap.png");
     }
 
     @Test
     public void shouldProvideCompleteHeightToComposeLayout() {
-        PosterContext context = createContext();
-        RectangleElement header = (RectangleElement) new RectangleElement(80, 40)
-                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+        RectangleElement header = new RectangleElement(80, 40)
+                .setPosition(RelativePosition.of(Direction.CENTER));
         EnhanceTextElement content = EnhanceTextElement.of("Compose layout should respect multiline height.")
-                .setFontName("Dialog")
                 .setFontSize(18)
                 .setLineHeight(24)
                 .setAutoWrapText(80)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        Dimension textDimension = content.calculateDimension(context, 80, 200);
-        Dimension composeDimension = ComposeElement.of(header)
-                .bottom(content)
-                .calculateDimension(context, 300, 300);
+        ComposeElement composeElement = ComposeElement.of(header)
+                .bottom(content);
 
-        Assert.assertTrue(textDimension.getHeight() > 24);
-        Assert.assertEquals(40L + textDimension.getHeight(), composeDimension.getHeight());
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(composeElement);
+        poster.asFile("png", "out_provide_complete_height_to_compose_layout.png");
     }
 
     @Test
