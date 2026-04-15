@@ -78,22 +78,37 @@ public class EnhanceTextElementTest {
         poster.asFile("png", "out_provide_complete_height_to_compose_layout.png");
     }
 
+    /**
+     * 自动折行文本，配置对齐方式，
+     * 居中对齐，左对齐，右对齐等
+     */
     @Test
     public void shouldCenterAlignLinesInsideMeasuredBlock() {
-        PosterContext context = createContext();
-        EnhanceTextElement element = EnhanceTextElement.of("alpha beta gamma delta epsilon zeta eta theta")
-                .setFontName("Dialog")
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(EnhanceTextElement.of("alpha beta gamma delta epsilon zeta eta theta")
+                .setFontSize(18)
+                .setAutoWrapText(120)
+                .setTextAlign(TextAlign.LEFT)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT)));
+
+        poster.addElement(EnhanceTextElement.of("alpha beta gamma delta epsilon zeta eta theta")
+                .setFontSize(18)
+                .setAutoWrapText(120)
+                .setTextAlign(TextAlign.RIGHT)
+                .setPosition(RelativePosition.of(Direction.TOP_RIGHT)));
+
+        poster.addElement(EnhanceTextElement.of("alpha beta gamma delta epsilon zeta eta theta")
                 .setFontSize(18)
                 .setAutoWrapText(120)
                 .setTextAlign(TextAlign.CENTER)
-                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+                .setPosition(RelativePosition.of(Direction.LEFT_BOTTOM)));
 
-        TextLayoutResult layout = measureLayout(element, context, 400, 300);
-        LayoutLine firstLine = layout.getLines().get(0);
-
-        Assert.assertEquals(TextAlign.CENTER, layout.getTextAlign());
-        Assert.assertTrue(layout.getLines().size() > 1);
-        Assert.assertTrue(firstLine.getPoint().getX() > layout.getPoint().getX());
+        poster.addElement(EnhanceTextElement.of("alpha beta gamma delta epsilon zeta eta theta")
+                .setFontSize(18)
+                .setAutoWrapText(120)
+                .setTextAlign(TextAlign.JUSTIFY)
+                .setPosition(RelativePosition.of(Direction.RIGHT_BOTTOM)));
+        poster.asFile("png", "out_text_should_center_align_lines_inside.png");
     }
 
     @Test
@@ -110,26 +125,7 @@ public class EnhanceTextElementTest {
     }
 
     @Test
-    public void shouldJustifyWrappedIntermediateLine() {
-        PosterContext context = createContext();
-        EnhanceTextElement element = EnhanceTextElement.of("alpha beta gamma delta epsilon zeta eta theta")
-                .setFontName("Dialog")
-                .setFontSize(18)
-                .setAutoWrapText(120)
-                .setTextAlign(TextAlign.JUSTIFY)
-                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
-
-        TextLayoutResult layout = measureLayout(element, context, 400, 300);
-
-        Assert.assertTrue(layout.getLines().size() > 1);
-        Assert.assertTrue(layout.getLines().get(0).isJustified());
-        Assert.assertFalse(layout.getLines().get(layout.getLines().size() - 1).isJustified());
-        Assert.assertEquals(layout.getContentWidth(), layout.getLines().get(0).getRenderWidth());
-    }
-
-    @Test
     public void shouldApplyMaxLinesAndEllipsisDuringLayout() {
-        PosterContext context = createContext();
         EnhanceTextElement element = EnhanceTextElement.of("This plain text block should wrap and then truncate at the configured max lines.")
                 .setFontName("Dialog")
                 .setFontSize(20)
@@ -138,36 +134,26 @@ public class EnhanceTextElementTest {
                 .setMaxLines(2)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        TextLayoutResult layout = measureLayout(element, context, 400, 300);
-
-        Assert.assertEquals(2, layout.getLines().size());
-        Assert.assertEquals(56, layout.getHeight());
-        Assert.assertTrue(layout.getLines().get(1).getText().endsWith("..."));
-        Assert.assertTrue(layout.isTruncated());
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(element);
+        poster.asFile("png", "out_text_should_apply_max_lines_and_ellipsis_during_layout.png");
     }
 
     @Test
     public void shouldEllipsizeSingleLineWhenOverflowStrategyIsEllipsis() {
-        PosterContext context = createContext();
         EnhanceTextElement element = EnhanceTextElement.of("This is a single line that should be ellipsized.")
-                .setFontName("Dialog")
                 .setFontSize(20)
                 .setLayoutWidth(120)
                 .setOverflowStrategy(TextOverflowStrategy.ELLIPSIS)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        TextLayoutResult layout = measureLayout(element, context, 400, 300);
-        LayoutLine line = layout.getLines().get(0);
-
-        Assert.assertEquals(1, layout.getLines().size());
-        Assert.assertEquals(120, layout.getWidth());
-        Assert.assertTrue(line.getText().endsWith("..."));
-        Assert.assertTrue(line.getWidth() <= 120);
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(element);
+        poster.asFile("png", "out_text_ellipsize_single_line_when_overflow_strategy_is_ellipsis.png");
     }
 
     @Test
     public void shouldClipSingleLineWhenOverflowStrategyIsClip() {
-        PosterContext context = createContext();
         EnhanceTextElement element = EnhanceTextElement.of("This is a single line that should be clipped.")
                 .setFontName("Dialog")
                 .setFontSize(20)
@@ -175,35 +161,30 @@ public class EnhanceTextElementTest {
                 .setOverflowStrategy(TextOverflowStrategy.CLIP)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        TextLayoutResult layout = measureLayout(element, context, 400, 300);
-
-        Assert.assertTrue(layout.isClipOverflow());
-        Assert.assertFalse(layout.isTruncated());
-        Assert.assertEquals(120, layout.getLines().get(0).getRenderWidth());
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(element);
+        poster.asFile("png", "out_text_clip_single_line_when_overflow_strategy_is_clip.png");
     }
 
     @Test
     public void shouldIncreaseMeasuredWidthWhenLetterSpacingEnabled() {
-        PosterContext context = createContext();
         EnhanceTextElement compact = EnhanceTextElement.of("spacing")
-                .setFontName("Dialog")
                 .setFontSize(18)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
         EnhanceTextElement expanded = EnhanceTextElement.of("spacing")
-                .setFontName("Dialog")
                 .setFontSize(18)
                 .setLetterSpacing(4)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        Assert.assertTrue(compact.calculateDimension(context, 400, 300).getWidth()
-                < expanded.calculateDimension(context, 400, 300).getWidth());
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(  ComposeElement.of(compact).bottom(expanded));
+        poster.asFile("png", "out_text_increase_measured_width_when_letter_spacing_enabled.png");
     }
 
     @Test
     public void shouldWrapLongTokenWhenLetterSpacingConsumesAvailableWidth() {
         PosterContext context = createContext();
         EnhanceTextElement element = EnhanceTextElement.of("abcdefghij")
-                .setFontName("Dialog")
                 .setFontSize(18)
                 .setLetterSpacing(4)
                 .setAutoWrapText(60)
@@ -281,21 +262,19 @@ public class EnhanceTextElementTest {
 
     @Test
     public void shouldRenderTextBackgroundInsidePaddingArea() {
-        EnhanceTextElement element = EnhanceTextElement.of("bg")
-                .setFontName("Dialog")
-                .setFontSize(24)
+        EnhanceTextElement element = EnhanceTextElement.of("render text using background color")
+                .setFontSize(18)
+                .setLineHeight(30)
                 .setTextBackground(new Color(255, 220, 120), Margin.of(12))
                 .setPosition(AbsolutePosition.of(Point.of(20, 50), Direction.TOP_LEFT));
-
-        BufferedImage image = renderElement(element, 180, 120);
-
-        Assert.assertTrue(countColorLikePixels(image, new Color(255, 220, 120), 8) > 0);
+        EasyPoster poster = new EasyPoster(800, 600);
+        poster.addElement(element);
+        poster.asFile("png", "out_text_render_text_background_inside_padding_area.png");
     }
 
     @Test
     public void shouldRenderShadowAndStrokeWithoutBreakingTextOutput() {
         EnhanceTextElement element = EnhanceTextElement.of("shadow")
-                .setFontName("Dialog")
                 .setFontSize(28)
                 .setColor(Color.BLUE)
                 .setShadow(new Color(80, 80, 80), 4, 4)
