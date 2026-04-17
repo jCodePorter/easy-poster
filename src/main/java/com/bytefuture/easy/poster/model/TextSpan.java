@@ -17,6 +17,8 @@ public class TextSpan {
 
     private Integer fontStyle;
 
+    private Integer fontSize;
+
     private Boolean underline;
 
     private Boolean strikeThrough;
@@ -39,6 +41,14 @@ public class TextSpan {
 
     public TextSpan setFontStyle(int fontStyle) {
         this.fontStyle = fontStyle;
+        return this;
+    }
+
+    public TextSpan setFontSize(int fontSize) {
+        if (fontSize <= 0) {
+            throw new PosterException("span fontSize must be greater than 0");
+        }
+        this.fontSize = fontSize;
         return this;
     }
 

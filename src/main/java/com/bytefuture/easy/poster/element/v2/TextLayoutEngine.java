@@ -1,5 +1,6 @@
 package com.bytefuture.easy.poster.element.v2;
 
+import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.*;
@@ -86,6 +87,7 @@ public final class TextLayoutEngine {
                                                  PosterContext context, int posterWidth, int posterHeight,
                                                  Font baseFont) {
         Graphics2D g = context.getGraphics();
+        TextAlign resolvedTextAlign = resolveTextAlign(config, position);
         String text = normalizeText(config.getText());
 
         // 解析渲染字体（可能因autoFit而改变）
@@ -99,12 +101,12 @@ public final class TextLayoutEngine {
         // 执行换行
         ITextSplitter splitter = config.getTextSplitter() != null ? config.getTextSplitter() : DEFAULT_SPLITTER;
         PlainTextWrapper.ResolvedLines resolvedLines = PLAIN_WRAPPER.resolveLines(
-                buildRenderSpec(config, baseFont), text, fm, g, renderFont, splitter,
-                createPlainMeasurer());
+                buildRenderSpec(config, baseFont, resolvedTextAlign), text, fm, g, renderFont, splitter,
+                createPlainMeasurer(config));
 
         // 计算装饰占位
         TextDecorationInsets decorInsets = DECORATION.resolveTextInsets(
-                buildRenderSpec(config, baseFont), g, fm, lineHeight, baselineOffset);
+                buildRenderSpec(config, baseFont, resolvedTextAlign), g, fm, lineHeight, baselineOffset);
         TextPaddingInsets paddingInsets = new TextPaddingInsets(
                 config.getTextPadding().getMarginLeft(),
                 config.getTextPadding().getMarginTop(),
@@ -122,17 +124,17 @@ public final class TextLayoutEngine {
 
         // 计算位置
         Point blockPoint = resolvePosition(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets);
+                textWidth, textHeight, config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets);
         Point contentPoint = Point.of(
                 blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
                 blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
         );
 
         // 构建行
-        List<LayoutLine> layoutLines = buildPlainLines(resolvedLines, contentPoint, config.getTextAlign());
+        List<LayoutLine> layoutLines = buildPlainLines(resolvedLines, contentPoint, resolvedTextAlign);
 
         return new TextLayoutResult(
-                renderFont, config.getBaseLine(), config.getTextAlign(), getOverflowStrategy(config),
+                renderFont, config.getBaseLine(), resolvedTextAlign, getOverflowStrategy(config),
                 lineHeight, baselineOffset, blockPoint, totalWidth, totalHeight,
                 textWidth, textHeight, bgWidth, bgHeight,
                 layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
@@ -147,26 +149,27 @@ public final class TextLayoutEngine {
                                                 PosterContext context, int posterWidth, int posterHeight,
                                                 Font baseFont) {
         Graphics2D g = context.getGraphics();
+        TextAlign resolvedTextAlign = resolveTextAlign(config, position);
 
         // 富文本不支持autoFit
         if (config.isAutoFitText()) {
-            throw new UnsupportedOperationException("Rich text does not support autoFitText");
+            throw new PosterException("rich text span does not support autoFitText yet");
         }
-        if (config.getTextAlign() == TextAlign.JUSTIFY) {
-            throw new UnsupportedOperationException("Rich text does not support JUSTIFY");
+        if (resolvedTextAlign == TextAlign.JUSTIFY) {
+            throw new PosterException("rich text span does not support justify yet");
         }
 
-        int lineHeight = config.getLineHeight() != null ? config.getLineHeight() : g.getFontMetrics(baseFont).getHeight();
-        int baselineOffset = METRICS.resolveBaselineOffset(g.getFontMetrics(baseFont), lineHeight);
+        int lineHeight = resolveRichLineHeight(config, baseFont, g);
+        int baselineOffset = resolveRichBaselineOffset(config, baseFont, g, lineHeight);
 
         // 执行换行
         ResolvedRichTextLines resolvedLines = RICH_WRAPPER.resolveRichTextLines(
-                buildRenderSpec(config, baseFont), g, getOverflowStrategy(config),
+                buildRenderSpec(config, baseFont, resolvedTextAlign), g, getOverflowStrategy(config),
                 createRichMeasurer(g));
 
         List<RichLine> richLines = resolvedLines.getLines();
         TextDecorationInsets decorInsets = DECORATION.resolveRichTextInsets(
-                buildRenderSpec(config, baseFont), g, baseFont, lineHeight, baselineOffset, richLines);
+                buildRenderSpec(config, baseFont, resolvedTextAlign), g, baseFont, lineHeight, baselineOffset, richLines);
         TextPaddingInsets paddingInsets = new TextPaddingInsets(
                 config.getTextPadding().getMarginLeft(),
                 config.getTextPadding().getMarginTop(),
@@ -184,7 +187,7 @@ public final class TextLayoutEngine {
 
         // 计算位置
         Point blockPoint = resolvePosition(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets);
+                textWidth, textHeight, config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets);
         Point contentPoint = Point.of(
                 blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
                 blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
@@ -192,10 +195,10 @@ public final class TextLayoutEngine {
 
         // 构建行
         List<LayoutLine> layoutLines = buildRichLines(richLines, contentPoint, textWidth,
-                config.getTextAlign(), resolvedLines);
+                resolvedTextAlign, resolvedLines);
 
         return new TextLayoutResult(
-                baseFont, config.getBaseLine(), config.getTextAlign(), getOverflowStrategy(config),
+                baseFont, config.getBaseLine(), resolvedTextAlign, getOverflowStrategy(config),
                 lineHeight, baselineOffset, blockPoint, totalWidth, totalHeight,
                 textWidth, textHeight, bgWidth, bgHeight,
                 layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
@@ -206,14 +209,23 @@ public final class TextLayoutEngine {
     // ========== 辅助方法 ==========
 
     private Font resolveFont(TextElementConfig config, Config globalConfig) {
-        // 优先级：直接指定的Font > fontName+style+size > globalConfig
-        if (config.getFontName() != null) {
-            return new Font(config.getFontName(), config.getFontStyle(), config.getFontSize());
+        if (config.getFont() != null) {
+            return config.getFont();
+        }
+        Font baseFont = globalConfig.getFont();
+        if (baseFont != null) {
+            if (config.getFontName() != null) {
+                return new Font(config.getFontName(), config.getFontStyle(), config.getFontSize());
+            }
+            if (config.getFontStyle() == baseFont.getStyle() && config.getFontSize() == baseFont.getSize()) {
+                return baseFont;
+            }
+            return baseFont.deriveFont(config.getFontStyle(), (float) config.getFontSize());
         }
         return new Font(
-                globalConfig.getFontName(),
-                globalConfig.getFontStyle(),
-                globalConfig.getFontSize()
+                config.getFontName() != null ? config.getFontName() : globalConfig.getFontName(),
+                config.getFontStyle(),
+                config.getFontSize()
         );
     }
 
@@ -248,11 +260,11 @@ public final class TextLayoutEngine {
     }
 
     private Point resolvePosition(Position position, int posterWidth, int posterHeight,
-                                   int totalWidth, int totalHeight, BaseLine baseLine,
-                                   int baselineOffset, int lineHeight,
+                                   int totalWidth, int totalHeight, int contentWidth, int contentHeight,
+                                   BaseLine baseLine, int baselineOffset, int lineHeight,
                                    TextDecorationInsets decorInsets, TextPaddingInsets paddingInsets) {
         if (position instanceof AbsolutePosition) {
-            Point anchor = ((AbsolutePosition) position).getPoint();
+            Point anchor = position.calculate(posterWidth, posterHeight, contentWidth, contentHeight);
             int offsetY = resolveBaselineOffset(baseLine, baselineOffset, lineHeight);
             return Point.of(
                     anchor.getX() - decorInsets.getLeft() - paddingInsets.getLeft(),
@@ -344,12 +356,12 @@ public final class TextLayoutEngine {
         );
     }
 
-    private TextRenderSpec buildRenderSpec(TextElementConfig config, Font baseFont) {
+    private TextRenderSpec buildRenderSpec(TextElementConfig config, Font baseFont, TextAlign resolvedTextAlign) {
         // 仅用于传递给Wrapper和Decoration计算
         return new TextRenderSpec(
                 config.getText(), config.getTextSpans(), null,
                 Color.BLACK, baseFont, config.getBaseLine(), config.getLineHeight(),
-                config.getTextAlign(), getOverflowStrategy(config), config.getMaxLines(),
+                resolvedTextAlign, getOverflowStrategy(config), config.getMaxLines(),
                 config.getEllipsis(), config.getShadow(), config.getStroke(),
                 config.getLetterSpacing(), config.getTextBackgroundColor(), config.getTextPadding(),
                 config.getTextBackgroundArcWidth(), config.getTextBackgroundArcHeight(),
@@ -359,15 +371,31 @@ public final class TextLayoutEngine {
         );
     }
 
-    private PlainTextWrapper.Measurer createPlainMeasurer() {
+    private TextAlign resolveTextAlign(TextElementConfig config, Position position) {
+        if (config.getTextAlign() != null) {
+            return config.getTextAlign();
+        }
+        if (position instanceof RelativePosition) {
+            Direction direction = ((RelativePosition) position).getDirection();
+            if (direction == Direction.CENTER || direction == Direction.TOP_CENTER || direction == Direction.BOTTOM_CENTER) {
+                return TextAlign.CENTER;
+            }
+            if (direction == Direction.TOP_RIGHT || direction == Direction.RIGHT_CENTER || direction == Direction.RIGHT_BOTTOM) {
+                return TextAlign.RIGHT;
+            }
+        }
+        return TextAlign.LEFT;
+    }
+
+    private PlainTextWrapper.Measurer createPlainMeasurer(final TextElementConfig config) {
         return new PlainTextWrapper.Measurer() {
             @Override
             public int measureLineWidth(String text, FontMetrics fm, Graphics2D g) {
-                return METRICS.measureLineWidth(text, fm, g, 0);
+                return METRICS.measureLineWidth(text, fm, g, config.getLetterSpacing());
             }
             @Override
             public int measureParagraphWidth(String text, FontMetrics fm, Graphics2D g) {
-                return METRICS.measureParagraphWidth(text, fm, g, 0);
+                return METRICS.measureParagraphWidth(text, fm, g, config.getLetterSpacing());
             }
         };
     }
@@ -392,5 +420,36 @@ public final class TextLayoutEngine {
                 return text.replace("\r\n", "\n").replace('\r', '\n');
             }
         };
+    }
+
+    private int resolveRichLineHeight(TextElementConfig config, Font baseFont, Graphics2D graphics) {
+        if (config.getLineHeight() != null) {
+            return config.getLineHeight();
+        }
+        int maxHeight = graphics.getFontMetrics(baseFont).getHeight();
+        for (TextSpan span : config.getTextSpans()) {
+            Font spanFont = resolveRichSpanFont(span, baseFont);
+            maxHeight = Math.max(maxHeight, graphics.getFontMetrics(spanFont).getHeight());
+        }
+        return maxHeight;
+    }
+
+    private int resolveRichBaselineOffset(TextElementConfig config, Font baseFont, Graphics2D graphics, int lineHeight) {
+        int maxOffset = METRICS.resolveBaselineOffset(graphics.getFontMetrics(baseFont), lineHeight);
+        for (TextSpan span : config.getTextSpans()) {
+            Font spanFont = resolveRichSpanFont(span, baseFont);
+            maxOffset = Math.max(maxOffset,
+                    METRICS.resolveBaselineOffset(graphics.getFontMetrics(spanFont), lineHeight));
+        }
+        return maxOffset;
+    }
+
+    private Font resolveRichSpanFont(TextSpan span, Font baseFont) {
+        int resolvedStyle = span.getFontStyle() != null ? span.getFontStyle() : baseFont.getStyle();
+        int resolvedSize = span.getFontSize() != null ? span.getFontSize() : Math.round(baseFont.getSize2D());
+        if (resolvedStyle == baseFont.getStyle() && resolvedSize == Math.round(baseFont.getSize2D())) {
+            return baseFont;
+        }
+        return baseFont.deriveFont(resolvedStyle, (float) resolvedSize);
     }
 }

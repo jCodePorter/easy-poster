@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.element.v2;
 
-import com.bytefuture.easy.poster.element.AbstractElement;
+import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
@@ -16,7 +16,7 @@ import java.awt.*;
  * @author biaoy
  * @since 2025/04/15
  */
-public class TextElement extends AbstractElement<TextElement> {
+public class TextElement extends AbstractRepeatableElement<TextElement> {
 
     /** Text config */
     private final TextElementConfig config;
@@ -46,6 +46,10 @@ public class TextElement extends AbstractElement<TextElement> {
 
     public static TextElement.Builder builder(String text) {
         return new TextElement.Builder(text);
+    }
+
+    public static TextElement.Builder builder(TextSpan... spans) {
+        return new TextElement.Builder(spans);
     }
 
     @Override
@@ -115,6 +119,11 @@ public class TextElement extends AbstractElement<TextElement> {
             return this;
         }
 
+        public Builder font(Font font) {
+            configBuilder.font(font);
+            return this;
+        }
+
         public Builder baseLine(com.bytefuture.easy.poster.model.BaseLine baseLine) {
             configBuilder.baseLine(baseLine);
             return this;
@@ -150,6 +159,11 @@ public class TextElement extends AbstractElement<TextElement> {
             return this;
         }
 
+        public Builder layoutWidth(int layoutWidth) {
+            configBuilder.layoutWidth(layoutWidth);
+            return this;
+        }
+
         public Builder autoFitText(int targetWidth, int minFontSize) {
             configBuilder.autoFitText(targetWidth, minFontSize);
             return this;
@@ -175,8 +189,18 @@ public class TextElement extends AbstractElement<TextElement> {
             return this;
         }
 
+        public Builder shadow(com.bytefuture.easy.poster.model.TextShadow shadow) {
+            configBuilder.shadow(shadow);
+            return this;
+        }
+
         public Builder stroke(Color color, float width) {
             configBuilder.stroke(color, width);
+            return this;
+        }
+
+        public Builder stroke(com.bytefuture.easy.poster.model.TextStroke stroke) {
+            configBuilder.stroke(stroke);
             return this;
         }
 
@@ -205,8 +229,18 @@ public class TextElement extends AbstractElement<TextElement> {
             return this;
         }
 
+        public Builder textPadding(int left, int top, int right, int bottom) {
+            configBuilder.textPadding(left, top, right, bottom);
+            return this;
+        }
+
         public Builder textBackgroundArc(int arc) {
             configBuilder.textBackgroundArc(arc);
+            return this;
+        }
+
+        public Builder textBackgroundArc(int arcWidth, int arcHeight) {
+            configBuilder.textBackgroundArc(arcWidth, arcHeight);
             return this;
         }
 
@@ -217,6 +251,11 @@ public class TextElement extends AbstractElement<TextElement> {
 
         public Builder textSpan(TextSpan span) {
             configBuilder.textSpan(span);
+            return this;
+        }
+
+        public Builder textSpans(java.util.List<TextSpan> spans) {
+            configBuilder.textSpans(spans);
             return this;
         }
 

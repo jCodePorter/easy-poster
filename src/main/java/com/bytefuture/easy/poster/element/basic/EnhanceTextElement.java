@@ -513,8 +513,8 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
 
         Graphics2D graphics = context.getGraphics();
         Font baseFont = spec.getBaseFont();
-        int resolvedLineHeight = resolveLineHeight(spec, graphics.getFontMetrics(baseFont));
-        int baselineOffset = TEXT_METRICS.resolveBaselineOffset(graphics.getFontMetrics(baseFont), resolvedLineHeight);
+        int resolvedLineHeight = resolveRichLineHeight(spec, graphics, baseFont);
+        int baselineOffset = resolveRichBaselineOffset(spec, graphics, baseFont, resolvedLineHeight);
         BaseLine resolvedBaseLine = spec.getBaseLine();
         TextAlign resolvedTextAlign = spec.getTextAlign();
         TextOverflowStrategy resolvedOverflowStrategy = spec.getOverflowStrategy();
@@ -663,6 +663,37 @@ public class EnhanceTextElement extends AbstractRepeatableElement<EnhanceTextEle
     private int resolveLineHeight(TextRenderSpec spec, FontMetrics fontMetrics) {
         Integer resolvedLineHeight = spec.getLineHeight();
         return resolvedLineHeight != null ? resolvedLineHeight : fontMetrics.getHeight();
+    }
+
+    private int resolveRichLineHeight(TextRenderSpec spec, Graphics2D graphics, Font baseFont) {
+        if (spec.getLineHeight() != null) {
+            return spec.getLineHeight();
+        }
+        int maxHeight = graphics.getFontMetrics(baseFont).getHeight();
+        for (TextSpan span : spec.getTextSpans()) {
+            Font spanFont = resolveRichSpanFont(span, baseFont);
+            maxHeight = Math.max(maxHeight, graphics.getFontMetrics(spanFont).getHeight());
+        }
+        return maxHeight;
+    }
+
+    private int resolveRichBaselineOffset(TextRenderSpec spec, Graphics2D graphics, Font baseFont, int resolvedLineHeight) {
+        int maxOffset = TEXT_METRICS.resolveBaselineOffset(graphics.getFontMetrics(baseFont), resolvedLineHeight);
+        for (TextSpan span : spec.getTextSpans()) {
+            Font spanFont = resolveRichSpanFont(span, baseFont);
+            maxOffset = Math.max(maxOffset,
+                    TEXT_METRICS.resolveBaselineOffset(graphics.getFontMetrics(spanFont), resolvedLineHeight));
+        }
+        return maxOffset;
+    }
+
+    private Font resolveRichSpanFont(TextSpan span, Font baseFont) {
+        int resolvedStyle = span.getFontStyle() != null ? span.getFontStyle() : baseFont.getStyle();
+        int resolvedSize = span.getFontSize() != null ? span.getFontSize() : Math.round(baseFont.getSize2D());
+        if (resolvedStyle == baseFont.getStyle() && resolvedSize == Math.round(baseFont.getSize2D())) {
+            return baseFont;
+        }
+        return baseFont.deriveFont(resolvedStyle, (float) resolvedSize);
     }
 
     private boolean shouldJustifyLine(TextAlign resolvedTextAlign, SplitTextInfo line, int index,

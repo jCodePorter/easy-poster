@@ -97,9 +97,10 @@ public final class RichTextWrapper {
                                              Font baseFont, Color defaultColor) {
         // span 未设置的样式字段回退到元素级默认样式。
         int resolvedStyle = textSpan.getFontStyle() != null ? textSpan.getFontStyle() : baseFont.getStyle();
-        Font spanFont = resolvedStyle == baseFont.getStyle()
+        int resolvedSize = textSpan.getFontSize() != null ? textSpan.getFontSize() : Math.round(baseFont.getSize2D());
+        Font spanFont = resolvedStyle == baseFont.getStyle() && resolvedSize == Math.round(baseFont.getSize2D())
                 ? baseFont
-                : baseFont.deriveFont(resolvedStyle, baseFont.getSize2D());
+                : baseFont.deriveFont(resolvedStyle, (float) resolvedSize);
         Color spanColor = textSpan.getColor() != null ? textSpan.getColor() : defaultColor;
         boolean spanUnderline = textSpan.getUnderline() != null ? textSpan.getUnderline() : spec.isUnderline();
         boolean spanStrikeThrough = textSpan.getStrikeThrough() != null ? textSpan.getStrikeThrough() : spec.isStrikeThrough();

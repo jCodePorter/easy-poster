@@ -124,7 +124,7 @@ V2 架构从零开始重新设计，完全不依赖 V1 的任何代码，实现�
 ```java
 // 方式1：工厂方法（适合简单场景）
 TextElement text = TextElement.of("Hello World")
-    .setPosition(RelativePosition.center());
+    .setPosition(RelativePosition.of(Direction.CENTER));
 
 // 方式2：Builder模式（推荐，适合复杂场景）
 TextElement text = TextElement.builder("Hello V2")
@@ -132,7 +132,7 @@ TextElement text = TextElement.builder("Hello V2")
     .color(Color.RED)
     .textAlign(TextAlign.CENTER)
     .shadow(Color.GRAY, 2, 2)
-    .position(RelativePosition.topCenter(100))
+    .position(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 100, 0, 0)))
     .build();
 ```
 
@@ -167,12 +167,12 @@ TextElement text = TextElement.builder("动态字号")
 ```java
 // 不同片段可以有不同的样式
 TextElement richText = TextElement.rich(
-    TextSpan.of("红色粗体", Font.BOLD, Color.RED),
+    TextSpan.of("红色粗体").setFontStyle(Font.BOLD).setColor(Color.RED),
     TextSpan.of(" + "),
-    TextSpan.of("蓝色斜体", Font.ITALIC, Color.BLUE),
+    TextSpan.of("蓝色斜体").setFontStyle(Font.ITALIC).setColor(Color.BLUE),
     TextSpan.of(" + "),
-    TextSpan.of("绿色普通", Font.PLAIN, Color.GREEN)
-).setPosition(RelativePosition.center());
+    TextSpan.of("绿色普通").setFontStyle(Font.PLAIN).setColor(Color.GREEN)
+).setPosition(RelativePosition.of(Direction.CENTER));
 ```
 
 ### 复杂样式
@@ -188,7 +188,7 @@ TextElement text = TextElement.builder("复杂样式")
     .letterSpacing(5)
     .textBackground(Color.WHITE, 20)
     .textBackgroundArc(10)
-    .position(RelativePosition.center())
+    .position(RelativePosition.of(Direction.CENTER))
     .alpha(0.9f)
     .build();
 ```
@@ -207,7 +207,7 @@ TextElement title = TextElement.builder("夏季清仓大促")
     .textAlign(TextAlign.CENTER)
     .shadow(new Color(0, 0, 0, 150), 4, 4)
     .stroke(Color.WHITE, 2.0f)
-    .position(RelativePosition.topCenter(100))
+    .position(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 100, 0, 0)))
     .build();
 
 // 价格文本
@@ -215,7 +215,7 @@ TextElement price = TextElement.builder("¥99.9")
     .font("Arial", Font.BOLD, 72)
     .color(new Color(255, 0, 0))
     .textAlign(TextAlign.CENTER)
-    .position(RelativePosition.center())
+    .position(RelativePosition.of(Direction.CENTER))
     .build();
 
 // 原价（删除线）
@@ -224,7 +224,7 @@ TextElement originalPrice = TextElement.builder("原价: ¥299")
     .color(Color.GRAY)
     .strikeThrough(true)
     .textAlign(TextAlign.CENTER)
-    .position(RelativePosition.bottomCenter(150))
+    .position(RelativePosition.of(Direction.BOTTOM_CENTER, Margin.of(0, 0, 150, 0)))
     .build();
 
 poster.addElement(title).addElement(price).addElement(originalPrice);
@@ -238,7 +238,7 @@ TextElement name = TextElement.builder("张三")
     .font("Microsoft YaHei", Font.BOLD, 36)
     .color(new Color(30, 30, 30))
     .textAlign(TextAlign.LEFT)
-    .position(RelativePosition.topLeft(80, 100))
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(80, 100, 0, 0)))
     .build();
 
 // 职位
@@ -246,17 +246,17 @@ TextElement jobTitle = TextElement.builder("高级软件工程师")
     .font("Microsoft YaHei", Font.PLAIN, 20)
     .color(new Color(100, 100, 100))
     .textAlign(TextAlign.LEFT)
-    .position(RelativePosition.topLeft(80, 150))
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(80, 150, 0, 0)))
     .build();
 
 // 联系方式（富文本）
 TextElement contact = TextElement.rich(
-    TextSpan.of("📞 ", Font.PLAIN, new Color(80, 80, 80)),
-    TextSpan.of("138-0000-0000", Font.PLAIN, Color.BLACK),
+    TextSpan.of("📞 ").setFontStyle(Font.PLAIN).setColor(new Color(80, 80, 80)),
+    TextSpan.of("138-0000-0000").setFontStyle(Font.PLAIN).setColor(Color.BLACK),
     TextSpan.of("\n"),
-    TextSpan.of("📧 ", Font.PLAIN, new Color(80, 80, 80)),
-    TextSpan.of("zhangsan@example.com", Font.PLAIN, new Color(0, 100, 200))
-).setPosition(RelativePosition.bottomLeft(80, 100));
+    TextSpan.of("📧 ").setFontStyle(Font.PLAIN).setColor(new Color(80, 80, 80)),
+    TextSpan.of("zhangsan@example.com").setFontStyle(Font.PLAIN).setColor(new Color(0, 100, 200))
+).setPosition(RelativePosition.of(Direction.BOTTOM_LEFT, Margin.of(80, 0, 0, 100)));
 
 poster.addElement(name).addElement(jobTitle).addElement(contact);
 ```
@@ -269,7 +269,7 @@ TextElement mainTitle = TextElement.builder("2025年度销售报告")
     .font("Microsoft YaHei", Font.BOLD, 42)
     .color(new Color(40, 40, 40))
     .textAlign(TextAlign.CENTER)
-    .position(RelativePosition.topCenter(60))
+    .position(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 60, 0, 0)))
     .build();
 
 // 副标题
@@ -277,7 +277,7 @@ TextElement subtitle = TextElement.builder("数据周期: 2025.01.01 - 2025.12.3
     .font("Microsoft YaHei", Font.PLAIN, 18)
     .color(new Color(120, 120, 120))
     .textAlign(TextAlign.CENTER)
-    .position(RelativePosition.topCenter(120))
+    .position(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 120, 0, 0)))
     .build();
 
 // 数据摘要（带背景）
@@ -290,7 +290,7 @@ TextElement summary = TextElement.builder(
     .lineHeight(32)
     .textBackground(new Color(230, 255, 230), Margin.of(15, 10, 15, 10))
     .textBackgroundArc(8)
-    .position(RelativePosition.topCenter(180))
+    .position(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 180, 0, 0)))
     .build();
 
 poster.addElement(mainTitle).addElement(subtitle).addElement(summary);
@@ -304,7 +304,7 @@ TextElement username = TextElement.builder("@tech_blogger")
     .font("Arial", Font.BOLD, 22)
     .color(new Color(29, 161, 242))
     .textAlign(TextAlign.LEFT)
-    .position(RelativePosition.topLeft(100, 80))
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 80, 0, 0)))
     .build();
 
 // 内容（自动换行）
@@ -317,7 +317,7 @@ TextElement content = TextElement.builder(
     .autoWordWrap(600)
     .lineHeight(28)
     .textAlign(TextAlign.LEFT)
-    .position(RelativePosition.topLeft(100, 120))
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 120, 0, 0)))
     .build();
 
 // 时间戳
@@ -325,16 +325,16 @@ TextElement timestamp = TextElement.of("2小时前 · 来自 iPhone")
     .setFontName("Microsoft YaHei")
     .setFontSize(14)
     .setColor(new Color(140, 140, 140))
-    .setPosition(RelativePosition.topLeft(100, 280));
+    .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 280, 0, 0)));
 
 // 互动数据（富文本）
 TextElement stats = TextElement.rich(
-    TextSpan.of("💬 128 ", Font.PLAIN, new Color(100, 100, 100)),
-    TextSpan.of("  ", Font.PLAIN, Color.GRAY),
-    TextSpan.of("🔄 56 ", Font.PLAIN, new Color(100, 100, 100)),
-    TextSpan.of("  ", Font.PLAIN, Color.GRAY),
-    TextSpan.of("❤️ 892", Font.PLAIN, new Color(224, 36, 94))
-).setPosition(RelativePosition.topLeft(100, 320));
+    TextSpan.of("💬 128 ").setFontStyle(Font.PLAIN).setColor(new Color(100, 100, 100)),
+    TextSpan.of("  ").setFontStyle(Font.PLAIN).setColor(Color.GRAY),
+    TextSpan.of("🔄 56 ").setFontStyle(Font.PLAIN).setColor(new Color(100, 100, 100)),
+    TextSpan.of("  ").setFontStyle(Font.PLAIN).setColor(Color.GRAY),
+    TextSpan.of("❤️ 892").setFontStyle(Font.PLAIN).setColor(new Color(224, 36, 94))
+).setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 320, 0, 0)));
 
 poster.addElement(username).addElement(content)
        .addElement(timestamp).addElement(stats);
@@ -348,22 +348,22 @@ TextElement menuTitle = TextElement.builder("今日菜单")
     .font("Microsoft YaHei", Font.BOLD, 48)
     .color(new Color(139, 69, 19))
     .textAlign(TextAlign.CENTER)
-    .position(RelativePosition.topCenter(50))
+    .position(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 50, 0, 0)))
     .build();
 
 // 菜单项1
 TextElement item1 = TextElement.rich(
-    TextSpan.of("宫保鸡丁", Font.BOLD, 24, Color.BLACK),
-    TextSpan.of(" .......................... ", Font.PLAIN, Color.GRAY),
-    TextSpan.of("¥38", Font.BOLD, 24, new Color(200, 0, 0))
-).setPosition(RelativePosition.topLeft(100, 150));
+    TextSpan.of("宫保鸡丁").setFontStyle(Font.BOLD).setFontSize(24).setColor(Color.BLACK),
+    TextSpan.of(" .......................... ").setFontStyle(Font.PLAIN).setColor(Color.GRAY),
+    TextSpan.of("¥38").setFontStyle(Font.BOLD).setFontSize(24).setColor(new Color(200, 0, 0))
+).setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 150, 0, 0)));
 
 // 菜单项2
 TextElement item2 = TextElement.rich(
-    TextSpan.of("麻婆豆腐", Font.BOLD, 24, Color.BLACK),
-    TextSpan.of(" .......................... ", Font.PLAIN, Color.GRAY),
-    TextSpan.of("¥28", Font.BOLD, 24, new Color(200, 0, 0))
-).setPosition(RelativePosition.topLeft(100, 200));
+    TextSpan.of("麻婆豆腐").setFontStyle(Font.BOLD).setFontSize(24).setColor(Color.BLACK),
+    TextSpan.of(" .......................... ").setFontStyle(Font.PLAIN).setColor(Color.GRAY),
+    TextSpan.of("¥28").setFontStyle(Font.BOLD).setFontSize(24).setColor(new Color(200, 0, 0))
+).setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 200, 0, 0)));
 
 // 特价提示
 TextElement special = TextElement.builder("⭐ 今日特价: 鱼香肉丝 ¥25")
@@ -372,7 +372,7 @@ TextElement special = TextElement.builder("⭐ 今日特价: 鱼香肉丝 ¥25")
     .textAlign(TextAlign.CENTER)
     .textBackground(new Color(255, 250, 205), Margin.of(15, 10, 15, 10))
     .textBackgroundArc(10)
-    .position(RelativePosition.bottomCenter(80))
+    .position(RelativePosition.of(Direction.BOTTOM_CENTER, Margin.of(0, 0, 80, 0)))
     .build();
 
 poster.addElement(menuTitle).addElement(item1)
@@ -388,8 +388,8 @@ TextElement codeTitle = TextElement.builder("Java 示例代码")
     .color(new Color(200, 200, 200))
     .textAlign(TextAlign.LEFT)
     .textBackground(new Color(60, 60, 60), Margin.of(20, 10, 20, 10))
-    .textBackgroundArc(8, 8, 0, 0)
-    .position(RelativePosition.topLeft(100, 100))
+    .textBackgroundArc(8, 8)
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 100, 0, 0)))
     .build();
 
 // 代码内容（等宽字体）
@@ -405,8 +405,8 @@ TextElement code = TextElement.builder(
     .lineHeight(24)
     .textAlign(TextAlign.LEFT)
     .textBackground(new Color(30, 30, 30), Margin.of(20, 15, 20, 15))
-    .textBackgroundArc(0, 0, 8, 8)
-    .position(RelativePosition.topLeft(100, 150))
+    .textBackgroundArc(8, 8)
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, 150, 0, 0)))
     .build();
 
 poster.addElement(codeTitle).addElement(code);
@@ -420,7 +420,7 @@ TextElement openQuote = TextElement.of(""")
     .setFontName("Georgia")
     .setFontSize(72)
     .setColor(new Color(200, 200, 200))
-    .setPosition(RelativePosition.topLeft(80, 100));
+    .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(80, 100, 0, 0)));
 
 // 引用内容
 TextElement quote = TextElement.builder(
@@ -431,7 +431,7 @@ TextElement quote = TextElement.builder(
     .lineHeight(42)
     .textAlign(TextAlign.LEFT)
     .letterSpacing(2)
-    .position(RelativePosition.topLeft(160, 120))
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(160, 120, 0, 0)))
     .build();
 
 // 作者
@@ -439,7 +439,7 @@ TextElement author = TextElement.builder("—— 阿甘正传")
     .font("Microsoft YaHei", Font.ITALIC, 20)
     .color(new Color(120, 120, 120))
     .textAlign(TextAlign.RIGHT)
-    .position(RelativePosition.bottomRight(120, 100))
+    .position(RelativePosition.of(Direction.BOTTOM_RIGHT, Margin.of(0, 0, 120, 100)))
     .build();
 
 poster.addElement(openQuote).addElement(quote).addElement(author);
@@ -455,7 +455,7 @@ TextElement discount = TextElement.builder("50% OFF")
     .textAlign(TextAlign.CENTER)
     .textBackground(new Color(255, 0, 0), Margin.of(15, 10, 15, 10))
     .textBackgroundArc(20)
-    .position(RelativePosition.topRight(50, 50))
+    .position(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 50, 50, 0)))
     .rotate(-15)  // 旋转15度
     .build();
 
@@ -466,7 +466,7 @@ TextElement newBadge = TextElement.builder("NEW")
     .textAlign(TextAlign.CENTER)
     .textBackground(new Color(0, 150, 255), Margin.of(12, 8, 12, 8))
     .textBackgroundArc(15)
-    .position(RelativePosition.topLeft(80, 80))
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(80, 80, 0, 0)))
     .build();
 
 // 热卖标签
@@ -476,7 +476,7 @@ TextElement hotBadge = TextElement.builder("🔥 HOT")
     .textAlign(TextAlign.CENTER)
     .textBackground(new Color(255, 100, 0), Margin.of(12, 8, 12, 8))
     .textBackgroundArc(15)
-    .position(RelativePosition.topLeft(200, 80))
+    .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(200, 80, 0, 0)))
     .build();
 
 poster.addElement(discount).addElement(newBadge).addElement(hotBadge);
@@ -553,7 +553,6 @@ public void testLayout() {
 // 创建通用样式配置
 TextElementConfig titleStyle = TextElementConfig.builder("")
     .font("Microsoft YaHei", Font.BOLD, 32)
-    .color(Color.BLACK)
     .textAlign(TextAlign.CENTER)
     .build();
 
@@ -577,7 +576,7 @@ for (String item : items) {
     TextElement text = TextElement.builder("• " + item)
         .font("Microsoft YaHei", Font.PLAIN, 20)
         .color(Color.BLACK)
-        .position(RelativePosition.topLeft(100, yOffset))
+        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(100, yOffset, 0, 0)))
         .build();
     poster.addElement(text);
     yOffset += 40;
@@ -590,17 +589,17 @@ for (String item : items) {
 // 不同基线的效果
 TextElement topAlign = TextElement.builder("TOP基线")
     .baseLine(BaseLine.TOP)  // 以文本顶部为锚点
-    .setPosition(new AbsolutePosition(100, 100))
+    .position(AbsolutePosition.of(Point.of(100, 100)))
     .build();
 
 TextElement centerAlign = TextElement.builder("CENTER基线")
     .baseLine(BaseLine.CENTER)  // 以文本中心为锚点
-    .setPosition(new AbsolutePosition(100, 200))
+    .position(AbsolutePosition.of(Point.of(100, 200)))
     .build();
 
 TextElement baselineAlign = TextElement.builder("BASELINE基线")
     .baseLine(BaseLine.BASE_LINE)  // 以字体基线为锚点（默认）
-    .setPosition(new AbsolutePosition(100, 300))
+    .position(AbsolutePosition.of(Point.of(100, 300)))
     .build();
 ```
 
@@ -650,7 +649,7 @@ TextElement gradientText = TextElement.builder("渐变文本")
 TextElement ellipsis = TextElement.builder(
     "这是一段很长的文本，超过宽度会显示省略号..."
 ).font("Microsoft YaHei", Font.PLAIN, 18)
-    .maxTextWidth(300)  // 设置最大宽度
+    .layoutWidth(300)  // 设置最大宽度
     .overflowStrategy(TextOverflowStrategy.ELLIPSIS)
     .maxLines(1)  // 最多1行
     .ellipsis("...")  // 自定义省略符
@@ -787,7 +786,7 @@ TextElement text = TextElement.builder("Hello")
 
 | 方法 | 说明 | 示例 |
 |------|------|------|
-| `position()` | 位置 | `.position(RelativePosition.center())` |
+| `position()` | 位置 | `.position(RelativePosition.of(Direction.CENTER))` |
 | `alpha()` | 透明度 | `.alpha(0.8f)` |
 | `rotate()` | 旋转角度 | `.rotate(45)` |
 | `gradient()` | 渐变 | `.gradient(gradient)` |
@@ -813,7 +812,6 @@ TextElementConfig config = new TextElementConfig(...); // 需要大量参数
 // ✅ 相同样式复用
 TextElementConfig style = TextElementConfig.builder("")
     .fontSize(16)
-    .color(Color.BLACK)
     .build();
 
 TextElement t1 = new TextElement(style);

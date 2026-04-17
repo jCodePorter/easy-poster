@@ -165,6 +165,7 @@ public final class TextRenderSpec {
                     .append(Objects.toString(span.getText(), ""))
                     .append(':').append(Objects.toString(span.getColor(), ""))
                     .append(':').append(Objects.toString(span.getFontStyle(), ""))
+                    .append(':').append(Objects.toString(span.getFontSize(), ""))
                     .append(':').append(Objects.toString(span.getUnderline(), ""))
                     .append(':').append(Objects.toString(span.getStrikeThrough(), ""));
         }
