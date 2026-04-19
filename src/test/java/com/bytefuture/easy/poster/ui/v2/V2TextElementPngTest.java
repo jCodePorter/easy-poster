@@ -4,20 +4,12 @@ import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.advance.ComposeElement;
 import com.bytefuture.easy.poster.element.basic.RectangleElement;
 import com.bytefuture.easy.poster.element.v2.TextElement;
-import com.bytefuture.easy.poster.geometry.AbsolutePosition;
-import com.bytefuture.easy.poster.geometry.Direction;
+import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.geometry.RelativePosition;
-import com.bytefuture.easy.poster.model.BaseLine;
-import com.bytefuture.easy.poster.model.TextAlign;
-import com.bytefuture.easy.poster.model.TextOverflowStrategy;
-import com.bytefuture.easy.poster.model.TextShadow;
-import com.bytefuture.easy.poster.model.TextSpan;
-import com.bytefuture.easy.poster.model.TextStroke;
+import com.bytefuture.easy.poster.model.*;
 import org.junit.Test;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.util.Arrays;
 
 /**
@@ -26,6 +18,9 @@ import java.util.Arrays;
  */
 public class V2TextElementPngTest {
 
+    /**
+     * 自动换行
+     */
     @Test
     public void shouldRenderWrappedTextBlockToPng() {
         EasyPoster poster = newPoster(520, 260);
@@ -41,6 +36,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_auto_wrap.png");
     }
 
+    /**
+     * 自动缩放
+     */
     @Test
     public void shouldRenderAutoFitTextToPng() {
         EasyPoster poster = newPoster(520, 240);
@@ -56,6 +54,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_auto_fit.png");
     }
 
+    /**
+     * 显式换行
+     */
     @Test
     public void shouldRenderExplicitNewLinesToPng() {
         EasyPoster poster = newPoster(520, 240);
@@ -68,6 +69,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_explicit_new_lines.png");
     }
 
+    /**
+     * Compose 布局联动高度
+     */
     @Test
     public void shouldRenderComposeLayoutWithWrappedTextToPng() {
         RectangleElement header = (RectangleElement) new RectangleElement(110, 52)
@@ -88,6 +92,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_compose_layout.png");
     }
 
+    /**
+     * 左对齐/右对齐/居中/两端对齐
+     */
     @Test
     public void shouldRenderAlignmentVariantsToPng() {
         EasyPoster poster = new EasyPoster(900, 700);
@@ -108,6 +115,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_alignments.png");
     }
 
+    /**
+     * 多行截断省略
+     */
     @Test
     public void shouldRenderMaxLinesEllipsisToPng() {
         EasyPoster poster = newPoster(520, 260);
@@ -124,6 +134,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_max_lines_ellipsis.png");
     }
 
+    /**
+     * 单行省略
+     */
     @Test
     public void shouldRenderSingleLineEllipsisToPng() {
         EasyPoster poster = newPoster(520, 200);
@@ -138,6 +151,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_single_line_ellipsis.png");
     }
 
+    /**
+     * 单行裁切
+     */
     @Test
     public void shouldRenderSingleLineClipToPng() {
         EasyPoster poster = newPoster(520, 200);
@@ -152,6 +168,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_single_line_clip.png");
     }
 
+    /**
+     * 字距
+     */
     @Test
     public void shouldRenderLetterSpacingToPng() {
         EasyPoster poster = newPoster(540, 240);
@@ -172,6 +191,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_letter_spacing.png");
     }
 
+    /**
+     * 背景色 + 内边距 + 圆角
+     */
     @Test
     public void shouldRenderBackgroundPaddingAndArcToPng() {
         EasyPoster poster = newPoster(560, 240);
@@ -186,6 +208,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_background_padding_arc.png");
     }
 
+    /**
+     * 下划线
+     */
     @Test
     public void shouldRenderUnderlineToPng() {
         EasyPoster poster = newPoster(520, 220);
@@ -206,6 +231,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_underline.png");
     }
 
+    /**
+     * 阴影 + 描边
+     */
     @Test
     public void shouldRenderShadowAndStrokeToPng() {
         EasyPoster poster = newPoster(560, 220);
@@ -219,6 +247,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_shadow_stroke.png");
     }
 
+    /**
+     * 富文本颜色/粗体/下划线组合
+     */
     @Test
     public void shouldRenderRichTextColorsToPng() {
         EasyPoster poster = newPoster(620, 220);
@@ -234,6 +265,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_rich_colors.png");
     }
 
+    /**
+     * 富文本自动换行
+     */
     @Test
     public void shouldRenderRichTextWrapToPng() {
         EasyPoster poster = newPoster(560, 280);
@@ -251,6 +285,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_rich_wrap.png");
     }
 
+    /**
+     * 富文本显式换行
+     */
     @Test
     public void shouldRenderRichTextExplicitNewLinesToPng() {
         EasyPoster poster = newPoster(520, 260);
@@ -265,6 +302,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_rich_new_lines.png");
     }
 
+    /**
+     * 富文本单行省略
+     */
     @Test
     public void shouldRenderRichTextEllipsisToPng() {
         EasyPoster poster = newPoster(560, 220);
@@ -281,6 +321,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_rich_ellipsis.png");
     }
 
+    /**
+     * 富文本多行截断
+     */
     @Test
     public void shouldRenderRichTextMaxLinesToPng() {
         EasyPoster poster = newPoster(600, 300);
@@ -299,6 +342,9 @@ public class V2TextElementPngTest {
         poster.asFile("png", "out_v2_text_rich_max_lines.png");
     }
 
+    /**
+     * 基线定位
+     */
     @Test
     public void shouldRenderBaselineAnchorsToPng() {
         EasyPoster poster = newPoster(760, 260);
@@ -402,5 +448,45 @@ public class V2TextElementPngTest {
                 .setBorderSize(2)
                 .setColor(new Color(224, 230, 236))
                 .setPosition(AbsolutePosition.of(Point.of(x, y), Direction.TOP_LEFT));
+    }
+
+    private static void example6_poster() {
+        System.out.println("=== 示例6：海报集成 ===");
+
+        EasyPoster poster = new EasyPoster(800, 600);
+
+        // 标题
+        TextElement title = TextElement.builder("海报标题")
+                .font("Microsoft YaHei", Font.BOLD, 48)
+                .color(Color.BLACK)
+                .position(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 80, 0, 0)))
+                .shadow(Color.GRAY, 3, 3)
+                .build();
+
+        // 正文
+        TextElement content = TextElement.builder(
+                        "这是海报的正文内容，支持自动换行。\n" +
+                                "V2架构完全独立设计，不依赖V1。"
+                ).font("Microsoft YaHei", Font.PLAIN, 20)
+                .color(new Color(80, 80, 80))
+                .autoWordWrap(600)
+                .lineHeight(32)
+                .position(RelativePosition.of(Direction.CENTER))
+                .build();
+
+        // 底部
+        TextElement footer = TextElement.builder("© 2025 ByteFuture")
+                .fontName("Arial")
+                .fontSize(14)
+                .color(Color.GRAY)
+                .position(RelativePosition.of(Direction.BOTTOM_CENTER, Margin.of(0, 0, 50, 0)))
+                .build();
+
+        // 添加元素
+        poster.addElement(title);
+        poster.addElement(content);
+        poster.addElement(footer);
+
+        poster.asFile("png", "out_v2_text_poster_style.png");
     }
 }
