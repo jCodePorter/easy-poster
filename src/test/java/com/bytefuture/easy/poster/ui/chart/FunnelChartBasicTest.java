@@ -2,12 +2,18 @@ package com.bytefuture.easy.poster.ui.chart;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.chart.FunnelChartElement;
+import com.bytefuture.easy.poster.element.chart.FunnelChartStage;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 
 public class FunnelChartBasicTest {
 
@@ -111,7 +117,82 @@ public class FunnelChartBasicTest {
         poster.asFile("png", "out_funnel_small_labels.png");
     }
 
+    @Test
+    public void testResolveRenderStagesShouldComputePercentAndMaxValue() throws Exception {
+        FunnelChartElement chart = new FunnelChartElement(300, 240)
+                .addStage("Visit", 100)
+                .addStage("Qualified", 60)
+                .addStage("Won", 40);
+
+        List<?> renderStages = (List<?>) invokeNoArg(chart, "resolveRenderStages");
+
+        Assert.assertEquals(3, renderStages.size());
+        Assert.assertEquals(50D, readDoubleField(renderStages.get(0), "percent"), 0.001D);
+        Assert.assertEquals(30D, readDoubleField(renderStages.get(1), "percent"), 0.001D);
+        Assert.assertEquals(20D, readDoubleField(renderStages.get(2), "percent"), 0.001D);
+        Assert.assertEquals(100D, readDoubleField(renderStages.get(2), "maxValue"), 0.001D);
+    }
+
+    @Test
+    public void testDrawStageLabelShouldUseExternalLeaderLineWhenStageHeightIsTooSmall() throws Exception {
+        FunnelChartElement chart = new FunnelChartElement(300, 240)
+                .addStage("Tiny", 100, new Color(59, 130, 246));
+        List<?> renderStages = (List<?>) invokeNoArg(chart, "resolveRenderStages");
+        Object renderStage = renderStages.get(0);
+
+        BufferedImage image = new BufferedImage(220, 80, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+
+        try {
+            Method drawStageLabel = chart.getClass().getDeclaredMethod(
+                    "drawStageLabel",
+                    Graphics2D.class,
+                    Font.class,
+                    renderStage.getClass(),
+                    int.class,
+                    int.class,
+                    int.class,
+                    int.class
+            );
+            drawStageLabel.setAccessible(true);
+            drawStageLabel.invoke(chart, graphics, new Font("Dialog", Font.PLAIN, 12), renderStage, 20, 20, 80, 5);
+        } finally {
+            graphics.dispose();
+        }
+
+        Assert.assertTrue(countColorLikePixels(image, Color.GRAY, 8) > 0);
+    }
+
     private EasyPoster buildBasePoster() {
         return new EasyPoster(960, 640);
+    }
+
+    private Object invokeNoArg(Object target, String methodName) throws Exception {
+        Method method = target.getClass().getDeclaredMethod(methodName);
+        method.setAccessible(true);
+        return method.invoke(target);
+    }
+
+    private double readDoubleField(Object target, String fieldName) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.getDouble(target);
+    }
+
+    private int countColorLikePixels(BufferedImage image, Color target, int tolerance) {
+        int count = 0;
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                Color current = new Color(image.getRGB(x, y), true);
+                if (Math.abs(current.getRed() - target.getRed()) <= tolerance
+                        && Math.abs(current.getGreen() - target.getGreen()) <= tolerance
+                        && Math.abs(current.getBlue() - target.getBlue()) <= tolerance) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 }

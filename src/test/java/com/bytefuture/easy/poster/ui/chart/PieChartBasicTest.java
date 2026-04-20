@@ -14,7 +14,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class PieChartBasicTest {
 
@@ -173,6 +177,33 @@ public class PieChartBasicTest {
         }
     }
 
+    @Test
+    public void testResolveDrawableSlicesShouldFilterInvalidSlicesAndComputePercentages() throws Exception {
+        Color paletteColor = new Color(12, 90, 210);
+        Color customColor = new Color(240, 120, 40);
+        PieChartElement chart = new PieChartElement(320, 240)
+                .setPalette(Arrays.asList(paletteColor, Color.GREEN));
+
+        List<PieChartSlice> slices = new ArrayList<PieChartSlice>();
+        slices.add(null);
+        slices.add(PieChartSlice.of("Zero", 0));
+        slices.add(PieChartSlice.of("Negative", -10));
+        slices.add(PieChartSlice.of("Palette", 20));
+        slices.add(PieChartSlice.of("Custom", 30, customColor));
+        chart.setSlices(slices);
+
+        List<?> drawableSlices = (List<?>) invokeNoArg(chart, "resolveDrawableSlices");
+
+        Assert.assertEquals(2, drawableSlices.size());
+        Assert.assertEquals(paletteColor.getRGB(), readColor(drawableSlices.get(0), "color").getRGB());
+        Assert.assertEquals(customColor.getRGB(), readColor(drawableSlices.get(1), "color").getRGB());
+        Assert.assertEquals(40D, readDoubleField(drawableSlices.get(0), "percent"), 0.001D);
+        Assert.assertEquals(60D, readDoubleField(drawableSlices.get(1), "percent"), 0.001D);
+        Assert.assertEquals(30D, readDoubleField(drawableSlices.get(0), "maxValue"), 0.001D);
+        Assert.assertEquals("Palette", ((PieChartSlice) readField(drawableSlices.get(0), "slice")).getName());
+        Assert.assertEquals("Custom", ((PieChartSlice) readField(drawableSlices.get(1), "slice")).getName());
+    }
+
     private EasyPoster buildBasePoster() {
         return new EasyPoster(960, 640);
     }
@@ -194,5 +225,27 @@ public class PieChartBasicTest {
             }
         }
         return count;
+    }
+
+    private Object invokeNoArg(Object target, String methodName) throws Exception {
+        Method method = target.getClass().getDeclaredMethod(methodName);
+        method.setAccessible(true);
+        return method.invoke(target);
+    }
+
+    private Object readField(Object target, String fieldName) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(target);
+    }
+
+    private double readDoubleField(Object target, String fieldName) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.getDouble(target);
+    }
+
+    private Color readColor(Object target, String fieldName) throws Exception {
+        return (Color) readField(target, fieldName);
     }
 }

@@ -2,8 +2,13 @@ package com.bytefuture.easy.poster.ui.chart;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.chart.BarChartElement;
+import com.bytefuture.easy.poster.element.chart.BarChartSeries;
+import com.bytefuture.easy.poster.element.chart.bar.BarChartLayoutCalculator;
+import com.bytefuture.easy.poster.element.chart.bar.BarChartRangeResolver;
+import com.bytefuture.easy.poster.element.chart.base.ChartValueRange;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.awt.*;
@@ -128,5 +133,85 @@ public class BarChartBasicTest {
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.asFile("png", "out_bar_chart_percent_stacked_negative.png");
+    }
+
+    @Test
+    public void testGroupedValueRangeShouldPreserveNegativeAndPositiveBounds() throws Exception {
+        ChartValueRange range = new BarChartRangeResolver().resolve(
+                Arrays.asList("A", "B"),
+                Arrays.asList(
+                        new BarChartSeries("Series-1", Arrays.asList(-12, 40)),
+                        new BarChartSeries("Series-2", Arrays.asList(18, 24))
+                ),
+                false,
+                false,
+                null,
+                null
+        );
+
+        Assert.assertEquals(-12D, range.getMin(), 0.001D);
+        Assert.assertEquals(40D, range.getMax(), 0.001D);
+    }
+
+    @Test
+    public void testStackedValueRangeShouldUseCategoryTotals() throws Exception {
+        ChartValueRange range = new BarChartRangeResolver().resolve(
+                Arrays.asList("A", "B"),
+                Arrays.asList(
+                        new BarChartSeries("Income", Arrays.asList(60, 30)),
+                        new BarChartSeries("Bonus", Arrays.asList(20, 15)),
+                        new BarChartSeries("Refund", Arrays.asList(-10, -25))
+                ),
+                true,
+                false,
+                null,
+                null
+        );
+
+        Assert.assertEquals(-25D, range.getMin(), 0.001D);
+        Assert.assertEquals(80D, range.getMax(), 0.001D);
+    }
+
+    @Test
+    public void testPercentStackedValueRangeShouldExpandToSignedPercentageBounds() throws Exception {
+        ChartValueRange range = new BarChartRangeResolver().resolve(
+                Arrays.asList("A", "B"),
+                Arrays.asList(
+                        new BarChartSeries("Positive", Arrays.asList(60, 40)),
+                        new BarChartSeries("Negative", Arrays.asList(-20, -10))
+                ),
+                true,
+                true,
+                null,
+                null
+        );
+
+        Assert.assertEquals(-100D, range.getMin(), 0.001D);
+        Assert.assertEquals(100D, range.getMax(), 0.001D);
+    }
+
+    @Test
+    public void testGroupedLayoutShouldClampBarWidthAndResolveBarPositions() {
+        BarChartLayoutCalculator.GroupedLayout layout = new BarChartLayoutCalculator().calculateGrouped(
+                20, 300, 3, 2, 0.24D, 0.18D, 6, 40
+        );
+
+        Assert.assertEquals(35, layout.getBarWidth());
+        Assert.assertEquals(6.275D, layout.getBarGap(), 0.001D);
+        Assert.assertEquals(32, layout.resolveBarX(0, 0));
+        Assert.assertEquals(73, layout.resolveBarX(0, 1));
+        Assert.assertEquals(132, layout.resolveBarX(1, 0));
+    }
+
+    @Test
+    public void testStackedLayoutShouldCenterSingleBarWithinCategory() {
+        BarChartLayoutCalculator.StackedLayout layout = new BarChartLayoutCalculator().calculateStacked(
+                10, 300, 3, 0.24D, 6, 56
+        );
+
+        Assert.assertEquals(56, layout.getBarWidth());
+        Assert.assertEquals(32, layout.resolveBarX(0));
+        Assert.assertEquals(132, layout.resolveBarX(1));
+        Assert.assertEquals(232, layout.resolveBarX(2));
     }
 }

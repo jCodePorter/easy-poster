@@ -1,4 +1,6 @@
-package com.bytefuture.easy.poster.element.chart;
+package com.bytefuture.easy.poster.element.chart.line;
+
+import com.bytefuture.easy.poster.element.chart.LineChartElement;
 
 /**
  * 折线路径构建器工厂

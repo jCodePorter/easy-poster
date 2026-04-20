@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.chart;
+package com.bytefuture.easy.poster.element.chart.line;
 
 import java.awt.Shape;
 import java.awt.geom.Path2D;

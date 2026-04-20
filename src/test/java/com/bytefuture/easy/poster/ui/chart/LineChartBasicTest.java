@@ -12,6 +12,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
@@ -160,6 +162,50 @@ public class LineChartBasicTest {
         }
     }
 
+    @Test
+    public void testAxisBaselineShouldStayAtBottomForAllPositiveValues() throws Exception {
+        com.bytefuture.easy.poster.element.chart.LineChartElement chart = buildBasePoster()
+                .addLineChartElement(840, 480)
+                .setCategories(Arrays.asList("A", "B", "C"))
+                .addSeries("Revenue", Arrays.asList(10, 20, 30));
+
+        Object range = invokeNoArg(chart, "resolveValueRange");
+        int axisY = invokeAxisY(chart, 20, 220, range);
+
+        Assert.assertEquals(220, axisY);
+    }
+
+    @Test
+    public void testAxisBaselineShouldStayAtTopForAllNegativeValues() throws Exception {
+        com.bytefuture.easy.poster.element.chart.LineChartElement chart = buildBasePoster()
+                .addLineChartElement(840, 480)
+                .setCategories(Arrays.asList("A", "B", "C"))
+                .addSeries("Loss", Arrays.asList(-10, -20, -30));
+
+        Object range = invokeNoArg(chart, "resolveValueRange");
+        int axisY = invokeAxisY(chart, 20, 220, range);
+
+        Assert.assertEquals(20, axisY);
+    }
+
+    @Test
+    public void testAxisBaselineShouldMapZeroWithinMixedRange() throws Exception {
+        com.bytefuture.easy.poster.element.chart.LineChartElement chart = buildBasePoster()
+                .addLineChartElement(840, 480)
+                .setCategories(Arrays.asList("A", "B", "C"))
+                .addSeries("Cashflow", Arrays.asList(-10, 10, 30));
+
+        Object range = invokeNoArg(chart, "resolveValueRange");
+        int axisY = invokeAxisY(chart, 20, 220, range);
+        double min = readDoubleField(range, "min");
+        double max = readDoubleField(range, "max");
+        int expectedAxisY = 220 - (int) Math.round(((0D - min) / (max - min)) * (220 - 20));
+
+        Assert.assertEquals(expectedAxisY, axisY);
+        Assert.assertTrue(axisY > 20);
+        Assert.assertTrue(axisY < 220);
+    }
+
     private EasyPoster buildBasePoster() {
         return new EasyPoster(960, 640);
     }
@@ -181,5 +227,23 @@ public class LineChartBasicTest {
             }
         }
         return count;
+    }
+
+    private Object invokeNoArg(Object target, String methodName) throws Exception {
+        Method method = target.getClass().getDeclaredMethod(methodName);
+        method.setAccessible(true);
+        return method.invoke(target);
+    }
+
+    private int invokeAxisY(Object target, int plotTop, int plotBottom, Object range) throws Exception {
+        Method method = target.getClass().getDeclaredMethod("resolveAxisY", int.class, int.class, range.getClass());
+        method.setAccessible(true);
+        return (Integer) method.invoke(target, plotTop, plotBottom, range);
+    }
+
+    private double readDoubleField(Object target, String fieldName) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.getDouble(target);
     }
 }

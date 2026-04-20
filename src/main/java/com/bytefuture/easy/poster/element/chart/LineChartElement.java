@@ -1,9 +1,11 @@
 package com.bytefuture.easy.poster.element.chart;
 
-import com.bytefuture.easy.poster.element.AbstractDimensionElement;
+import com.bytefuture.easy.poster.element.chart.base.AbstractChartElement;
+import com.bytefuture.easy.poster.element.chart.base.ChartLayoutBox;
+import com.bytefuture.easy.poster.element.chart.base.ChartValueRange;
+import com.bytefuture.easy.poster.element.chart.line.LinePathBuilder;
+import com.bytefuture.easy.poster.element.chart.line.LinePathBuilderFactory;
 import com.bytefuture.easy.poster.exception.PosterException;
-import com.bytefuture.easy.poster.geometry.Dimension;
-import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.PosterContext;
 
 import java.awt.*;
@@ -21,7 +23,7 @@ import java.util.Optional;
  * @author biaoy
  * @since 2026/04/13
  */
-public class LineChartElement extends AbstractDimensionElement<LineChartElement> {
+public class LineChartElement extends AbstractChartElement<LineChartElement> {
     private static final LinePathBuilderFactory LINE_PATH_BUILDER_FACTORY = new LinePathBuilderFactory();
 
     private static final List<Color> DEFAULT_PALETTE = Arrays.asList(
@@ -39,15 +41,9 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
 
     private final DecimalFormat decimalFormat = new DecimalFormat("0.##");
 
-    private Insets padding = new Insets(24, 24, 24, 24);
-
-    private Color backgroundColor;
-
     private Color axisColor = new Color(85, 92, 110);
 
     private Color gridColor = new Color(225, 229, 238);
-
-    private Color labelColor = new Color(71, 77, 92);
 
     private Color valueLabelColor = new Color(55, 60, 72);
 
@@ -105,12 +101,12 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
         if (padding == null) {
             throw new PosterException("padding can not be null");
         }
-        this.padding = padding;
+        setPaddingInternal(padding);
         return this;
     }
 
     public LineChartElement setBackgroundColor(Color backgroundColor) {
-        this.backgroundColor = backgroundColor;
+        setBackgroundColorInternal(backgroundColor);
         return this;
     }
 
@@ -125,7 +121,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
     }
 
     public LineChartElement setLabelColor(Color labelColor) {
-        this.labelColor = labelColor;
+        setLabelColorInternal(labelColor);
         return this;
     }
 
@@ -266,63 +262,48 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
     }
 
     @Override
-    public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
-        validateData();
-        Graphics2D graphics = context.getGraphics();
-        Graphics2D g = (Graphics2D) graphics.create();
-        try {
-            Point origin = dimension.getPoint();
-            if (backgroundColor != null) {
-                g.setColor(backgroundColor);
-                g.fillRect(origin.getX(), origin.getY(), width, height);
-            }
+    protected void renderChart(Graphics2D g, PosterContext context, ChartLayoutBox innerBox) {
+        Font baseFont = resolveBaseFont(context);
+        Font titleFont = baseFont.deriveFont(Font.BOLD, (float) titleFontSize);
+        Font labelFont = baseFont.deriveFont(Font.PLAIN, (float) labelFontSize);
+        Font legendFont = baseFont.deriveFont(Font.PLAIN, (float) legendFontSize);
+        Font valueFont = baseFont.deriveFont(Font.PLAIN, (float) valueLabelFontSize);
+        ChartValueRange valueRange = resolveValueRange();
 
-            Font baseFont = Optional.ofNullable(context.getConfig().getFont()).orElse(
-                    new Font(context.getConfig().getFontName(), context.getConfig().getFontStyle(), context.getConfig().getFontSize())
-            );
-            Font titleFont = baseFont.deriveFont(Font.BOLD, (float) titleFontSize);
-            Font labelFont = baseFont.deriveFont(Font.PLAIN, (float) labelFontSize);
-            Font legendFont = baseFont.deriveFont(Font.PLAIN, (float) legendFontSize);
-            Font valueFont = baseFont.deriveFont(Font.PLAIN, (float) valueLabelFontSize);
-            ValueRange valueRange = resolveValueRange();
+        int innerLeft = innerBox.getLeft();
+        int innerTop = innerBox.getTop();
+        int innerRight = innerBox.getRight();
+        int innerBottom = innerBox.getBottom();
 
-            int innerLeft = origin.getX() + padding.left;
-            int innerTop = origin.getY() + padding.top;
-            int innerRight = origin.getX() + width - padding.right;
-            int innerBottom = origin.getY() + height - padding.bottom;
+        innerTop += drawTitle(g, innerLeft, innerTop, titleFont);
+        innerTop += drawLegend(g, innerLeft, innerTop, innerRight, legendFont);
 
-            innerTop += drawTitle(g, innerLeft, innerTop, titleFont);
-            innerTop += drawLegend(g, innerLeft, innerTop, innerRight, legendFont);
+        List<Double> ticks = createTicks(valueRange);
+        g.setFont(labelFont);
+        FontMetrics labelMetrics = g.getFontMetrics();
+        int yAxisLabelWidth = calcYAxisLabelWidth(labelMetrics, ticks);
+        int xAxisLabelHeight = labelMetrics.getHeight() + 10;
 
-            List<Double> ticks = createTicks(valueRange);
-            g.setFont(labelFont);
-            FontMetrics labelMetrics = g.getFontMetrics();
-            int yAxisLabelWidth = calcYAxisLabelWidth(labelMetrics, ticks);
-            int xAxisLabelHeight = labelMetrics.getHeight() + 10;
-
-            int plotLeft = innerLeft + yAxisLabelWidth + 10;
-            int plotTop = innerTop + 4;
-            int plotRight = innerRight;
-            int plotBottom = innerBottom - xAxisLabelHeight;
-            int plotWidth = plotRight - plotLeft;
-            int plotHeight = plotBottom - plotTop;
-            if (plotWidth <= 0 || plotHeight <= 0) {
-                throw new PosterException("chart drawable area is too small");
-            }
-
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int axisY = resolveAxisY(plotTop, plotBottom, valueRange);
-
-            drawGridAndAxis(g, plotLeft, plotTop, plotRight, plotBottom, ticks, valueRange, labelFont, axisY);
-            drawLines(g, plotLeft, plotTop, plotWidth, plotBottom, valueRange, valueFont);
-            drawXAxisLabels(g, plotLeft, plotBottom, plotWidth, labelFont);
-        } finally {
-            g.dispose();
+        int plotLeft = innerLeft + yAxisLabelWidth + 10;
+        int plotTop = innerTop + 4;
+        int plotRight = innerRight;
+        int plotBottom = innerBottom - xAxisLabelHeight;
+        int plotWidth = plotRight - plotLeft;
+        int plotHeight = plotBottom - plotTop;
+        if (plotWidth <= 0 || plotHeight <= 0) {
+            throw new PosterException("chart drawable area is too small");
         }
-        return dimension.getPoint();
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int axisY = resolveAxisY(plotTop, plotBottom, valueRange);
+
+        drawGridAndAxis(g, plotLeft, plotTop, plotRight, plotBottom, ticks, valueRange, labelFont, axisY);
+        drawLines(g, plotLeft, plotTop, plotWidth, plotBottom, valueRange, valueFont);
+        drawXAxisLabels(g, plotLeft, plotBottom, plotWidth, labelFont);
     }
 
-    private void validateData() {
+    @Override
+    protected void validateChartData() {
         if (width <= 0 || height <= 0) {
             throw new PosterException("chart width and height must be greater than 0");
         }
@@ -344,7 +325,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
             return 0;
         }
         g.setFont(titleFont);
-        g.setColor(labelColor);
+        g.setColor(getLabelColor());
         FontMetrics metrics = g.getFontMetrics();
         g.drawString(title.trim(), left, top + metrics.getAscent());
         return metrics.getHeight() + 10;
@@ -373,7 +354,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
             int markerY = baseline - metrics.getAscent() + Math.max(0, (metrics.getHeight() - legendMarkerSize) / 2);
             g.setColor(resolveSeriesColor(series, i));
             g.fillRoundRect(x, markerY, legendMarkerSize, legendMarkerSize, 4, 4);
-            g.setColor(labelColor);
+            g.setColor(getLabelColor());
             g.drawString(text, x + legendMarkerSize + 8, baseline);
             x += itemWidth;
         }
@@ -389,7 +370,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
     }
 
     private void drawGridAndAxis(Graphics2D g, int plotLeft, int plotTop, int plotRight, int plotBottom,
-                                 List<Double> ticks, ValueRange valueRange, Font labelFont, int axisY) {
+                                 List<Double> ticks, ChartValueRange valueRange, Font labelFont, int axisY) {
         g.setFont(labelFont);
         FontMetrics metrics = g.getFontMetrics();
         for (Double tick : ticks) {
@@ -398,7 +379,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
                 g.setColor(gridColor);
                 g.drawLine(plotLeft, y, plotRight, y);
             }
-            g.setColor(labelColor);
+            g.setColor(getLabelColor());
             String text = formatValue(tick);
             int textWidth = metrics.stringWidth(text);
             g.drawString(text, plotLeft - textWidth - 10, y + metrics.getAscent() / 2 - 2);
@@ -416,7 +397,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
     }
 
     private void drawLines(Graphics2D g, int plotLeft, int plotTop, int plotWidth, int plotBottom,
-                           ValueRange valueRange, Font valueFont) {
+                           ChartValueRange valueRange, Font valueFont) {
         Stroke oldStroke = g.getStroke();
         LinePathBuilder pathBuilder = LINE_PATH_BUILDER_FACTORY.resolve(smoothTension, smoothAlgorithm);
         for (int seriesIndex = 0; seriesIndex < seriesList.size(); seriesIndex++) {
@@ -467,7 +448,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
 
     private void drawXAxisLabels(Graphics2D g, int plotLeft, int plotBottom, int plotWidth, Font labelFont) {
         g.setFont(labelFont);
-        g.setColor(labelColor);
+        g.setColor(getLabelColor());
         FontMetrics metrics = g.getFontMetrics();
         for (int i = 0; i < categories.size(); i++) {
             String category = Optional.ofNullable(categories.get(i)).orElse("");
@@ -490,7 +471,7 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
         return Optional.ofNullable(series.getColor()).orElse(DEFAULT_PALETTE.get(index % DEFAULT_PALETTE.size()));
     }
 
-    private ValueRange resolveValueRange() {
+    private ChartValueRange resolveValueRange() {
         double dataMin = Double.MAX_VALUE;
         double dataMax = -Double.MAX_VALUE;
         for (LineChartSeries series : seriesList) {
@@ -508,14 +489,14 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
         if (Double.compare(finalMin, finalMax) == 0) {
             finalMax = finalMin + 1D;
         }
-        return new ValueRange(finalMin, finalMax);
+        return new ChartValueRange(finalMin, finalMax);
     }
 
-    private List<Double> createTicks(ValueRange valueRange) {
+    private List<Double> createTicks(ChartValueRange valueRange) {
         List<Double> ticks = new ArrayList<Double>();
-        double step = (valueRange.max - valueRange.min) / (yAxisTickCount - 1);
+        double step = (valueRange.getMax() - valueRange.getMin()) / (yAxisTickCount - 1);
         for (int i = 0; i < yAxisTickCount; i++) {
-            ticks.add(valueRange.min + step * i);
+            ticks.add(valueRange.getMin() + step * i);
         }
         return ticks;
     }
@@ -523,33 +504,23 @@ public class LineChartElement extends AbstractDimensionElement<LineChartElement>
     /**
      * 计算横轴在绘图区中的 Y 坐标；当数据整体全为正数或全为负数时，横轴贴边绘制。
      */
-    private int resolveAxisY(int plotTop, int plotBottom, ValueRange valueRange) {
-        if (valueRange.min > 0D) {
+    private int resolveAxisY(int plotTop, int plotBottom, ChartValueRange valueRange) {
+        if (valueRange.getMin() > 0D) {
             return plotBottom;
         }
-        if (valueRange.max < 0D) {
+        if (valueRange.getMax() < 0D) {
             return plotTop;
         }
         return valueToY(0D, plotTop, plotBottom, valueRange);
     }
 
-    private int valueToY(double value, int plotTop, int plotBottom, ValueRange valueRange) {
-        double ratio = (value - valueRange.min) / (valueRange.max - valueRange.min);
+    private int valueToY(double value, int plotTop, int plotBottom, ChartValueRange valueRange) {
+        double ratio = (value - valueRange.getMin()) / (valueRange.getMax() - valueRange.getMin());
         return plotBottom - (int) Math.round(ratio * (plotBottom - plotTop));
     }
 
     private String formatValue(double value) {
         return decimalFormat.format(value);
-    }
-
-    private static class ValueRange {
-        private final double min;
-        private final double max;
-
-        private ValueRange(double min, double max) {
-            this.min = min;
-            this.max = max;
-        }
     }
 
     public enum SmoothAlgorithm {
