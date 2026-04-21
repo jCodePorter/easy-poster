@@ -2,6 +2,8 @@ package com.bytefuture.easy.poster.element.v2;
 
 import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.model.*;
+import com.bytefuture.easy.poster.text.html.HtmlTextSpanParser;
+import com.bytefuture.easy.poster.text.split.ITextSplitter;
 import lombok.Getter;
 
 import java.awt.*;
@@ -26,6 +28,8 @@ import java.util.List;
 @Getter
 public final class TextElementConfig {
 
+    private static final HtmlTextSpanParser HTML_TEXT_SPAN_PARSER = new HtmlTextSpanParser();
+
     // ========== 文本内容 ==========
     /** 主文本内容 */
     private final String text;
@@ -39,6 +43,7 @@ public final class TextElementConfig {
     private final int fontStyle;
     /** 字体大小 */
     private final int fontSize;
+    /** 字体 */
     private final Font font;
 
     // ========== 布局配置 ==========
@@ -91,7 +96,7 @@ public final class TextElementConfig {
 
     // ========== 拆分器 ==========
     /** 文本拆分器（用于自动换行） */
-    private final com.bytefuture.easy.poster.text.split.ITextSplitter textSplitter;
+    private final ITextSplitter textSplitter;
 
     /**
      * 私有构造函数，强制使用 Builder。
@@ -160,6 +165,10 @@ public final class TextElementConfig {
         return new Builder(spans);
     }
 
+    public static Builder builderHtml(String html) {
+        return new Builder(HTML_TEXT_SPAN_PARSER.parse(html));
+    }
+
     public static final class Builder {
         // 文本内容
         private String text;
@@ -207,6 +216,17 @@ public final class TextElementConfig {
         }
 
         private Builder(TextSpan[] spans) {
+            this.text = "";
+            if (spans != null) {
+                for (TextSpan span : spans) {
+                    if (span != null) {
+                        this.textSpans.add(span);
+                    }
+                }
+            }
+        }
+
+        private Builder(List<TextSpan> spans) {
             this.text = "";
             if (spans != null) {
                 for (TextSpan span : spans) {

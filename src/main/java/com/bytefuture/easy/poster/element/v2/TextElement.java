@@ -44,12 +44,20 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         return new TextElement(TextElementConfig.builder(spans).build());
     }
 
+    public static TextElement html(String html) {
+        return new TextElement(TextElementConfig.builderHtml(html).build());
+    }
+
     public static TextElement.Builder builder(String text) {
         return new TextElement.Builder(text);
     }
 
     public static TextElement.Builder builder(TextSpan... spans) {
         return new TextElement.Builder(spans);
+    }
+
+    public static TextElement.Builder builderHtml(String html) {
+        return new TextElement.Builder(TextElementConfig.builderHtml(html));
     }
 
     @Override
@@ -97,6 +105,10 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
 
         private Builder(TextSpan[] spans) {
             this.configBuilder = TextElementConfig.builder(spans);
+        }
+
+        private Builder(TextElementConfig.Builder configBuilder) {
+            this.configBuilder = configBuilder;
         }
 
         public Builder fontName(String fontName) {

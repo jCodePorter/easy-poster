@@ -580,6 +580,68 @@ public class V2TextElementTest {
     }
 
     @Test
+    public void shouldParseHtmlIntoStyledTextSpans() {
+        TextElement element = TextElement.builderHtml(
+                        "<span style='color:#ff0000'>Red</span>"
+                                + "<strong>Bold</strong>"
+                                + "<u>Line</u>"
+                                + "<span style='font-size:24px'>Big</span>")
+                .build();
+
+        Assert.assertEquals(4, element.getConfig().getTextSpans().size());
+
+        TextSpan red = element.getConfig().getTextSpans().get(0);
+        Assert.assertEquals("Red", red.getText());
+        Assert.assertEquals(new Color(255, 0, 0), red.getColor());
+
+        TextSpan bold = element.getConfig().getTextSpans().get(1);
+        Assert.assertEquals("Bold", bold.getText());
+        Assert.assertEquals(Integer.valueOf(Font.BOLD), bold.getFontStyle());
+
+        TextSpan underline = element.getConfig().getTextSpans().get(2);
+        Assert.assertEquals("Line", underline.getText());
+        Assert.assertEquals(Boolean.TRUE, underline.getUnderline());
+
+        TextSpan big = element.getConfig().getTextSpans().get(3);
+        Assert.assertEquals("Big", big.getText());
+        Assert.assertEquals(Integer.valueOf(24), big.getFontSize());
+    }
+
+    @Test
+    public void shouldConvertHtmlBreaksAndBlocksIntoRichTextLines() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builderHtml("<p>hello<br/>world</p><p>again</p>")
+                .font("Dialog", Font.PLAIN, 18)
+                .lineHeight(26)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+
+        Assert.assertEquals(3, layout.getLines().size());
+        Assert.assertEquals("hello", layout.getLines().get(0).getText());
+        Assert.assertEquals("world", layout.getLines().get(1).getText());
+        Assert.assertEquals("again", layout.getLines().get(2).getText());
+    }
+
+    @Test
+    public void shouldRenderHtmlUsingRichTextFragments() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builderHtml(
+                        "<span style='color:#ff0000'>R</span><span style='color:#0000ff'>B</span>")
+                .font("Dialog", Font.PLAIN, 28)
+                .position(AbsolutePosition.of(Point.of(20, 40), Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+        BufferedImage image = renderElement(element, 160, 100);
+
+        Assert.assertTrue(layout.getLines().get(0).hasRichFragments());
+        Assert.assertTrue(countColorLikePixels(image, Color.RED, 20) > 0);
+        Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 20) > 0);
+    }
+
+    @Test
     public void shouldSupportAbsolutePositionAndBaselineOffsets() {
         PosterContext context = createContext();
         Point anchor = Point.of(80, 90);
