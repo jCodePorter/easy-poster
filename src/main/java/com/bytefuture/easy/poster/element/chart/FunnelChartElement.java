@@ -6,31 +6,21 @@ import com.bytefuture.easy.poster.element.chart.base.ChartLegendRenderer;
 import com.bytefuture.easy.poster.element.chart.base.NamedColorValue;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.model.PosterContext;
+
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * 濠曞繑鏋熼崶鎯у帗缁辩姰鈧?
- * <p>
- * 閻劋绨崷銊︽崳閹躲儰鑵戠紒妯哄煑濠曞繑鏋熼崶鎾呯礉鐏炴洜銇氶梼鑸殿唽閹呮畱閺佺増宓侀柅鎺戝櫤鏉╁洨鈻奸敍?
- * 閺€顖涘瘮閼奉亜鐣炬稊澶愵杹閼瑰眰鈧焦鐖ｇ粵淇扁偓浣告禈娓氬鎷伴弽鍥暯闁板秶鐤嗛妴?
- * </p>
- *
- * @author biaoy
- * @since 2026/04/13
+ * 漏斗图元素，用于展示分阶段转化数据。
  */
 public class FunnelChartElement extends AbstractChartElement<FunnelChartElement> {
 
     /**
-     * 姒涙顓荤拫鍐閺夎￥鈧?
+     * 默认调色板。
      */
     private static final List<Color> DEFAULT_PALETTE = Arrays.asList(
             new Color(72, 133, 237),
@@ -42,95 +32,77 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     );
 
     /**
-     * 闂冭埖顔岄梿鍡楁値閵?
+     * 原始阶段列表。
      */
     private final List<FunnelChartStage> stages = new ArrayList<FunnelChartStage>();
 
     /**
-     * 閺佹澘鈧吋鐗稿蹇撳閸ｃ劊鈧?
+     * 数值格式化器。
      */
     private final DecimalFormat decimalFormat = new DecimalFormat("0.##");
-
     /**
-     * 閸ユ崘銆冮弽鍥暯閵?
+     * 图表标题。
      */
     private String title;
-
     /**
-     * 閺勵垰鎯侀弰鍓с仛閸ュ彞绶ラ妴?
+     * 是否显示图例。
      */
     private boolean showLegend = true;
-
     /**
-     * 閺勵垰鎯侀弰鍓с仛闂冭埖顔岄弽鍥╊劮閵?
+     * 是否显示阶段标签。
      */
     private boolean showLabel = true;
-
     /**
-     * 閺勵垰鎯侀弰鍓с仛閺嶅洭顣介妴?
+     * 是否显示标题。
      */
     private boolean showTitle = true;
-
     /**
-     * 閸ュ彞绶ラ崘鍛啇鐏炴洜銇氬Ο鈥崇础閵?
+     * 图例文本展示模式。
      */
     private DisplayMode legendDisplayMode = DisplayMode.NAME_VALUE;
-
     /**
-     * 闂冭埖顔岄弽鍥╊劮閸愬懎顔愮仦鏇犮仛濡€崇础閵?
+     * 阶段标签展示模式。
      */
     private DisplayMode labelDisplayMode = DisplayMode.NAME_PERCENT;
-
     /**
-     * 閼奉亜鐣炬稊澶庣殶閼瑰弶婢橀妴?
+     * 当前实例使用的调色板。
      */
     private List<Color> palette = new ArrayList<Color>(DEFAULT_PALETTE);
-
     /**
-     * 閺嶅洭顣界€涙褰块妴?
+     * 标题字号。
      */
     private int titleFontSize = 18;
-
     /**
-     * 閸ュ彞绶ョ€涙褰块妴?
+     * 图例字号。
      */
     private int legendFontSize = 12;
-
     /**
-     * 閺嶅洨顒风€涙褰块妴?
+     * 标签字号。
      */
     private int labelFontSize = 12;
-
     /**
-     * 閸ュ彞绶ユい閫涚闂傚娈戦梻纾嬬獩閵?
+     * 图例项之间的间距。
      */
     private int legendItemGap = 18;
-
     /**
-     * 閸ュ彞绶ラ懝鎻掓健鐏忓搫顕妴?
+     * 图例色块尺寸。
      */
     private int legendMarkerSize = 10;
-
     /**
-     * 閺嶅洨顒烽張鈧亸蹇涚彯鎼达箓妲囬崐纭风礉娴ｅ簼绨銈呪偓鍏兼閺嶅洨顒风亸鍡欑帛閸掕泛婀径鏍劥閵?
+     * 阶段标签绘制在内部所需的最小高度。
      */
     private int minLabelHeight = 18;
-
     /**
-     * 婢舵牠鍎撮弽鍥╊劮娑撳酣妯佸▓鍏哥闂傚娈戦梻纾嬬獩閵?
+     * 外置标签与漏斗块之间的间距。
      */
     private int externalLabelGap = 4;
-
     /**
-     * 闂冭埖顔屾稊瀣？閻ㄥ嫰妫跨捄婵勨偓?
+     * 各阶段之间的垂直间距。
      */
     private int stageGap = 8;
 
     /**
-     * 閺嬪嫰鈧姴娴樼悰銊ュ帗缁辩姰鈧?
-     *
-     * @param width  閸忓啰绀岀€硅棄瀹?
-     * @param height 閸忓啰绀屾妯哄
+     * 创建指定宽高的漏斗图元素。
      */
     public FunnelChartElement(int width, int height) {
         this.width = width;
@@ -138,10 +110,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鎹愩€冮弽鍥暯閵?
-     *
-     * @param title 閸ユ崘銆冮弽鍥暯
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图表标题。
      */
     public FunnelChartElement setTitle(String title) {
         this.title = title;
@@ -149,10 +118,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鎹愩€冮崘鍛扮珶鐠烘縿鈧?
-     *
-     * @param padding 閸ユ崘銆冮崘鍛扮珶鐠?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图表内边距。
      */
     public FunnelChartElement setPadding(Insets padding) {
         if (padding == null) {
@@ -163,10 +129,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鎹愩€冮懗灞炬珯閼瑰眰鈧?
-     *
-     * @param backgroundColor 閼冲本娅欓懝?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图表背景色。
      */
     public FunnelChartElement setBackgroundColor(Color backgroundColor) {
         setBackgroundColorInternal(backgroundColor);
@@ -174,10 +137,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮妫版粏澹婇妴?
-     *
-     * @param labelColor 閺嶅洨顒锋０婊嗗
-     * @return 瑜版挸澧犻崗鍐
+     * 设置标题、图例和标签共用的文字颜色。
      */
     public FunnelChartElement setLabelColor(Color labelColor) {
         setLabelColorInternal(labelColor);
@@ -185,10 +145,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛弰顖氭儊閺勫墽銇氶崶鍙ョ伐閵?
-     *
-     * @param showLegend 閺勵垰鎯侀弰鍓с仛閸ュ彞绶?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置是否显示图例。
      */
     public FunnelChartElement setShowLegend(boolean showLegend) {
         this.showLegend = showLegend;
@@ -196,10 +153,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛弰顖氭儊閺勫墽銇氶弽鍥╊劮閵?
-     *
-     * @param showLabel 閺勵垰鎯侀弰鍓с仛閺嶅洨顒?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置是否显示阶段标签。
      */
     public FunnelChartElement setShowLabel(boolean showLabel) {
         this.showLabel = showLabel;
@@ -207,10 +161,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛弰顖氭儊閺勫墽銇氶弽鍥暯閵?
-     *
-     * @param showTitle 閺勵垰鎯侀弰鍓с仛閺嶅洭顣?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置是否显示标题。
      */
     public FunnelChartElement setShowTitle(boolean showTitle) {
         this.showTitle = showTitle;
@@ -218,10 +169,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐鐏炴洜銇氬Ο鈥崇础閵?
-     *
-     * @param legendDisplayMode 閸ュ彞绶ョ仦鏇犮仛濡€崇础
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图例文本展示模式。
      */
     public FunnelChartElement setLegendDisplayMode(DisplayMode legendDisplayMode) {
         if (legendDisplayMode == null) {
@@ -232,10 +180,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮鐏炴洜銇氬Ο鈥崇础閵?
-     *
-     * @param labelDisplayMode 閺嶅洨顒风仦鏇犮仛濡€崇础
-     * @return 瑜版挸澧犻崗鍐
+     * 设置阶段标签展示模式。
      */
     public FunnelChartElement setLabelDisplayMode(DisplayMode labelDisplayMode) {
         if (labelDisplayMode == null) {
@@ -246,10 +191,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥暯鐎涙褰块妴?
-     *
-     * @param titleFontSize 閺嶅洭顣界€涙褰?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置标题字号。
      */
     public FunnelChartElement setTitleFontSize(int titleFontSize) {
         if (titleFontSize <= 0) {
@@ -260,10 +202,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐鐎涙褰块妴?
-     *
-     * @param legendFontSize 閸ュ彞绶ョ€涙褰?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图例字号。
      */
     public FunnelChartElement setLegendFontSize(int legendFontSize) {
         if (legendFontSize <= 0) {
@@ -274,10 +213,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮鐎涙褰块妴?
-     *
-     * @param labelFontSize 閺嶅洨顒风€涙褰?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置标签字号。
      */
     public FunnelChartElement setLabelFontSize(int labelFontSize) {
         if (labelFontSize <= 0) {
@@ -288,10 +224,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐妞ゅ綊妫跨捄婵勨偓?
-     *
-     * @param legendItemGap 閸ュ彞绶ユい褰掓？鐠?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图例项之间的水平间距。
      */
     public FunnelChartElement setLegendItemGap(int legendItemGap) {
         if (legendItemGap < 0) {
@@ -302,10 +235,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐閼规彃娼＄亸鍝勵嚟閵?
-     *
-     * @param legendMarkerSize 閸ュ彞绶ラ懝鎻掓健鐏忓搫顕?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图例色块尺寸。
      */
     public FunnelChartElement setLegendMarkerSize(int legendMarkerSize) {
         if (legendMarkerSize <= 0) {
@@ -316,38 +246,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐠佸墽鐤嗙拫鍐閺夎￥鈧?
-     *
-     * @param palette 鐠嬪啳澹婇弶?
-     * @return 瑜版挸澧犻崗鍐
-     */
-    public FunnelChartElement setPalette(List<Color> palette) {
-        if (palette == null || palette.isEmpty()) {
-            throw new PosterException("palette can not be empty");
-        }
-        this.palette = new ArrayList<Color>(palette);
-        return this;
-    }
-
-    /**
-     * 鐠佸墽鐤嗛梼鑸殿唽闂嗗棗鎮庨妴?
-     *
-     * @param stages 闂冭埖顔岄梿鍡楁値
-     * @return 瑜版挸澧犻崗鍐
-     */
-    public FunnelChartElement setStages(List<FunnelChartStage> stages) {
-        this.stages.clear();
-        if (stages != null) {
-            this.stages.addAll(stages);
-        }
-        return this;
-    }
-
-    /**
-     * 濞ｈ濮為梼鑸殿唽閵?
-     *
-     * @param stage 闂冭埖顔岀€电钖?
-     * @return 瑜版挸澧犻崗鍐
+     * 添加单个阶段对象。
      */
     public FunnelChartElement addStage(FunnelChartStage stage) {
         if (stage == null) {
@@ -358,36 +257,21 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 濞ｈ濮為梼鑸殿唽閵?
-     *
-     * @param name  闂冭埖顔岄崥宥囆?
-     * @param value 闂冭埖顔岄弫鏉库偓?
-     * @return 瑜版挸澧犻崗鍐
+     * 通过名称和值添加阶段。
      */
     public FunnelChartElement addStage(String name, Number value) {
         return addStage(FunnelChartStage.of(name, value));
     }
 
     /**
-     * 濞ｈ濮炵敮锕傤杹閼硅尙娈戦梼鑸殿唽閵?
-     *
-     * @param name  闂冭埖顔岄崥宥囆?
-     * @param value 闂冭埖顔岄弫鏉库偓?
-     * @param color 闂冭埖顔屾０婊嗗
-     * @return 瑜版挸澧犻崗鍐
+     * 通过名称、值和颜色添加阶段。
      */
     public FunnelChartElement addStage(String name, Number value, Color color) {
         return addStage(FunnelChartStage.of(name, value, color));
     }
 
     /**
-     * 閹笛嗩攽閸ユ崘銆冪紒妯哄煑閵?
-     *
-     * @param context      濞撮攱濮ゆ稉濠佺瑓閺?
-     * @param dimension    瑜版挸澧犻崗鍐鐏忓搫顕?
-     * @param posterWidth  閻㈣绔风€硅棄瀹?
-     * @param posterHeight 閻㈣绔锋妯哄
-     * @return 閸忓啰绀屽锔跨瑐鐟欐帒娼楅弽?
+     * 按标题、图例、主体三个区域依次完成漏斗图绘制。
      */
     @Override
     protected void renderChart(Graphics2D g, PosterContext context, ChartLayoutBox innerBox) {
@@ -407,7 +291,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 閺嶏繝鐛欓柊宥囩枂閵?
+     * 校验绘图前置条件，确保阶段数据和展示模式合法。
      */
     @Override
     protected void validateChartData() {
@@ -430,6 +314,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
             if (stage == null) {
                 throw new PosterException("stage can not be null");
             }
+            // 漏斗图要求每个阶段都可比较，非正值会破坏宽度比例。
             if (stage.getValue() <= 0D) {
                 throw new PosterException("funnel chart requires all stage values to be positive. Invalid stage: " + stage.getName());
             }
@@ -437,7 +322,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐟欙絾鐎介崣顖涜閺屾捇妯佸▓鐐光偓?
+     * 预计算阶段渲染所需的颜色、百分比和最大值。
      */
     private List<StageRenderInfo> resolveRenderStages() {
         List<StageRenderInfo> renderStages = new ArrayList<StageRenderInfo>();
@@ -465,18 +350,14 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 鐟欙絾鐎介梼鑸殿唽妫版粏澹婇妴?
+     * 解析单个阶段最终使用的颜色。
      */
     private Color resolveStageColor(FunnelChartStage stage, int colorIndex) {
         return Optional.ofNullable(stage.getColor()).orElse(palette.get(colorIndex % palette.size()));
     }
 
     /**
-     * 鐟欙絾鐎介崘鍛村劥閸欘垳鏁ょ紒妯哄煑閸栧搫鐓欓妴?
-     */
-
-    /**
-     * 缂佹ê鍩楅弽鍥暯閵?
+     * 绘制标题并返回其占用高度。
      */
     private int drawTitle(Graphics2D g, ChartLayoutBox innerBox, Font titleFont) {
         if (title == null || title.trim().isEmpty()) {
@@ -495,7 +376,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 缂佹ê鍩楅崶鍙ョ伐閵?
+     * 绘制图例并返回其占用高度。
      */
     private int drawLegend(Graphics2D g, ChartLayoutBox innerBox, Font legendFont, List<StageRenderInfo> renderStages) {
         return ChartLegendRenderer.drawLegend(
@@ -509,6 +390,9 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
         );
     }
 
+    /**
+     * 将阶段信息转换成图例组件需要的数据结构。
+     */
     private List<NamedColorValue> toLegendItems(List<StageRenderInfo> renderStages) {
         List<NamedColorValue> items = new ArrayList<NamedColorValue>(renderStages.size());
         for (StageRenderInfo stageInfo : renderStages) {
@@ -522,7 +406,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 缂佹ê鍩楅梼鑸殿唽閸栧搫鐓欓妴?
+     * 按阶段最大值缩放宽度，并自上而下绘制漏斗块。
      */
     private void drawStages(Graphics2D g, ChartLayoutBox innerBox, List<StageRenderInfo> renderStages, Font labelFont) {
         int stageCount = renderStages.size();
@@ -543,12 +427,11 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
             int stageWidth = (int) Math.round(plotWidth * widthRatio);
             int stageLeft = plotLeft + (plotWidth - stageWidth) / 2;
 
-            // Draw trapezoid shape
+            // 上窄下更窄的梯形让相邻阶段视觉上自然衔接。
             Path2D path = createTrapezoidPath(stageLeft, currentTop, stageWidth, stageHeight);
             g.setColor(stageInfo.color);
             g.fill(path);
 
-            // Draw label
             if (showLabel) {
                 drawStageLabel(g, labelFont, stageInfo, stageLeft, currentTop, stageWidth, stageHeight);
             }
@@ -558,7 +441,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 閸掓稑缂撳顖氳埌鐠侯垰绶為妴?
+     * 构造单个阶段使用的梯形路径。
      */
     private Path2D createTrapezoidPath(int left, int top, int width, int height) {
         Path2D path = new Path2D.Double();
@@ -572,7 +455,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 缂佹ê鍩楅梼鑸殿唽閺嶅洨顒烽妴?
+     * 优先将标签绘制在阶段内部，空间不足时再切换到外侧引导线布局。
      */
     private void drawStageLabel(Graphics2D g, Font labelFont, StageRenderInfo stageInfo,
                                 int stageLeft, int stageTop, int stageWidth, int stageHeight) {
@@ -586,23 +469,22 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
         int textWidth = metrics.stringWidth(text);
         int textHeight = metrics.getHeight();
 
-        // Choose readable label color based on stage color brightness
+        // 根据背景色亮度选择深浅文本颜色，保证标签可读性。
         Color labelColor = chooseReadableLabelColor(stageInfo.color);
 
         if (stageHeight >= Math.max(minLabelHeight, textHeight + 4)) {
-            // Draw inside the stage
             int labelX = stageLeft + (stageWidth - textWidth) / 2;
             int labelY = stageTop + (stageHeight - textHeight) / 2 + metrics.getAscent();
             g.setColor(labelColor);
             g.drawString(text, labelX, labelY);
         } else {
-            // Draw outside the stage with leader line
+            // 过矮的阶段无法容纳文本，改为右侧外置标签。
             drawExternalLabel(g, labelFont, text, stageLeft, stageTop, stageWidth, stageHeight, labelColor);
         }
     }
 
     /**
-     * 缂佹ê鍩楁径鏍劥閺嶅洨顒烽妴?
+     * 在阶段右侧绘制外部标签和引导线。
      */
     private void drawExternalLabel(Graphics2D g, Font font, String text,
                                    int stageLeft, int stageTop, int stageWidth, int stageHeight, Color labelColor) {
@@ -612,25 +494,23 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
         int textWidth = metrics.stringWidth(text);
         int textHeight = metrics.getHeight();
 
-        // Position label to the right of the stage
+        // 外部标签统一落在右侧，避免遮挡漏斗主体。
         int labelX = stageLeft + stageWidth + externalLabelGap;
         int labelY = stageTop + (stageHeight - textHeight) / 2 + metrics.getAscent();
 
-        // Draw leader line
+        // 引导线把标签与阶段中心对齐，减少阅读跳转成本。
         g.setColor(Color.GRAY);
         g.draw(new Line2D.Double(
                 stageLeft + stageWidth, stageTop + stageHeight / 2.0,
                 labelX - 2, stageTop + stageHeight / 2.0
         ));
 
-        // Draw label
         g.setColor(labelColor);
         g.drawString(text, labelX, labelY);
     }
 
-
     /**
-     * 閺嶇厧绱￠崠鏍ㄦ▔缁€鐑樻瀮閺堫兙鈧?
+     * 按展示模式拼装阶段文案。
      */
     private String formatDisplayText(StageRenderInfo stageInfo, DisplayMode displayMode) {
         String name = Optional.ofNullable(stageInfo.stage.getName()).orElse("");
@@ -655,21 +535,44 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 閼惧嘲褰囬梼鑸殿唽闂嗗棗鎮庨妴?
+     * 返回只读阶段列表。
      */
     public List<FunnelChartStage> getStages() {
         return Collections.unmodifiableList(stages);
     }
 
     /**
-     * 閼惧嘲褰囪ぐ鎾冲鐠嬪啳澹婇弶瑁も偓?
+     * 批量替换阶段数据。
+     */
+    public FunnelChartElement setStages(List<FunnelChartStage> stages) {
+        this.stages.clear();
+        if (stages != null) {
+            this.stages.addAll(stages);
+        }
+        return this;
+    }
+
+    /**
+     * 返回只读调色板。
      */
     public List<Color> getPalette() {
         return Collections.unmodifiableList(palette);
     }
 
     /**
-     * 閸愬懎顔愮仦鏇犮仛濡€崇础閵?
+     * 设置阶段调色板。
+     */
+    public FunnelChartElement setPalette(List<Color> palette) {
+        if (palette == null || palette.isEmpty()) {
+            throw new PosterException("palette can not be empty");
+        }
+        this.palette = new ArrayList<Color>(palette);
+        return this;
+    }
+
+
+    /**
+     * 名称、数值和百分比的展示模式。
      */
     public enum DisplayMode {
         NAME("name"),
@@ -678,6 +581,9 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
         NAME_VALUE("name+value"),
         NAME_PERCENT("name+percent");
 
+        /**
+         * 展示模式说明。
+         */
         private final String desc;
 
         DisplayMode(String desc) {
@@ -691,13 +597,29 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
 
 
     /**
-     * 闂冭埖顔岀紒妯哄煑娣団剝浼呴妴?
+     * 渲染阶段缓存的派生数据。
      */
     private static class StageRenderInfo {
 
+
+        /**
+         * 原始阶段对象。
+         */
         private final FunnelChartStage stage;
+
+        /**
+         * 当前阶段最终使用的颜色。
+         */
         private final Color color;
+
+        /**
+         * 当前阶段占全部值的百分比。
+         */
         private double percent;
+
+        /**
+         * 所有阶段中的最大值。
+         */
         private double maxValue;
 
         private StageRenderInfo(FunnelChartStage stage, Color color) {

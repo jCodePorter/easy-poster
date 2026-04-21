@@ -14,24 +14,17 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * 妤楃厧娴橀崗鍐閵? * <p>
- * 閺€顖涘瘮閺咁噣鈧岸銈奸崶淇扁偓浣哄箚瑜般垹娴樻禒銉ュ挤閻滎偆鎳撻崶?閸楁ぞ绔甸弽鐓庣毜閸ュ彞绗佺粔宥喣佸蹇ョ礉
- * 楠炶埖褰佹笟娑樻禈娓氬鈧焦鐖ｇ粵鎯ф嫲妫版粏澹婇柊宥囩枂閵? * </p>
- *
- * @author biaoy
- * @since 2026/04/13
+ * 饼图元素，支持普通饼图、环形图和玫瑰图三种模式。
  */
 public class PieChartElement extends AbstractChartElement<PieChartElement> {
 
     /**
-     * 姒涙顓荤拫鍐閺夎￥鈧?     */
+     * 默认调色板。
+     */
     private static final List<Color> DEFAULT_PALETTE = Arrays.asList(
             new Color(72, 133, 237),
             new Color(234, 67, 53),
@@ -42,89 +35,77 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     );
 
     /**
-     * 閸掑洨澧栭梿鍡楁値閵?     */
+     * 原始切片列表。
+     */
     private final List<PieChartSlice> slices = new ArrayList<PieChartSlice>();
 
     /**
-     * 閺佹澘鈧吋鐗稿蹇撳閸ｃ劊鈧?     */
+     * 数值格式化器。
+     */
     private final DecimalFormat decimalFormat = new DecimalFormat("0.##");
-
     /**
-     * 閸ユ崘銆冮弽鍥暯閵?     */
+     * 图表标题。
+     */
     private String title;
-
     /**
-     * 閺勵垰鎯侀弰鍓с仛閸ュ彞绶ラ妴?     */
+     * 是否显示图例。
+     */
     private boolean showLegend = true;
-
     /**
-     * 閺勵垰鎯侀弰鍓с仛閸掑洨澧栭弽鍥╊劮閵?     */
+     * 是否显示扇区标签。
+     */
     private boolean showLabel = true;
-
     /**
-     * 閺勵垰鎯侀弰鍓с仛閺嶅洭顣介妴?     */
+     * 是否显示标题。
+     */
     private boolean showTitle = true;
-
     /**
-     * 閸ユ崘銆冨Ο鈥崇础閵?     */
+     * 饼图渲染模式。
+     */
     private PieChartMode mode = PieChartMode.PIE;
-
     /**
-     * 閸ュ彞绶ラ崘鍛啇鐏炴洜銇氬Ο鈥崇础閵?     */
+     * 图例文本展示模式。
+     */
     private DisplayMode legendDisplayMode = DisplayMode.NAME;
-
     /**
-     * 閸掑洨澧栭弽鍥╊劮閸愬懎顔愮仦鏇犮仛濡€崇础閵?     */
+     * 扇区标签展示模式。
+     */
     private DisplayMode labelDisplayMode = DisplayMode.NAME_PERCENT;
-
     /**
-     * 閼奉亜鐣炬稊澶庣殶閼瑰弶婢橀妴?     */
+     * 当前实例使用的调色板。
+     */
     private List<Color> palette = new ArrayList<Color>(DEFAULT_PALETTE);
 
-    /**
-     * 閺嶅洭顣界€涙褰块妴?     */
     private int titleFontSize = 18;
 
-    /**
-     * 閸ュ彞绶ョ€涙褰块妴?     */
     private int legendFontSize = 12;
 
-    /**
-     * 閺嶅洨顒风€涙褰块妴?     */
     private int labelFontSize = 12;
 
-    /**
-     * 閸ュ彞绶ユい閫涚闂傚娈戦梻纾嬬獩閵?     */
     private int legendItemGap = 18;
 
-    /**
-     * 閸ュ彞绶ラ懝鎻掓健鐏忓搫顕妴?     */
     private int legendMarkerSize = 10;
 
-    /**
-     * 姒涙顓荤挧宄邦潗鐟欐帒瀹抽妴?     */
     private double startAngle = -90D;
-
     /**
-     * 閻滎垰鑸伴崶鎯у敶瀵板嫭鐦笟瀣ㄢ偓?     */
+     * 环形图内半径比例。
+     */
     private double donutInnerRadiusRatio = 0.58D;
-
     /**
-     * 閻滎偆鎳撻崶鐐付鐏忓繐宕愬鍕槷娓氬鈧?     */
+     * 玫瑰图基础内半径比例。
+     */
     private double roseInnerRadiusRatio = 0.30D;
-
     /**
-     * 閺嶅洨顒烽張鈧亸蹇氼潡鎼达箓妲囬崐绗衡偓?     */
+     * 可绘制内部标签的最小扇区角度。
+     */
     private double minLabelAngle = 12D;
-
     /**
-     * 閺嶅洨顒烽張鈧亸蹇曞箚鐎逛粙妲囬崐绗衡偓?     */
+     * 可绘制内部标签的最小径向带宽。
+     */
     private int minLabelBand = 18;
 
     /**
-     * 閺嬪嫰鈧姴娴樼悰銊ュ帗缁辩姰鈧?     *
-     * @param width  閸忓啰绀岀€硅棄瀹?
-     * @param height 閸忓啰绀屾妯哄
+     * 创建指定宽高的饼图元素。
      */
     public PieChartElement(int width, int height) {
         this.width = width;
@@ -132,9 +113,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鎹愩€冮弽鍥暯閵?     *
-     * @param title 閸ユ崘銆冮弽鍥暯
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图表标题。
      */
     public PieChartElement setTitle(String title) {
         this.title = title;
@@ -142,8 +121,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鎹愩€冮崘鍛扮珶鐠烘縿鈧?     *
-     * @param padding 閸ユ崘銆冮崘鍛扮珶鐠?     * @return 瑜版挸澧犻崗鍐
+     * 设置图表内边距。
      */
     public PieChartElement setPadding(Insets padding) {
         if (padding == null) {
@@ -154,8 +132,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鎹愩€冮懗灞炬珯閼瑰眰鈧?     *
-     * @param backgroundColor 閼冲本娅欓懝?     * @return 瑜版挸澧犻崗鍐
+     * 设置图表背景色。
      */
     public PieChartElement setBackgroundColor(Color backgroundColor) {
         setBackgroundColorInternal(backgroundColor);
@@ -163,9 +140,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮妫版粏澹婇妴?     *
-     * @param labelColor 閺嶅洨顒锋０婊嗗
-     * @return 瑜版挸澧犻崗鍐
+     * 设置标题、图例和标签共用的文字颜色。
      */
     public PieChartElement setLabelColor(Color labelColor) {
         setLabelColorInternal(labelColor);
@@ -173,9 +148,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弰顖氭儊閺勫墽銇氶崶鍙ョ伐閵?     *
-     * @param showLegend 閺勵垰鎯侀弰鍓с仛閸ュ彞绶?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置是否显示图例。
      */
     public PieChartElement setShowLegend(boolean showLegend) {
         this.showLegend = showLegend;
@@ -183,9 +156,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弰顖氭儊閺勫墽銇氶弽鍥╊劮閵?     *
-     * @param showLabel 閺勵垰鎯侀弰鍓с仛閺嶅洨顒?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置是否显示扇区标签。
      */
     public PieChartElement setShowLabel(boolean showLabel) {
         this.showLabel = showLabel;
@@ -193,9 +164,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弰顖氭儊閺勫墽銇氶弽鍥暯閵?     *
-     * @param showTitle 閺勵垰鎯侀弰鍓с仛閺嶅洭顣?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置是否显示标题。
      */
     public PieChartElement setShowTitle(boolean showTitle) {
         this.showTitle = showTitle;
@@ -203,9 +172,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鎹愩€冨Ο鈥崇础閵?     *
-     * @param mode 閸ユ崘銆冨Ο鈥崇础
-     * @return 瑜版挸澧犻崗鍐
+     * 设置饼图渲染模式。
      */
     public PieChartElement setMode(PieChartMode mode) {
         if (mode == null) {
@@ -216,9 +183,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐鐏炴洜銇氬Ο鈥崇础閵?     *
-     * @param legendDisplayMode 閸ュ彞绶ョ仦鏇犮仛濡€崇础
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图例文本展示模式。
      */
     public PieChartElement setLegendDisplayMode(DisplayMode legendDisplayMode) {
         if (legendDisplayMode == null) {
@@ -229,9 +194,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮鐏炴洜銇氬Ο鈥崇础閵?     *
-     * @param labelDisplayMode 閺嶅洨顒风仦鏇犮仛濡€崇础
-     * @return 瑜版挸澧犻崗鍐
+     * 设置扇区标签展示模式。
      */
     public PieChartElement setLabelDisplayMode(DisplayMode labelDisplayMode) {
         if (labelDisplayMode == null) {
@@ -242,9 +205,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥暯鐎涙褰块妴?     *
-     * @param titleFontSize 閺嶅洭顣界€涙褰?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置标题字号。
      */
     public PieChartElement setTitleFontSize(int titleFontSize) {
         if (titleFontSize <= 0) {
@@ -255,9 +216,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐鐎涙褰块妴?     *
-     * @param legendFontSize 閸ュ彞绶ョ€涙褰?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图例字号。
      */
     public PieChartElement setLegendFontSize(int legendFontSize) {
         if (legendFontSize <= 0) {
@@ -268,9 +227,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮鐎涙褰块妴?     *
-     * @param labelFontSize 閺嶅洨顒风€涙褰?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置标签字号。
      */
     public PieChartElement setLabelFontSize(int labelFontSize) {
         if (labelFontSize <= 0) {
@@ -281,8 +238,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐妞ゅ綊妫跨捄婵勨偓?     *
-     * @param legendItemGap 閸ュ彞绶ユい褰掓？鐠?     * @return 瑜版挸澧犻崗鍐
+     * 设置图例项之间的水平间距。
      */
     public PieChartElement setLegendItemGap(int legendItemGap) {
         if (legendItemGap < 0) {
@@ -293,9 +249,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛崶鍙ョ伐閼规彃娼＄亸鍝勵嚟閵?     *
-     * @param legendMarkerSize 閸ュ彞绶ラ懝鎻掓健鐏忓搫顕?
-     * @return 瑜版挸澧犻崗鍐
+     * 设置图例色块尺寸。
      */
     public PieChartElement setLegendMarkerSize(int legendMarkerSize) {
         if (legendMarkerSize <= 0) {
@@ -306,9 +260,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗙挧宄邦潗鐟欐帒瀹抽妴?     *
-     * @param startAngle 鐠у嘲顫愮憴鎺戝
-     * @return 瑜版挸澧犻崗鍐
+     * 设置起始绘制角度。
      */
     public PieChartElement setStartAngle(double startAngle) {
         this.startAngle = startAngle;
@@ -316,8 +268,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛悳顖氳埌閸ユ儳鍞村鍕槷娓氬鈧?     *
-     * @param donutInnerRadiusRatio 閻滎垰鑸伴崶鎯у敶瀵板嫭鐦笟?     * @return 瑜版挸澧犻崗鍐
+     * 设置环形图内半径比例。
      */
     public PieChartElement setDonutInnerRadiusRatio(double donutInnerRadiusRatio) {
         this.donutInnerRadiusRatio = donutInnerRadiusRatio;
@@ -325,8 +276,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛悳顐ゆ嚀閸ョ偓娓剁亸蹇撳磹瀵板嫭鐦笟瀣ㄢ偓?     *
-     * @param roseInnerRadiusRatio 閻滎偆鎳撻崶鐐付鐏忓繐宕愬鍕槷娓?     * @return 瑜版挸澧犻崗鍐
+     * 设置玫瑰图内半径比例。
      */
     public PieChartElement setRoseInnerRadiusRatio(double roseInnerRadiusRatio) {
         this.roseInnerRadiusRatio = roseInnerRadiusRatio;
@@ -334,8 +284,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮閺堚偓鐏忓繗顫楁惔锕傛閸婄鈧?     *
-     * @param minLabelAngle 閺嶅洨顒烽張鈧亸蹇氼潡鎼达箓妲囬崐?     * @return 瑜版挸澧犻崗鍐
+     * 设置显示标签所需的最小扇区角度。
      */
     public PieChartElement setMinLabelAngle(double minLabelAngle) {
         if (minLabelAngle < 0D) {
@@ -346,8 +295,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗛弽鍥╊劮閺堚偓鐏忓繒骞嗙€逛粙妲囬崐绗衡偓?     *
-     * @param minLabelBand 閺嶅洨顒烽張鈧亸蹇曞箚鐎逛粙妲囬崐?     * @return 瑜版挸澧犻崗鍐
+     * 设置显示标签所需的最小径向带宽。
      */
     public PieChartElement setMinLabelBand(int minLabelBand) {
         if (minLabelBand <= 0) {
@@ -358,34 +306,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐠佸墽鐤嗙拫鍐閺夎￥鈧?     *
-     * @param palette 鐠嬪啳澹婇弶?     * @return 瑜版挸澧犻崗鍐
-     */
-    public PieChartElement setPalette(List<Color> palette) {
-        if (palette == null || palette.isEmpty()) {
-            throw new PosterException("palette can not be empty");
-        }
-        this.palette = new ArrayList<Color>(palette);
-        return this;
-    }
-
-    /**
-     * 鐠佸墽鐤嗛崚鍥╁闂嗗棗鎮庨妴?     *
-     * @param slices 閸掑洨澧栭梿鍡楁値
-     * @return 瑜版挸澧犻崗鍐
-     */
-    public PieChartElement setSlices(List<PieChartSlice> slices) {
-        this.slices.clear();
-        if (slices != null) {
-            this.slices.addAll(slices);
-        }
-        return this;
-    }
-
-    /**
-     * 濞ｈ濮為崚鍥╁閵?     *
-     * @param slice 閸掑洨澧栫€电钖?
-     * @return 瑜版挸澧犻崗鍐
+     * 添加单个切片对象。
      */
     public PieChartElement addSlice(PieChartSlice slice) {
         if (slice == null) {
@@ -396,30 +317,22 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 濞ｈ濮為崚鍥╁閵?     *
-     * @param name  閸掑洨澧栭崥宥囆?
-     * @param value 閸掑洨澧栭弫鏉库偓?     * @return 瑜版挸澧犻崗鍐
+     * 通过名称和值添加切片。
      */
     public PieChartElement addSlice(String name, Number value) {
         return addSlice(PieChartSlice.of(name, value));
     }
 
     /**
-     * 濞ｈ濮炵敮锕傤杹閼硅尙娈戦崚鍥╁閵?     *
-     * @param name  閸掑洨澧栭崥宥囆?
-     * @param value 閸掑洨澧栭弫鏉库偓?     * @param color 閸掑洨澧栨０婊嗗
-     * @return 瑜版挸澧犻崗鍐
+     * 通过名称、值和颜色添加切片。
      */
     public PieChartElement addSlice(String name, Number value, Color color) {
         return addSlice(PieChartSlice.of(name, value, color));
     }
 
     /**
-     * 閹笛嗩攽閸ユ崘銆冪紒妯哄煑閵?     *
-     * @param context      濞撮攱濮ゆ稉濠佺瑓閺?     * @param dimension    瑜版挸澧犻崗鍐鐏忓搫顕?
-     * @param posterWidth  閻㈣绔风€硅棄瀹?
-     * @param posterHeight 閻㈣绔锋妯哄
-     * @return 閸忓啰绀屽锔跨瑐鐟欐帒娼楅弽?     */
+     * 按标题、图例、主体三个区域依次完成饼图绘制。
+     */
     @Override
     protected void renderChart(Graphics2D g, PosterContext context, ChartLayoutBox innerBox) {
         List<SliceRenderInfo> drawableSlices = resolveDrawableSlices();
@@ -438,7 +351,8 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 閺嶏繝鐛欓柊宥囩枂閵?     */
+     * 校验绘图前置条件，避免布局和比例计算阶段出现非法输入。
+     */
     @Override
     protected void validateChartData() {
         if (width <= 0 || height <= 0) {
@@ -447,9 +361,11 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
         if (palette == null || palette.isEmpty()) {
             throw new PosterException("palette can not be empty");
         }
+        // 环形图必须保留可见圆环，因此内半径比例只能落在开区间 (0, 1)。
         if (mode == PieChartMode.DONUT && (donutInnerRadiusRatio <= 0D || donutInnerRadiusRatio >= 1D)) {
             throw new PosterException("donutInnerRadiusRatio must be between 0 and 1");
         }
+        // 玫瑰图允许从圆心开始，但不能让内半径大于等于外半径。
         if (mode == PieChartMode.ROSE && (roseInnerRadiusRatio < 0D || roseInnerRadiusRatio >= 1D)) {
             throw new PosterException("roseInnerRadiusRatio must be between 0 and 1");
         }
@@ -465,16 +381,15 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐟欙絾鐎介崣顖滅帛閸掕泛鍨忛悧鍥モ偓?     * <p>
-     * 妫ｆ牜澧楃€靛綊娼锝嗘殶閸掑洨澧栭柌鍥╂暏鐠哄疇绻冪粵鏍殣閿涘奔绮庣紒妯哄煑濮濓絾鏆熼崐鍏兼殶閹诡喓鈧?     * </p>
-     *
-     * @return 閸欘垳绮崚璺哄瀼閻楀洭娉﹂崥?     */
+     * 过滤无效切片并补齐渲染阶段需要的派生数据。
+     */
     private List<SliceRenderInfo> resolveDrawableSlices() {
         List<SliceRenderInfo> drawableSlices = new ArrayList<SliceRenderInfo>();
         double total = 0D;
         double maxValue = 0D;
         int colorIndex = 0;
         for (PieChartSlice slice : slices) {
+            // null 或非正值切片不参与绘制，也不计入总和。
             if (slice == null) {
                 continue;
             }
@@ -498,25 +413,15 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐟欙絾鐎介崚鍥╁妫版粏澹婇妴?     *
-     * @param slice      閸掑洨澧栫€电钖?
-     * @param colorIndex 鐠嬪啳澹婇弶璺ㄥ偍瀵?     * @return 閺堚偓缂佸牓顤侀懝?     */
+     * 解析单个切片最终使用的颜色。
+     */
     private Color resolveSliceColor(PieChartSlice slice, int colorIndex) {
         return Optional.ofNullable(slice.getColor()).orElse(palette.get(colorIndex % palette.size()));
     }
 
     /**
-     * 鐟欙絾鐎介崘鍛村劥閸欘垳鏁ょ紒妯哄煑閸栧搫鐓欓妴?     *
-     * @param origin 閸忓啰绀岄崢鐔哄仯
-     * @return 閸愬懘鍎寸敮鍐ㄧ湰閸栧搫鐓?
+     * 绘制标题并返回其占用高度。
      */
-
-    /**
-     * 缂佹ê鍩楅弽鍥暯閵?     *
-     * @param g         閻㈣崵鐟?
-     * @param innerBox  閸愬懘鍎寸敮鍐ㄧ湰閸栧搫鐓?
-     * @param titleFont 閺嶅洭顣界€涙ぞ缍?
-     * @return 閸楃姷鏁ら惃鍕彯鎼?     */
     private int drawTitle(Graphics2D g, ChartLayoutBox innerBox, Font titleFont) {
         if (title == null || title.trim().isEmpty()) {
             return 0;
@@ -534,11 +439,8 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 缂佹ê鍩楅崶鍙ョ伐閵?     *
-     * @param g            閻㈣崵鐟?
-     * @param innerBox     閸愬懘鍎寸敮鍐ㄧ湰閸栧搫鐓?
-     * @param legendFont   閸ュ彞绶ョ€涙ぞ缍?
-     * @param drawableData 閸欘垳绮崚璺哄瀼閻楀洦鏆熼幑?     * @return 閸楃姷鏁ら惃鍕彯鎼?     */
+     * 绘制图例并返回其占用高度。
+     */
     private int drawLegend(Graphics2D g, ChartLayoutBox innerBox, Font legendFont, List<SliceRenderInfo> drawableData) {
         return ChartLegendRenderer.drawLegend(
                 g,
@@ -551,6 +453,9 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
         );
     }
 
+    /**
+     * 将切片信息转换成图例组件需要的数据结构。
+     */
     private List<NamedColorValue> toLegendItems(List<SliceRenderInfo> drawableData) {
         List<NamedColorValue> items = new ArrayList<NamedColorValue>(drawableData.size());
         for (SliceRenderInfo sliceInfo : drawableData) {
@@ -564,10 +469,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 缂佹ê鍩楅崚鍥╁閸栧搫鐓欓妴?     *
-     * @param g              閻㈣崵鐟?
-     * @param innerBox       閸愬懘鍎寸敮鍐ㄧ湰閸栧搫鐓?
-     * @param drawableSlices 閸欘垳绮崚璺哄瀼閻?     * @param labelFont      閺嶅洨顒风€涙ぞ缍?
+     * 在可用区域内完成扇区绘制。
      */
     private void drawSlices(Graphics2D g, ChartLayoutBox innerBox, List<SliceRenderInfo> drawableSlices, Font labelFont) {
         ChartLayoutBox plotBox = resolvePlotBox(innerBox);
@@ -592,9 +494,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐟欙絾鐎介崶鎯ц埌缂佹ê鍩楅崠鍝勭厵閵?     *
-     * @param innerBox 閸愬懘鍎撮崠鍝勭厵
-     * @return 閸ユ儳鑸扮紒妯哄煑閸栧搫鐓?
+     * 将可用矩形裁成正方形绘图区，避免饼图被拉伸。
      */
     private ChartLayoutBox resolvePlotBox(ChartLayoutBox innerBox) {
         int side = Math.max(1, Math.min(innerBox.width(), innerBox.height()));
@@ -609,9 +509,8 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐟欙絾鐎介崺铏诡攨閸愬懎宕愬鍕┾偓?     *
-     * @param maxOuterRadius 閺堚偓婢堆冾樆閸楀﹤绶?
-     * @return 閸╄櫣顢呴崘鍛磹瀵?     */
+     * 按当前模式计算基础内半径。
+     */
     private double resolveInnerRadius(double maxOuterRadius) {
         if (mode == PieChartMode.DONUT) {
             return maxOuterRadius * donutInnerRadiusRatio;
@@ -623,11 +522,10 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 鐟欙絾鐎介崚鍥╁婢舵牕宕愬鍕┾偓?     *
-     * @param sliceInfo      閸掑洨澧栨穱鈩冧紖
-     * @param maxOuterRadius 閺堚偓婢堆冾樆閸楀﹤绶?
-     * @return 閸掑洨澧栨径鏍у磹瀵?     */
+     * 计算当前切片的外半径。
+     */
     private double resolveOuterRadius(SliceRenderInfo sliceInfo, double maxOuterRadius) {
+        // 只有玫瑰图会按数据值改变外半径，其余模式统一使用最大半径。
         if (mode != PieChartMode.ROSE) {
             return maxOuterRadius;
         }
@@ -639,12 +537,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 閸掓稑缂撻崚鍥╁瑜般垻濮搁妴?     *
-     * @param centerX     閸﹀棗绺?X
-     * @param centerY     閸﹀棗绺?Y
-     * @param innerRadius 閸愬懎宕愬?     * @param outerRadius 婢舵牕宕愬?     * @param start       鐠у嘲顫愮憴鎺戝
-     * @param extent      閹碘晛鐫嶇憴鎺戝
-     * @return 閸掑洨澧栬ぐ銏㈠Ц
+     * 根据半径和角度构建扇区形状。
      */
     private Shape createSliceShape(double centerX, double centerY, double innerRadius, double outerRadius, double start, double extent) {
         Arc2D outerArc = new Arc2D.Double(centerX - outerRadius, centerY - outerRadius,
@@ -660,14 +553,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 缂佹ê鍩楅崚鍥╁閺嶅洨顒烽妴?     *
-     * @param g           閻㈣崵鐟?
-     * @param labelFont   閺嶅洨顒风€涙ぞ缍?
-     * @param sliceInfo   閸掑洨澧栨穱鈩冧紖
-     * @param centerX     閸﹀棗绺?X
-     * @param centerY     閸﹀棗绺?Y
-     * @param innerRadius 閸愬懎宕愬?     * @param outerRadius 婢舵牕宕愬?     * @param start       鐠у嘲顫愮憴鎺戝
-     * @param extent      閹碘晛鐫嶇憴鎺戝
+     * 在扇区中部尝试绘制标签。
      */
     private void drawSliceLabel(Graphics2D g, Font labelFont, SliceRenderInfo sliceInfo, double centerX, double centerY,
                                 double innerRadius, double outerRadius, double start, double extent) {
@@ -677,6 +563,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
         }
         g.setFont(labelFont);
         FontMetrics metrics = g.getFontMetrics();
+        // 过小扇区直接跳过，避免文字压出扇区边界。
         if (!canDrawLabel(metrics, text, innerRadius, outerRadius, extent)) {
             return;
         }
@@ -691,11 +578,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 閸掋倖鏌囬弽鍥╊劮閺勵垰鎯侀崣顖欎簰缂佹ê鍩楅妴?     *
-     * @param metrics     鐎涙ぞ缍嬫惔锕傚櫤
-     * @param text        閺嶅洨顒烽弬鍥ㄦ拱
-     * @param innerRadius 閸愬懎宕愬?     * @param outerRadius 婢舵牕宕愬?     * @param extent      閹碘晛鐫嶇憴鎺戝
-     * @return 閺勵垰鎯侀崣顖欎簰缂佹ê鍩?
+     * 判断当前扇区是否具备绘制内部标签的空间。
      */
     private boolean canDrawLabel(FontMetrics metrics, String text, double innerRadius, double outerRadius, double extent) {
         if (extent < minLabelAngle) {
@@ -709,16 +592,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 闁瀚ㄩ弰鎾诡嚢閻ㄥ嫭鐖ｇ粵楣冾杹閼瑰眰鈧?     *
-     * @param background 閼冲本娅欐０婊嗗
-     * @return 閺嶅洨顒锋０婊嗗
-     */
-
-    /**
-     * 閺嶇厧绱￠崠鏍ㄦ▔缁€鐑樻瀮閺堫兙鈧?     *
-     * @param sliceInfo    閸掑洨澧栨穱鈩冧紖
-     * @param displayMode  鐏炴洜銇氬Ο鈥崇础
-     * @return 閺勫墽銇氶弬鍥ㄦ拱
+     * 按展示模式拼装扇区文案。
      */
     private String formatDisplayText(SliceRenderInfo sliceInfo, DisplayMode displayMode) {
         String name = Optional.ofNullable(sliceInfo.slice.getName()).orElse("");
@@ -743,92 +617,101 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 閼惧嘲褰囬崚鍥╁闂嗗棗鎮庨妴?     *
-     * @return 閸掑洨澧栭梿鍡楁値
+     * 返回只读切片列表。
      */
     public List<PieChartSlice> getSlices() {
         return Collections.unmodifiableList(slices);
     }
 
     /**
-     * 閼惧嘲褰囪ぐ鎾冲鐠嬪啳澹婇弶瑁も偓?     *
-     * @return 瑜版挸澧犵拫鍐閺?     */
+     * 批量替换切片数据。
+     */
+    public PieChartElement setSlices(List<PieChartSlice> slices) {
+        this.slices.clear();
+        if (slices != null) {
+            this.slices.addAll(slices);
+        }
+        return this;
+    }
+
+    /**
+     * 返回只读调色板。
+     */
     public List<Color> getPalette() {
         return Collections.unmodifiableList(palette);
     }
 
     /**
-     * 妤楃厧娴樺Ο鈥崇础閵?     */
+     * 设置切片调色板。
+     */
+    public PieChartElement setPalette(List<Color> palette) {
+        if (palette == null || palette.isEmpty()) {
+            throw new PosterException("palette can not be empty");
+        }
+        this.palette = new ArrayList<Color>(palette);
+        return this;
+    }
+
+
+    /**
+     * 饼图渲染模式。
+     */
     @Getter
     @AllArgsConstructor
     public enum PieChartMode {
-        /**
-         * 閺咁噣鈧岸銈奸崶淇扁偓?         */
         PIE("Pie"),
-        /**
-         * 閻滎垰鑸伴崶淇扁偓?         */
         DONUT("Donut"),
-        /**
-         * 閻滎偆鎳撻崶?閸楁ぞ绔甸弽鐓庣毜閸ヤ勘鈧?         */
         ROSE("Rose");
 
-        /**
-         * 濡€崇础閹诲繗鍫妴?         */
         private final String desc;
     }
 
+
     /**
-     * 閸愬懎顔愮仦鏇犮仛濡€崇础閵?     */
+     * 名称、数值和百分比的展示模式。
+     */
     @Getter
     @AllArgsConstructor
     public enum DisplayMode {
-        /**
-         * 娴犲懎鎮曠粔鑸偓?         */
         NAME("Name"),
-        /**
-         * 娴犲懏鏆熼崐绗衡偓?         */
         VALUE("Value"),
-        /**
-         * 娴犲懐娅ㄩ崚鍡樼槷閵?         */
         PERCENT("Percent"),
-        /**
-         * 閸氬秶袨閸旂姵鏆熼崐绗衡偓?         */
         NAME_VALUE("Name+Value"),
-        /**
-         * 閸氬秶袨閸旂姷娅ㄩ崚鍡樼槷閵?         */
         NAME_PERCENT("Name+Percent");
 
-        /**
-         * 濡€崇础閹诲繗鍫妴?         */
         private final String desc;
     }
 
 
     /**
-     * 閸掑洨澧栫紒妯哄煑娣団剝浼呴妴?     */
+     * 渲染阶段缓存的切片派生数据。
+     */
     private static class SliceRenderInfo {
 
+
         /**
-         * 閸樼喎顫愰崚鍥╁閵?         */
+         * 原始切片对象。
+         */
         private final PieChartSlice slice;
 
+
         /**
-         * 鐟欙絾鐎介崥搴ｆ畱妫版粏澹婇妴?         */
+         * 当前切片最终使用的颜色。
+         */
         private final Color color;
 
+
         /**
-         * 瑜版挸澧犻崚鍥╁閻ф儳鍨庡В鏂烩偓?         */
+         * 当前切片占全部有效值的百分比。
+         */
         private double percent;
 
-        /**
-         * 瑜版挸澧犻弫鐗堝祦闂嗗棙娓舵径褍鈧鈧?         */
-        private double maxValue;
 
         /**
-         * 閺嬪嫰鈧姴鍨忛悧鍥╃帛閸掓湹淇婇幁顖樷偓?         *
-         * @param slice 閸樼喎顫愰崚鍥╁
-         * @param color 鐟欙絾鐎介崥搴ｆ畱妫版粏澹?
+         * 所有有效切片中的最大值。
          */
+        private double maxValue;
+
         private SliceRenderInfo(PieChartSlice slice, Color color) {
             this.slice = slice;
             this.color = color;
