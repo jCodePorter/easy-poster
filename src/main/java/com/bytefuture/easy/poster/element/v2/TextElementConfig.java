@@ -1,12 +1,21 @@
 package com.bytefuture.easy.poster.element.v2;
 
 import com.bytefuture.easy.poster.geometry.Margin;
-import com.bytefuture.easy.poster.model.*;
+import com.bytefuture.easy.poster.model.BaseLine;
+import com.bytefuture.easy.poster.model.TextAlign;
+import com.bytefuture.easy.poster.model.TextLayoutMode;
+import com.bytefuture.easy.poster.model.TextOverflowStrategy;
+import com.bytefuture.easy.poster.model.TextShadow;
+import com.bytefuture.easy.poster.model.TextSpan;
+import com.bytefuture.easy.poster.model.TextStroke;
+import com.bytefuture.easy.poster.model.VerticalAlign;
+import com.bytefuture.easy.poster.model.VerticalDirection;
 import com.bytefuture.easy.poster.text.html.HtmlTextSpanParser;
 import com.bytefuture.easy.poster.text.split.ITextSplitter;
 import lombok.Getter;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +44,8 @@ public final class TextElementConfig {
     private final String text;
     /** 富文本片段 */
     private final List<TextSpan> textSpans;
+    private final String verticalText;
+    private final List<String> verticalColumns;
 
     // ========== 字体配置 ==========
     /** 字体名称 */
@@ -59,6 +70,12 @@ public final class TextElementConfig {
     private final Integer maxLines;
     /** 省略符 */
     private final String ellipsis;
+    /** 文本排版方式 */
+    private final TextLayoutMode textLayoutMode;
+    private final VerticalDirection verticalDirection;
+    private final VerticalAlign verticalAlign;
+    private final int layoutHeight;
+    private final int columnSpacing;
 
     // ========== 宽度控制 ==========
     /** 是否自动换行 */
@@ -111,6 +128,13 @@ public final class TextElementConfig {
         this.baseLine = builder.baseLine;
         this.lineHeight = builder.lineHeight;
         this.textAlign = builder.textAlign;
+        this.textLayoutMode = builder.textLayoutMode;
+        this.verticalDirection = builder.verticalDirection;
+        this.verticalAlign = builder.verticalAlign;
+        this.verticalText = builder.verticalText;
+        this.verticalColumns = Collections.unmodifiableList(new ArrayList<>(builder.verticalColumns));
+        this.layoutHeight = builder.layoutHeight;
+        this.columnSpacing = builder.columnSpacing;
         this.overflowStrategy = builder.overflowStrategy;
         this.maxLines = builder.maxLines;
         this.ellipsis = builder.ellipsis;
@@ -138,10 +162,17 @@ public final class TextElementConfig {
         return !textSpans.isEmpty();
     }
 
+    public boolean isVerticalLayout() {
+        return textLayoutMode == TextLayoutMode.VERTICAL;
+    }
+
     /**
      * 判断是否为空文本。
      */
     public boolean isEmpty() {
+        if (isVerticalLayout()) {
+            return (verticalText == null || verticalText.isEmpty()) && verticalColumns.isEmpty();
+        }
         return (text == null || text.isEmpty()) && textSpans.isEmpty();
     }
 
@@ -184,6 +215,13 @@ public final class TextElementConfig {
         private BaseLine baseLine = BaseLine.BASE_LINE;
         private Integer lineHeight;
         private TextAlign textAlign;
+        private TextLayoutMode textLayoutMode = TextLayoutMode.HORIZONTAL;
+        private VerticalDirection verticalDirection = VerticalDirection.LEFT_TO_RIGHT;
+        private VerticalAlign verticalAlign = VerticalAlign.TOP;
+        private String verticalText;
+        private final List<String> verticalColumns = new ArrayList<>();
+        private int layoutHeight = 0;
+        private int columnSpacing = 0;
         private TextOverflowStrategy overflowStrategy;
         private Integer maxLines;
         private String ellipsis = "...";
@@ -282,6 +320,56 @@ public final class TextElementConfig {
         public Builder textAlign(TextAlign textAlign) {
             if (textAlign == null) throw new IllegalArgumentException("textAlign cannot be null");
             this.textAlign = textAlign;
+            return this;
+        }
+
+        public Builder textLayoutMode(TextLayoutMode textLayoutMode) {
+            if (textLayoutMode == null) throw new IllegalArgumentException("textLayoutMode cannot be null");
+            this.textLayoutMode = textLayoutMode;
+            return this;
+        }
+
+        public Builder vertical(String text) {
+            if (text == null) throw new IllegalArgumentException("vertical text cannot be null");
+            this.textLayoutMode = TextLayoutMode.VERTICAL;
+            this.verticalText = text;
+            this.verticalColumns.clear();
+            return this;
+        }
+
+        public Builder vertical(List<String> columns) {
+            if (columns == null) throw new IllegalArgumentException("vertical columns cannot be null");
+            this.verticalColumns.clear();
+            for (String column : columns) {
+                if (column == null) throw new IllegalArgumentException("vertical column cannot be null");
+                this.verticalColumns.add(column);
+            }
+            this.textLayoutMode = TextLayoutMode.VERTICAL;
+            this.verticalText = null;
+            return this;
+        }
+
+        public Builder verticalDirection(VerticalDirection verticalDirection) {
+            if (verticalDirection == null) throw new IllegalArgumentException("verticalDirection cannot be null");
+            this.verticalDirection = verticalDirection;
+            return this;
+        }
+
+        public Builder verticalAlign(VerticalAlign verticalAlign) {
+            if (verticalAlign == null) throw new IllegalArgumentException("verticalAlign cannot be null");
+            this.verticalAlign = verticalAlign;
+            return this;
+        }
+
+        public Builder layoutHeight(int layoutHeight) {
+            if (layoutHeight <= 0) throw new IllegalArgumentException("layoutHeight must be positive");
+            this.layoutHeight = layoutHeight;
+            return this;
+        }
+
+        public Builder columnSpacing(int columnSpacing) {
+            if (columnSpacing < 0) throw new IllegalArgumentException("columnSpacing cannot be negative");
+            this.columnSpacing = columnSpacing;
             return this;
         }
 

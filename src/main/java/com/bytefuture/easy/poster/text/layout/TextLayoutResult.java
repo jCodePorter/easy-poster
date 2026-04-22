@@ -4,6 +4,7 @@ import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.BaseLine;
 import com.bytefuture.easy.poster.model.TextAlign;
+import com.bytefuture.easy.poster.model.TextLayoutMode;
 import com.bytefuture.easy.poster.model.TextOverflowStrategy;
 import com.bytefuture.easy.poster.utils.RotateUtils;
 import lombok.Getter;
@@ -49,15 +50,28 @@ public final class TextLayoutResult {
     private final TextDecorationInsets decorationInsets;
     /** 文本背景内边距。 */
     private final TextPaddingInsets textPadding;
-
+    /** 文本排版方式 */
+    private final TextLayoutMode textLayoutMode;
     public TextLayoutResult(Font font, BaseLine baseLine, TextAlign textAlign, TextOverflowStrategy overflowStrategy,
                             int lineHeight, int baselineOffset, Point point, int width, int height,
                             int contentWidth, int contentHeight, int backgroundWidth, int backgroundHeight,
                             List<LayoutLine> lines, boolean truncated, boolean clipOverflow,
                             TextDecorationInsets decorationInsets, TextPaddingInsets textPadding) {
+        this(font, baseLine, textAlign, TextLayoutMode.HORIZONTAL, overflowStrategy, lineHeight, baselineOffset,
+                point, width, height, contentWidth, contentHeight, backgroundWidth, backgroundHeight,
+                lines, truncated, clipOverflow, decorationInsets, textPadding);
+    }
+
+    public TextLayoutResult(Font font, BaseLine baseLine, TextAlign textAlign, TextLayoutMode textLayoutMode,
+                            TextOverflowStrategy overflowStrategy, int lineHeight, int baselineOffset, Point point,
+                            int width, int height, int contentWidth, int contentHeight,
+                            int backgroundWidth, int backgroundHeight, List<LayoutLine> lines,
+                            boolean truncated, boolean clipOverflow, TextDecorationInsets decorationInsets,
+                            TextPaddingInsets textPadding) {
         this.font = font;
         this.baseLine = baseLine;
         this.textAlign = textAlign;
+        this.textLayoutMode = textLayoutMode;
         this.overflowStrategy = overflowStrategy;
         this.lineHeight = lineHeight;
         this.baselineOffset = baselineOffset;

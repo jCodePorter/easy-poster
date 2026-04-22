@@ -15,12 +15,14 @@ import com.bytefuture.easy.poster.model.BaseLine;
 import com.bytefuture.easy.poster.model.Config;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextAlign;
+import com.bytefuture.easy.poster.model.TextLayoutMode;
 import com.bytefuture.easy.poster.model.TextOverflowStrategy;
 import com.bytefuture.easy.poster.model.TextShadow;
 import com.bytefuture.easy.poster.model.TextSpan;
 import com.bytefuture.easy.poster.model.TextStroke;
 import com.bytefuture.easy.poster.text.layout.LayoutLine;
 import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.text.layout.VerticalGlyph;
 import com.bytefuture.easy.poster.text.split.TextSplitRequest;
 import com.bytefuture.easy.poster.text.split.TextSplitResult;
 import com.bytefuture.easy.poster.text.split.TextSplitterSimpleImpl;
@@ -33,6 +35,14 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.List;
+
+import static com.bytefuture.easy.poster.model.VerticalAlign.BOTTOM;
+import static com.bytefuture.easy.poster.model.VerticalAlign.JUSTIFY;
+import static com.bytefuture.easy.poster.model.VerticalAlign.MIDDLE;
+import static com.bytefuture.easy.poster.model.VerticalAlign.TOP;
+import static com.bytefuture.easy.poster.model.VerticalDirection.LEFT_TO_RIGHT;
+import static com.bytefuture.easy.poster.model.VerticalDirection.RIGHT_TO_LEFT;
 
 public class V2TextElementTest {
 
@@ -269,6 +279,168 @@ public class V2TextElementTest {
         Assert.assertTrue(layout.getLines().get(0).isJustified());
         Assert.assertFalse(layout.getLines().get(layout.getLines().size() - 1).isJustified());
         Assert.assertEquals(layout.getContentWidth(), layout.getLines().get(0).getRenderWidth());
+    }
+
+    @Test
+    public void shouldExposeVerticalBuilderConvenienceMethods() {
+        TextElement stringElement = TextElement.builder("unused")
+                .vertical("纵向排版")
+                .textLayoutMode(TextLayoutMode.VERTICAL)
+                .layoutHeight(120)
+                .columnSpacing(8)
+                .verticalDirection(RIGHT_TO_LEFT)
+                .verticalAlign(BOTTOM)
+                .build();
+        TextElement listElement = TextElement.builder("unused")
+                .vertical(Arrays.asList("春眠", "不觉晓"))
+                .build();
+
+        Assert.assertEquals(TextLayoutMode.VERTICAL, stringElement.getConfig().getTextLayoutMode());
+        Assert.assertEquals("纵向排版", stringElement.getConfig().getVerticalText());
+        Assert.assertTrue(stringElement.getConfig().getVerticalColumns().isEmpty());
+        Assert.assertEquals(120, stringElement.getConfig().getLayoutHeight());
+        Assert.assertEquals(8, stringElement.getConfig().getColumnSpacing());
+        Assert.assertEquals(RIGHT_TO_LEFT, stringElement.getConfig().getVerticalDirection());
+        Assert.assertEquals(BOTTOM, stringElement.getConfig().getVerticalAlign());
+
+        Assert.assertEquals(TextLayoutMode.VERTICAL, listElement.getConfig().getTextLayoutMode());
+        Assert.assertEquals(Arrays.asList("春眠", "不觉晓"), listElement.getConfig().getVerticalColumns());
+        Assert.assertNull(listElement.getConfig().getVerticalText());
+    }
+
+    @Test
+    public void shouldSplitVerticalStringIntoMultipleColumnsWhenLayoutHeightIsConstrained() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 20)
+                .vertical("天地玄黄宇宙洪荒")
+                .lineHeight(24)
+                .layoutHeight(72)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+
+        Assert.assertEquals(TextLayoutMode.VERTICAL, layout.getTextLayoutMode());
+        Assert.assertTrue(layout.getLines().size() > 1);
+        Assert.assertEquals(72, layout.getContentHeight());
+        Assert.assertEquals("天地玄", layout.getLines().get(0).getText());
+        Assert.assertEquals("黄宇宙", layout.getLines().get(1).getText());
+    }
+
+    @Test
+    public void shouldPlaceVerticalColumnsFromLeftToRight() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 20)
+                .vertical(Arrays.asList("甲乙", "丙丁"))
+                .layoutHeight(120)
+                .columnSpacing(12)
+                .verticalDirection(LEFT_TO_RIGHT)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+
+        Assert.assertEquals(2, layout.getLines().size());
+        Assert.assertTrue(layout.getLines().get(1).getPoint().getX() > layout.getLines().get(0).getPoint().getX());
+    }
+
+    @Test
+    public void shouldPlaceVerticalColumnsFromRightToLeft() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 20)
+                .vertical(Arrays.asList("甲乙", "丙丁"))
+                .layoutHeight(120)
+                .columnSpacing(12)
+                .verticalDirection(RIGHT_TO_LEFT)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+
+        Assert.assertEquals(2, layout.getLines().size());
+        Assert.assertTrue(layout.getLines().get(1).getPoint().getX() < layout.getLines().get(0).getPoint().getX());
+    }
+
+    @Test
+    public void shouldApplyVerticalAlignmentsInsideConfiguredHeight() {
+        PosterContext context = createContext();
+        TextLayoutResult topLayout = measureLayout(TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 20)
+                .vertical(Arrays.asList("甲乙"))
+                .layoutHeight(120)
+                .verticalAlign(TOP)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build(), context, 400, 300);
+        TextLayoutResult middleLayout = measureLayout(TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 20)
+                .vertical(Arrays.asList("甲乙"))
+                .layoutHeight(120)
+                .verticalAlign(MIDDLE)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build(), context, 400, 300);
+        TextLayoutResult bottomLayout = measureLayout(TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 20)
+                .vertical(Arrays.asList("甲乙"))
+                .layoutHeight(120)
+                .verticalAlign(BOTTOM)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build(), context, 400, 300);
+        TextLayoutResult justifyLayout = measureLayout(TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 20)
+                .vertical(Arrays.asList("甲乙"))
+                .layoutHeight(120)
+                .verticalAlign(JUSTIFY)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build(), context, 400, 300);
+
+        List<VerticalGlyph> topGlyphs = topLayout.getLines().get(0).getVerticalGlyphs();
+        List<VerticalGlyph> middleGlyphs = middleLayout.getLines().get(0).getVerticalGlyphs();
+        List<VerticalGlyph> bottomGlyphs = bottomLayout.getLines().get(0).getVerticalGlyphs();
+        List<VerticalGlyph> justifyGlyphs = justifyLayout.getLines().get(0).getVerticalGlyphs();
+
+        Assert.assertEquals(2, topGlyphs.size());
+        Assert.assertTrue(topGlyphs.get(0).getYOffset() < middleGlyphs.get(0).getYOffset());
+        Assert.assertTrue(middleGlyphs.get(0).getYOffset() < bottomGlyphs.get(0).getYOffset());
+        Assert.assertEquals(0, justifyGlyphs.get(0).getYOffset());
+        Assert.assertEquals(justifyLayout.getContentHeight() - justifyLayout.getLineHeight(),
+                justifyGlyphs.get(1).getYOffset());
+    }
+
+    @Test
+    public void shouldRejectNullVerticalInputsAndNegativeVerticalDimensions() {
+        expectIllegalArgument("vertical text cannot be null", new Runnable() {
+            @Override
+            public void run() {
+                TextElement.builder("validate").vertical((String) null);
+            }
+        });
+        expectIllegalArgument("vertical columns cannot be null", new Runnable() {
+            @Override
+            public void run() {
+                TextElement.builder("validate").vertical((List<String>) null);
+            }
+        });
+        expectIllegalArgument("vertical column cannot be null", new Runnable() {
+            @Override
+            public void run() {
+                TextElement.builder("validate").vertical(Arrays.asList("甲", null));
+            }
+        });
+        expectIllegalArgument("layoutHeight must be positive", new Runnable() {
+            @Override
+            public void run() {
+                TextElement.builder("validate").layoutHeight(0);
+            }
+        });
+        expectIllegalArgument("columnSpacing cannot be negative", new Runnable() {
+            @Override
+            public void run() {
+                TextElement.builder("validate").columnSpacing(-1);
+            }
+        });
     }
 
     @Test

@@ -20,18 +20,29 @@ public final class LayoutLine {
     private final int renderWidth;
     /** 富文本片段列表；纯文本场景下为空。 */
     private final List<RichTextFragment> richFragments;
+    private final List<VerticalGlyph> verticalGlyphs;
 
     public LayoutLine(String text, int width, Point point, boolean justified, int renderWidth,
                       List<RichTextFragment> richFragments) {
+        this(text, width, point, justified, renderWidth, richFragments, null);
+    }
+
+    public LayoutLine(String text, int width, Point point, boolean justified, int renderWidth,
+                      List<RichTextFragment> richFragments, List<VerticalGlyph> verticalGlyphs) {
         this.text = text;
         this.width = width;
         this.point = point;
         this.justified = justified;
         this.renderWidth = renderWidth;
         this.richFragments = richFragments;
+        this.verticalGlyphs = verticalGlyphs;
     }
 
     public boolean hasRichFragments() {
         return this.richFragments != null && !this.richFragments.isEmpty();
+    }
+
+    public boolean hasVerticalGlyphs() {
+        return this.verticalGlyphs != null && !this.verticalGlyphs.isEmpty();
     }
 }

@@ -4,11 +4,15 @@ import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
+import com.bytefuture.easy.poster.model.TextLayoutMode;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextSpan;
+import com.bytefuture.easy.poster.model.VerticalAlign;
+import com.bytefuture.easy.poster.model.VerticalDirection;
 import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
 
 import java.awt.*;
+import java.util.List;
 
 /**
  * Text element V2.
@@ -148,6 +152,41 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
 
         public Builder textAlign(com.bytefuture.easy.poster.model.TextAlign textAlign) {
             configBuilder.textAlign(textAlign);
+            return this;
+        }
+
+        public Builder textLayoutMode(TextLayoutMode textLayoutMode) {
+            configBuilder.textLayoutMode(textLayoutMode);
+            return this;
+        }
+
+        public Builder vertical(String text) {
+            configBuilder.vertical(text);
+            return this;
+        }
+
+        public Builder vertical(List<String> columns) {
+            configBuilder.vertical(columns);
+            return this;
+        }
+
+        public Builder verticalDirection(VerticalDirection verticalDirection) {
+            configBuilder.verticalDirection(verticalDirection);
+            return this;
+        }
+
+        public Builder verticalAlign(VerticalAlign verticalAlign) {
+            configBuilder.verticalAlign(verticalAlign);
+            return this;
+        }
+
+        public Builder layoutHeight(int layoutHeight) {
+            configBuilder.layoutHeight(layoutHeight);
+            return this;
+        }
+
+        public Builder columnSpacing(int columnSpacing) {
+            configBuilder.columnSpacing(columnSpacing);
             return this;
         }
 

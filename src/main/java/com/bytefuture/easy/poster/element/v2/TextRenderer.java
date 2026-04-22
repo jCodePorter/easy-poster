@@ -5,6 +5,7 @@ import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.text.layout.LayoutLine;
 import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.text.layout.VerticalGlyph;
 import com.bytefuture.easy.poster.text.wrap.RichTextFragment;
 
 import java.awt.*;
@@ -59,7 +60,9 @@ public final class TextRenderer {
             for (int i = 0; i < layout.getLines().size(); i++) {
                 LayoutLine line = layout.getLines().get(i);
                 int startX = line.getPoint().getX() + xDiff;
-                int startY = line.getPoint().getY() + layout.getBaselineOffset() + yDiff + i * layout.getLineHeight();
+                int startY = line.hasVerticalGlyphs()
+                        ? line.getPoint().getY() + layout.getBaselineOffset() + yDiff
+                        : line.getPoint().getY() + layout.getBaselineOffset() + yDiff + i * layout.getLineHeight();
 
                 if (context.getConfig().isDebug()) {
                     drawDebugBox(g, line, startX, startY, layout);
@@ -97,10 +100,38 @@ public final class TextRenderer {
     }
 
     private void drawLine(TextElementConfig config, Graphics2D g, LayoutLine line, int startX, int startY) {
-        if (line.hasRichFragments()) {
+        if (line.hasVerticalGlyphs()) {
+            drawVerticalLine(config, g, line, startX, startY);
+        } else if (line.hasRichFragments()) {
             drawRichLine(config, g, line.getRichFragments(), startX, startY);
         } else {
             drawPlainLine(config, g, line, startX, startY);
+        }
+    }
+
+    private void drawVerticalLine(TextElementConfig config, Graphics2D g, LayoutLine line, int startX, int startY) {
+        Paint textPaint = g.getPaint();
+        Stroke savedStroke = g.getStroke();
+
+        for (VerticalGlyph glyph : line.getVerticalGlyphs()) {
+            int drawX = startX + glyph.getXOffset();
+            int drawY = line.getPoint().getY() + glyph.getYOffset() + startY - line.getPoint().getY();
+            if (config.getShadow() != null) {
+                g.setPaint(config.getShadow().getColor());
+                g.drawString(glyph.getText(), drawX + config.getShadow().getOffsetX(),
+                        drawY + config.getShadow().getOffsetY());
+            }
+
+            if (config.getStroke() != null) {
+                g.setPaint(config.getStroke().getColor());
+                g.setStroke(new BasicStroke(config.getStroke().getWidth(), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                Shape outline = g.getFont().createGlyphVector(g.getFontRenderContext(), glyph.getText()).getOutline(drawX, drawY);
+                g.draw(outline);
+                g.setStroke(savedStroke);
+            }
+
+            g.setPaint(textPaint);
+            g.drawString(glyph.getText(), drawX, drawY);
         }
     }
 
