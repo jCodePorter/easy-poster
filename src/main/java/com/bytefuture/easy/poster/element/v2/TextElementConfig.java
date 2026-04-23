@@ -1,21 +1,12 @@
 package com.bytefuture.easy.poster.element.v2;
 
 import com.bytefuture.easy.poster.geometry.Margin;
-import com.bytefuture.easy.poster.model.BaseLine;
-import com.bytefuture.easy.poster.model.TextAlign;
-import com.bytefuture.easy.poster.model.TextLayoutMode;
-import com.bytefuture.easy.poster.model.TextOverflowStrategy;
-import com.bytefuture.easy.poster.model.TextShadow;
-import com.bytefuture.easy.poster.model.TextSpan;
-import com.bytefuture.easy.poster.model.TextStroke;
-import com.bytefuture.easy.poster.model.VerticalAlign;
-import com.bytefuture.easy.poster.model.VerticalDirection;
+import com.bytefuture.easy.poster.model.*;
 import com.bytefuture.easy.poster.text.html.HtmlTextSpanParser;
 import com.bytefuture.easy.poster.text.split.ITextSplitter;
 import lombok.Getter;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -250,7 +241,7 @@ public final class TextElementConfig {
         private int textBackgroundArcHeight = 0;
 
         // 拆分器
-        private com.bytefuture.easy.poster.text.split.ITextSplitter textSplitter;
+        private ITextSplitter textSplitter;
 
         private Builder(String text) {
             this.text = text;
@@ -290,7 +281,6 @@ public final class TextElementConfig {
         }
 
         public Builder fontSize(int fontSize) {
-            if (fontSize <= 0) throw new IllegalArgumentException("fontSize must be positive");
             this.fontSize = fontSize;
             return this;
         }
@@ -303,7 +293,6 @@ public final class TextElementConfig {
         }
 
         public Builder font(Font font) {
-            if (font == null) throw new IllegalArgumentException("font cannot be null");
             this.font = font;
             return this;
         }
@@ -315,25 +304,21 @@ public final class TextElementConfig {
         }
 
         public Builder lineHeight(int lineHeight) {
-            if (lineHeight <= 0) throw new IllegalArgumentException("lineHeight must be positive");
             this.lineHeight = lineHeight;
             return this;
         }
 
         public Builder textAlign(TextAlign textAlign) {
-            if (textAlign == null) throw new IllegalArgumentException("textAlign cannot be null");
             this.textAlign = textAlign;
             return this;
         }
 
         public Builder textLayoutMode(TextLayoutMode textLayoutMode) {
-            if (textLayoutMode == null) throw new IllegalArgumentException("textLayoutMode cannot be null");
             this.textLayoutMode = textLayoutMode;
             return this;
         }
 
         public Builder vertical(String text) {
-            if (text == null) throw new IllegalArgumentException("vertical text cannot be null");
             this.textLayoutMode = TextLayoutMode.VERTICAL;
             this.verticalText = text;
             this.verticalColumns.clear();
@@ -341,37 +326,29 @@ public final class TextElementConfig {
         }
 
         public Builder vertical(List<String> columns) {
-            if (columns == null) throw new IllegalArgumentException("vertical columns cannot be null");
             this.verticalColumns.clear();
-            for (String column : columns) {
-                if (column == null) throw new IllegalArgumentException("vertical column cannot be null");
-                this.verticalColumns.add(column);
-            }
+            this.verticalColumns.addAll(columns);
             this.textLayoutMode = TextLayoutMode.VERTICAL;
             this.verticalText = null;
             return this;
         }
 
         public Builder verticalDirection(VerticalDirection verticalDirection) {
-            if (verticalDirection == null) throw new IllegalArgumentException("verticalDirection cannot be null");
             this.verticalDirection = verticalDirection;
             return this;
         }
 
         public Builder verticalAlign(VerticalAlign verticalAlign) {
-            if (verticalAlign == null) throw new IllegalArgumentException("verticalAlign cannot be null");
             this.verticalAlign = verticalAlign;
             return this;
         }
 
         public Builder layoutHeight(int layoutHeight) {
-            if (layoutHeight <= 0) throw new IllegalArgumentException("layoutHeight must be positive");
             this.layoutHeight = layoutHeight;
             return this;
         }
 
         public Builder columnSpacing(int columnSpacing) {
-            if (columnSpacing < 0) throw new IllegalArgumentException("columnSpacing cannot be negative");
             this.columnSpacing = columnSpacing;
             return this;
         }
@@ -382,34 +359,28 @@ public final class TextElementConfig {
         }
 
         public Builder maxLines(int maxLines) {
-            if (maxLines <= 0) throw new IllegalArgumentException("maxLines must be positive");
             this.maxLines = maxLines;
             return this;
         }
 
         public Builder ellipsis(String ellipsis) {
-            if (ellipsis == null) throw new IllegalArgumentException("ellipsis cannot be null");
             this.ellipsis = ellipsis;
             return this;
         }
 
         // ========== 宽度控制 ==========
         public Builder autoWordWrap(int maxWidth) {
-            if (maxWidth <= 0) throw new IllegalArgumentException("maxWidth must be positive");
             this.autoWordWrap = true;
             this.maxTextWidth = maxWidth;
             return this;
         }
 
         public Builder layoutWidth(int layoutWidth) {
-            if (layoutWidth <= 0) throw new IllegalArgumentException("layoutWidth must be positive");
             this.maxTextWidth = layoutWidth;
             return this;
         }
 
         public Builder autoFitText(int targetWidth, int minFontSize) {
-            if (targetWidth <= 0) throw new IllegalArgumentException("targetWidth must be positive");
-            if (minFontSize <= 0) throw new IllegalArgumentException("minFontSize must be positive");
             this.autoFitText = true;
             this.autoFitTargetWidth = targetWidth;
             this.autoFitMinFontSize = minFontSize;
@@ -433,81 +404,65 @@ public final class TextElementConfig {
         }
 
         public Builder shadow(Color color, int offsetX, int offsetY) {
-            if (color == null) throw new IllegalArgumentException("shadow color cannot be null");
             this.shadow = TextShadow.of(color, offsetX, offsetY);
             return this;
         }
 
         public Builder shadow(TextShadow shadow) {
-            if (shadow == null) throw new IllegalArgumentException("shadow cannot be null");
             this.shadow = shadow;
             return this;
         }
 
         public Builder stroke(Color color, float width) {
-            if (color == null) throw new IllegalArgumentException("stroke color cannot be null");
-            if (width <= 0) throw new IllegalArgumentException("stroke width must be positive");
             this.stroke = TextStroke.of(color, width);
             return this;
         }
 
         public Builder stroke(TextStroke stroke) {
-            if (stroke == null) throw new IllegalArgumentException("stroke cannot be null");
             this.stroke = stroke;
             return this;
         }
 
         // ========== 背景配置 ==========
         public Builder textBackground(Color color) {
-            if (color == null) throw new IllegalArgumentException("textBackgroundColor cannot be null");
             this.textBackgroundColor = color;
             return this;
         }
 
         public Builder textBackground(Color color, int padding) {
-            if (color == null) throw new IllegalArgumentException("textBackgroundColor cannot be null");
             this.textBackgroundColor = color;
             this.textPadding = Margin.of(padding);
             return this;
         }
 
         public Builder textBackground(Color color, Margin padding) {
-            if (color == null) throw new IllegalArgumentException("textBackgroundColor cannot be null");
-            if (padding == null) throw new IllegalArgumentException("textPadding cannot be null");
             this.textBackgroundColor = color;
             this.textPadding = padding;
             return this;
         }
 
         public Builder textPadding(int padding) {
-            if (padding < 0) throw new IllegalArgumentException("padding cannot be negative");
             this.textPadding = Margin.of(padding);
             return this;
         }
 
         public Builder textPadding(int horizontal, int vertical) {
-            if (horizontal < 0 || vertical < 0) throw new IllegalArgumentException("padding cannot be negative");
             this.textPadding = Margin.of(horizontal, vertical);
             return this;
         }
 
         public Builder textPadding(int left, int top, int right, int bottom) {
-            if (left < 0 || top < 0 || right < 0 || bottom < 0) {
-                throw new IllegalArgumentException("padding cannot be negative");
-            }
             this.textPadding = Margin.of(left, top, right, bottom);
             return this;
         }
 
         public Builder textBackgroundArc(int arc) {
-            if (arc < 0) throw new IllegalArgumentException("arc cannot be negative");
             this.textBackgroundArcWidth = arc;
             this.textBackgroundArcHeight = arc;
             return this;
         }
 
         public Builder textBackgroundArc(int arcWidth, int arcHeight) {
-            if (arcWidth < 0 || arcHeight < 0) throw new IllegalArgumentException("arc cannot be negative");
             this.textBackgroundArcWidth = arcWidth;
             this.textBackgroundArcHeight = arcHeight;
             return this;
@@ -515,13 +470,11 @@ public final class TextElementConfig {
 
         // ========== 拆分器 ==========
         public Builder textSplitter(com.bytefuture.easy.poster.text.split.ITextSplitter splitter) {
-            if (splitter == null) throw new IllegalArgumentException("textSplitter cannot be null");
             this.textSplitter = splitter;
             return this;
         }
 
         public Builder textSpan(TextSpan span) {
-            if (span == null) throw new IllegalArgumentException("textSpan cannot be null");
             this.textSpans.add(span);
             return this;
         }

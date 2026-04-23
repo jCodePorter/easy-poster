@@ -40,8 +40,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 public final class TextLayoutEngine {
 
@@ -51,23 +49,12 @@ public final class TextLayoutEngine {
     private static final TextMetricsService METRICS = new TextMetricsService();
     private static final DecorationMetricsResolver DECORATION = new DecorationMetricsResolver();
 
-    private final Map<String, TextLayoutResult> cache = new WeakHashMap<>();
-
     public TextLayoutResult layout(TextElementConfig config, Position position, int rotate,
                                    PosterContext context, int posterWidth, int posterHeight) {
         if (config.isEmpty()) {
             return createEmptyResult(position);
         }
-
-        String cacheKey = buildCacheKey(config, position, posterWidth, posterHeight);
-        synchronized (cache) {
-            TextLayoutResult cached = cache.get(cacheKey);
-            if (cached != null) return cached;
-
-            TextLayoutResult result = computeLayout(config, position, rotate, context, posterWidth, posterHeight);
-            cache.put(cacheKey, result);
-            return result;
-        }
+        return computeLayout(config, position, rotate, context, posterWidth, posterHeight);
     }
 
     private TextLayoutResult computeLayout(TextElementConfig config, Position position, int rotate,
@@ -686,10 +673,6 @@ public final class TextLayoutEngine {
 
     private String normalizeText(String text) {
         return text == null ? "" : text.replace("\r\n", "\n").replace('\r', '\n');
-    }
-
-    private String buildCacheKey(TextElementConfig config, Position position, int posterWidth, int posterHeight) {
-        return config.hashCode() + "|" + position + "|" + posterWidth + "|" + posterHeight;
     }
 
     private TextLayoutResult createEmptyResult(Position position) {
