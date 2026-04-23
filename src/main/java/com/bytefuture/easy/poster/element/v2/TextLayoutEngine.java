@@ -1,42 +1,17 @@
 package com.bytefuture.easy.poster.element.v2;
 
-import com.bytefuture.easy.poster.exception.PosterException;
-import com.bytefuture.easy.poster.geometry.AbsolutePosition;
-import com.bytefuture.easy.poster.geometry.Direction;
+import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.geometry.Position;
-import com.bytefuture.easy.poster.geometry.RelativePosition;
-import com.bytefuture.easy.poster.model.BaseLine;
-import com.bytefuture.easy.poster.model.Config;
-import com.bytefuture.easy.poster.model.PosterContext;
-import com.bytefuture.easy.poster.model.TextAlign;
-import com.bytefuture.easy.poster.model.TextLayoutMode;
-import com.bytefuture.easy.poster.model.TextOverflowStrategy;
-import com.bytefuture.easy.poster.model.TextSpan;
-import com.bytefuture.easy.poster.model.VerticalAlign;
-import com.bytefuture.easy.poster.model.VerticalDirection;
-import com.bytefuture.easy.poster.text.layout.LayoutLine;
-import com.bytefuture.easy.poster.text.layout.TextDecorationInsets;
-import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
-import com.bytefuture.easy.poster.text.layout.TextPaddingInsets;
-import com.bytefuture.easy.poster.text.layout.TextRenderSpec;
-import com.bytefuture.easy.poster.text.layout.VerticalGlyph;
+import com.bytefuture.easy.poster.model.*;
+import com.bytefuture.easy.poster.text.layout.*;
 import com.bytefuture.easy.poster.text.metrics.DecorationMetricsResolver;
 import com.bytefuture.easy.poster.text.metrics.TextMetricsService;
 import com.bytefuture.easy.poster.text.split.ITextSplitter;
 import com.bytefuture.easy.poster.text.split.SplitTextInfo;
 import com.bytefuture.easy.poster.text.split.TextSplitterSimpleImpl;
-import com.bytefuture.easy.poster.text.wrap.PlainTextWrapper;
-import com.bytefuture.easy.poster.text.wrap.ResolvedRichTextLines;
-import com.bytefuture.easy.poster.text.wrap.RichGlyph;
-import com.bytefuture.easy.poster.text.wrap.RichLine;
-import com.bytefuture.easy.poster.text.wrap.RichTextFragment;
-import com.bytefuture.easy.poster.text.wrap.RichTextWrapper;
+import com.bytefuture.easy.poster.text.wrap.*;
 
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +23,11 @@ public final class TextLayoutEngine {
     private static final RichTextWrapper RICH_WRAPPER = new RichTextWrapper();
     private static final TextMetricsService METRICS = new TextMetricsService();
     private static final DecorationMetricsResolver DECORATION = new DecorationMetricsResolver();
+    private static final TextDecorationInsets EMPTY_DECORATION_INSETS = new TextDecorationInsets(0, 0, 0, 0);
 
+    /**
+     * Calculate the final layout result for the current text element.
+     */
     public TextLayoutResult layout(TextElementConfig config, Position position, int rotate,
                                    PosterContext context, int posterWidth, int posterHeight) {
         if (config.isEmpty()) {
@@ -57,209 +36,144 @@ public final class TextLayoutEngine {
         return computeLayout(config, position, rotate, context, posterWidth, posterHeight);
     }
 
+    /**
+     * Dispatch layout work by content type first, then by layout direction.
+     */
     private TextLayoutResult computeLayout(TextElementConfig config, Position position, int rotate,
                                            PosterContext context, int posterWidth, int posterHeight) {
-        Font baseFont = resolveFont(config, context.getConfig());
+        Font baseFont = resolveBaseFont(config, context.getConfig());
         if (config.isVerticalLayout()) {
-            return computeVerticalLayout(config, position, rotate, context, posterWidth, posterHeight, baseFont);
+            return config.isRichText()
+                    ? layoutRichVertical(config, position, context, posterWidth, posterHeight, baseFont)
+                    : layoutPlainVertical(config, position, context, posterWidth, posterHeight, baseFont);
         }
-        if (config.isRichText()) {
-            return computeRichLayout(config, position, rotate, context, posterWidth, posterHeight, baseFont);
-        }
-        return computePlainLayout(config, position, rotate, context, posterWidth, posterHeight, baseFont);
+        return config.isRichText()
+                ? layoutRichHorizontal(config, position, context, posterWidth, posterHeight, baseFont)
+                : layoutPlainHorizontal(config, position, context, posterWidth, posterHeight, baseFont);
     }
 
-    private TextLayoutResult computePlainLayout(TextElementConfig config, Position position, int rotate,
-                                                PosterContext context, int posterWidth, int posterHeight,
-                                                Font baseFont) {
+    /**
+     * Layout plain text in horizontal mode.
+     */
+    private TextLayoutResult layoutPlainHorizontal(TextElementConfig config, Position position,
+                                                   PosterContext context, int posterWidth, int posterHeight,
+                                                   Font baseFont) {
         Graphics2D g = context.getGraphics();
         TextAlign resolvedTextAlign = resolveTextAlign(config, position);
         String text = normalizeText(config.getText());
         Font renderFont = resolveRenderFont(config, text, baseFont, g);
         FontMetrics fm = g.getFontMetrics(renderFont);
-
-        int lineHeight = config.getLineHeight() != null ? config.getLineHeight() : fm.getHeight();
+        int lineHeight = resolveLineHeight(config.getLineHeight(), fm.getHeight());
         int baselineOffset = METRICS.resolveBaselineOffset(fm, lineHeight);
+        TextRenderSpec renderSpec = buildRenderSpec(config, baseFont, resolvedTextAlign);
 
         ITextSplitter splitter = config.getTextSplitter() != null ? config.getTextSplitter() : DEFAULT_SPLITTER;
         PlainTextWrapper.ResolvedLines resolvedLines = PLAIN_WRAPPER.resolveLines(
-                buildRenderSpec(config, baseFont, resolvedTextAlign), text, fm, g, renderFont, splitter,
+                renderSpec, text, fm, g, renderFont, splitter,
                 createPlainMeasurer(config));
-
         TextDecorationInsets decorInsets = DECORATION.resolveTextInsets(
-                buildRenderSpec(config, baseFont, resolvedTextAlign), g, fm, lineHeight, baselineOffset);
-        TextPaddingInsets paddingInsets = new TextPaddingInsets(
-                config.getTextPadding().getMarginLeft(),
-                config.getTextPadding().getMarginTop(),
-                config.getTextPadding().getMarginRight(),
-                config.getTextPadding().getMarginBottom()
-        );
-
+                renderSpec, g, fm, lineHeight, baselineOffset);
+        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
         int textWidth = resolvedLines.getLayoutWidth();
         int textHeight = lineHeight * resolvedLines.getLines().size();
-        int bgWidth = textWidth + paddingInsets.getLeft() + paddingInsets.getRight();
-        int bgHeight = textHeight + paddingInsets.getTop() + paddingInsets.getBottom();
-        int totalWidth = bgWidth + decorInsets.getLeft() + decorInsets.getRight();
-        int totalHeight = bgHeight + decorInsets.getTop() + decorInsets.getBottom();
-
-        Point blockPoint = resolvePosition(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                textWidth, textHeight, config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets,
-                false);
-        Point contentPoint = Point.of(
-                blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
-                blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
-        );
-
+        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
+                baselineOffset, lineHeight, decorInsets, paddingInsets, textWidth, textHeight, false);
         List<LayoutLine> layoutLines = buildPlainLines(resolvedLines, contentPoint, resolvedTextAlign);
-
-        return new TextLayoutResult(
-                renderFont, config.getBaseLine(), resolvedTextAlign, TextLayoutMode.HORIZONTAL, getOverflowStrategy(config),
-                lineHeight, baselineOffset, blockPoint, totalWidth, totalHeight,
-                textWidth, textHeight, bgWidth, bgHeight,
-                layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
-                decorInsets, paddingInsets
-        );
+        return buildLayoutResult(renderFont, config.getBaseLine(), resolvedTextAlign, TextLayoutMode.HORIZONTAL,
+                resolveOverflowStrategy(config), lineHeight, baselineOffset, position, posterWidth, posterHeight,
+                textWidth, textHeight, layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
+                decorInsets, paddingInsets, false);
     }
 
-    private TextLayoutResult computeVerticalLayout(TextElementConfig config, Position position, int rotate,
-                                                   PosterContext context, int posterWidth, int posterHeight,
-                                                   Font baseFont) {
+    /**
+     * Layout plain text in vertical mode.
+     */
+    private TextLayoutResult layoutPlainVertical(TextElementConfig config, Position position,
+                                                 PosterContext context, int posterWidth, int posterHeight,
+                                                 Font baseFont) {
         Graphics2D g = context.getGraphics();
-        Font renderFont = resolveFont(config, context.getConfig());
+        Font renderFont = baseFont;
         FontMetrics fm = g.getFontMetrics(renderFont);
-        int lineHeight = config.getLineHeight() != null ? config.getLineHeight() : fm.getHeight();
+        int lineHeight = resolveLineHeight(config.getLineHeight(), fm.getHeight());
         int baselineOffset = METRICS.resolveBaselineOffset(fm, lineHeight);
-        List<Integer> columnWidths = new ArrayList<>();
-        int contentWidth = 0;
-        int contentHeight;
-        List<LayoutLine> layoutLines;
-
-        TextDecorationInsets decorInsets = new TextDecorationInsets(0, 0, 0, 0);
-        TextPaddingInsets paddingInsets = new TextPaddingInsets(
-                config.getTextPadding().getMarginLeft(),
-                config.getTextPadding().getMarginTop(),
-                config.getTextPadding().getMarginRight(),
-                config.getTextPadding().getMarginBottom()
-        );
-        int bgWidth = 0;
-        int bgHeight = 0;
-        int totalWidth = 0;
-        int totalHeight = 0;
-        Point blockPoint = Point.ORIGIN_COORDINATE;
-        Point contentPoint = Point.ORIGIN_COORDINATE;
-        if (config.isRichText()) {
-            List<List<VerticalGlyph>> richColumns = resolveVerticalRichColumns(config, renderFont, lineHeight, g);
-            contentHeight = resolveVerticalRichContentHeight(richColumns, config, lineHeight);
-            for (int i = 0; i < richColumns.size(); i++) {
-                int width = measureVerticalRichColumnWidth(richColumns.get(i));
-                columnWidths.add(width);
-                contentWidth += width;
-                if (i > 0) {
-                    contentWidth += config.getColumnSpacing();
-                }
-            }
-            bgWidth = contentWidth + paddingInsets.getLeft() + paddingInsets.getRight();
-            bgHeight = contentHeight + paddingInsets.getTop() + paddingInsets.getBottom();
-            totalWidth = bgWidth + decorInsets.getLeft() + decorInsets.getRight();
-            totalHeight = bgHeight + decorInsets.getTop() + decorInsets.getBottom();
-            blockPoint = resolvePosition(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                    contentWidth, contentHeight, config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets,
-                    true);
-            contentPoint = Point.of(
-                    blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
-                    blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
-            );
-            layoutLines = buildVerticalRichLines(richColumns, columnWidths, contentPoint, contentHeight,
-                    lineHeight, config.getVerticalAlign(), config.getVerticalDirection(), config.getColumnSpacing());
-        } else {
-            List<String> columns = resolveVerticalColumns(config, lineHeight);
-            contentHeight = resolveVerticalContentHeight(columns, config, lineHeight);
-            for (int i = 0; i < columns.size(); i++) {
-                int width = measureVerticalColumnWidth(columns.get(i), fm);
-                columnWidths.add(width);
-                contentWidth += width;
-                if (i > 0) {
-                    contentWidth += config.getColumnSpacing();
-                }
-            }
-            bgWidth = contentWidth + paddingInsets.getLeft() + paddingInsets.getRight();
-            bgHeight = contentHeight + paddingInsets.getTop() + paddingInsets.getBottom();
-            totalWidth = bgWidth + decorInsets.getLeft() + decorInsets.getRight();
-            totalHeight = bgHeight + decorInsets.getTop() + decorInsets.getBottom();
-            blockPoint = resolvePosition(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                    contentWidth, contentHeight, config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets,
-                    true);
-            contentPoint = Point.of(
-                    blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
-                    blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
-            );
-            layoutLines = buildVerticalLines(columns, columnWidths, contentPoint, contentHeight,
-                    lineHeight, baselineOffset, fm, config.getVerticalAlign(), config.getVerticalDirection(),
-                    config.getColumnSpacing());
-        }
-
-        return new TextLayoutResult(
-                renderFont, config.getBaseLine(), TextAlign.LEFT, TextLayoutMode.VERTICAL, TextOverflowStrategy.VISIBLE,
-                lineHeight, baselineOffset, blockPoint, totalWidth, totalHeight,
-                contentWidth, contentHeight, bgWidth, bgHeight,
-                layoutLines, false, false, decorInsets, paddingInsets
-        );
+        List<String> columns = resolveVerticalColumns(config, lineHeight);
+        List<Integer> columnWidths = measureVerticalColumnWidths(columns, fm);
+        int contentWidth = resolveColumnBlockWidth(columnWidths, config.getColumnSpacing());
+        int contentHeight = resolveVerticalContentHeight(columns, config, lineHeight);
+        TextDecorationInsets decorInsets = EMPTY_DECORATION_INSETS;
+        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
+        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
+                baselineOffset, lineHeight, decorInsets, paddingInsets, contentWidth, contentHeight, true);
+        List<LayoutLine> layoutLines = buildVerticalLines(columns, columnWidths, contentPoint, contentHeight,
+                lineHeight, baselineOffset, fm, config.getVerticalAlign(), config.getVerticalDirection(),
+                config.getColumnSpacing());
+        return buildLayoutResult(renderFont, config.getBaseLine(), TextAlign.LEFT, TextLayoutMode.VERTICAL,
+                TextOverflowStrategy.VISIBLE, lineHeight, baselineOffset, position, posterWidth, posterHeight,
+                contentWidth, contentHeight, layoutLines, false, false, decorInsets, paddingInsets, true);
     }
 
-    private TextLayoutResult computeRichLayout(TextElementConfig config, Position position, int rotate,
-                                               PosterContext context, int posterWidth, int posterHeight,
-                                               Font baseFont) {
+    /**
+     * Layout rich text in horizontal mode.
+     */
+    private TextLayoutResult layoutRichHorizontal(TextElementConfig config, Position position,
+                                                  PosterContext context, int posterWidth, int posterHeight,
+                                                  Font baseFont) {
         Graphics2D g = context.getGraphics();
         TextAlign resolvedTextAlign = resolveTextAlign(config, position);
-
         TextRenderSpec renderSpec = config.isAutoFitText()
                 ? resolveRichAutoFitRenderSpec(config, baseFont, g, resolvedTextAlign)
                 : buildRenderSpec(config, baseFont, resolvedTextAlign);
         Font renderFont = renderSpec.getBaseFont();
-
         int lineHeight = resolveRichLineHeight(renderSpec, g);
         int baselineOffset = resolveRichBaselineOffset(renderSpec, g, lineHeight);
         ResolvedRichTextLines resolvedLines = RICH_WRAPPER.resolveRichTextLines(
-                renderSpec, g, getOverflowStrategy(config), createRichMeasurer(g));
-
+                renderSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
         List<RichLine> richLines = resolvedLines.getLines();
         TextDecorationInsets decorInsets = DECORATION.resolveRichTextInsets(
                 renderSpec, g, renderFont, lineHeight, baselineOffset, richLines);
-        TextPaddingInsets paddingInsets = new TextPaddingInsets(
-                config.getTextPadding().getMarginLeft(),
-                config.getTextPadding().getMarginTop(),
-                config.getTextPadding().getMarginRight(),
-                config.getTextPadding().getMarginBottom()
-        );
-
+        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
         int textWidth = resolvedLines.getLayoutWidth();
         int textHeight = lineHeight * richLines.size();
-        int bgWidth = textWidth + paddingInsets.getLeft() + paddingInsets.getRight();
-        int bgHeight = textHeight + paddingInsets.getTop() + paddingInsets.getBottom();
-        int totalWidth = bgWidth + decorInsets.getLeft() + decorInsets.getRight();
-        int totalHeight = bgHeight + decorInsets.getTop() + decorInsets.getBottom();
-
-        Point blockPoint = resolvePosition(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                textWidth, textHeight, config.getBaseLine(), baselineOffset, lineHeight, decorInsets, paddingInsets,
-                false);
-        Point contentPoint = Point.of(
-                blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
-                blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
-        );
-
+        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
+                baselineOffset, lineHeight, decorInsets, paddingInsets, textWidth, textHeight, false);
         List<LayoutLine> layoutLines = buildRichLines(richLines, contentPoint, textWidth,
                 resolvedTextAlign, resolvedLines, config.getLetterSpacing());
-
-        return new TextLayoutResult(
-                renderFont, config.getBaseLine(), resolvedTextAlign, TextLayoutMode.HORIZONTAL, getOverflowStrategy(config),
-                lineHeight, baselineOffset, blockPoint, totalWidth, totalHeight,
-                textWidth, textHeight, bgWidth, bgHeight,
-                layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
-                decorInsets, paddingInsets
-        );
+        return buildLayoutResult(renderFont, config.getBaseLine(), resolvedTextAlign, TextLayoutMode.HORIZONTAL,
+                resolveOverflowStrategy(config), lineHeight, baselineOffset, position, posterWidth, posterHeight,
+                textWidth, textHeight, layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
+                decorInsets, paddingInsets, false);
     }
 
-    private Font resolveFont(TextElementConfig config, Config globalConfig) {
+    /**
+     * Layout rich text in vertical mode.
+     */
+    private TextLayoutResult layoutRichVertical(TextElementConfig config, Position position,
+                                                PosterContext context, int posterWidth, int posterHeight,
+                                                Font baseFont) {
+        Graphics2D g = context.getGraphics();
+        Font renderFont = baseFont;
+        FontMetrics fm = g.getFontMetrics(renderFont);
+        int lineHeight = resolveLineHeight(config.getLineHeight(), fm.getHeight());
+        int baselineOffset = METRICS.resolveBaselineOffset(fm, lineHeight);
+        List<List<VerticalGlyph>> columns = resolveVerticalRichColumns(config, renderFont, lineHeight, g);
+        List<Integer> columnWidths = measureVerticalRichColumnWidths(columns);
+        int contentWidth = resolveColumnBlockWidth(columnWidths, config.getColumnSpacing());
+        int contentHeight = resolveVerticalRichContentHeight(columns, config, lineHeight);
+        TextDecorationInsets decorInsets = EMPTY_DECORATION_INSETS;
+        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
+        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
+                baselineOffset, lineHeight, decorInsets, paddingInsets, contentWidth, contentHeight, true);
+        List<LayoutLine> layoutLines = buildVerticalRichLines(columns, columnWidths, contentPoint, contentHeight,
+                lineHeight, config.getVerticalAlign(), config.getVerticalDirection(), config.getColumnSpacing());
+        return buildLayoutResult(renderFont, config.getBaseLine(), TextAlign.LEFT, TextLayoutMode.VERTICAL,
+                TextOverflowStrategy.VISIBLE, lineHeight, baselineOffset, position, posterWidth, posterHeight,
+                contentWidth, contentHeight, layoutLines, false, false, decorInsets, paddingInsets, true);
+    }
+
+    /**
+     * Resolve the base font used by the current text block.
+     */
+    private Font resolveBaseFont(TextElementConfig config, Config globalConfig) {
         if (config.getFont() != null) {
             return config.getFont();
         }
@@ -310,11 +224,36 @@ public final class TextLayoutEngine {
         return bestFont;
     }
 
-    private Point resolvePosition(Position position, int posterWidth, int posterHeight,
-                                  int totalWidth, int totalHeight, int contentWidth, int contentHeight,
-                                  BaseLine baseLine, int baselineOffset, int lineHeight,
-                                  TextDecorationInsets decorInsets, TextPaddingInsets paddingInsets,
-                                  boolean verticalLayout) {
+    /**
+     * Build the final result from shared box metrics instead of repeating width/height math per branch.
+     */
+    private TextLayoutResult buildLayoutResult(Font font, BaseLine baseLine, TextAlign textAlign,
+                                               TextLayoutMode textLayoutMode, TextOverflowStrategy overflowStrategy,
+                                               int lineHeight, int baselineOffset, Position position,
+                                               int posterWidth, int posterHeight, int contentWidth, int contentHeight,
+                                               List<LayoutLine> lines, boolean truncated, boolean clipOverflow,
+                                               TextDecorationInsets decorInsets, TextPaddingInsets paddingInsets,
+                                               boolean verticalLayout) {
+        int backgroundWidth = contentWidth + paddingInsets.getLeft() + paddingInsets.getRight();
+        int backgroundHeight = contentHeight + paddingInsets.getTop() + paddingInsets.getBottom();
+        int totalWidth = backgroundWidth + decorInsets.getLeft() + decorInsets.getRight();
+        int totalHeight = backgroundHeight + decorInsets.getTop() + decorInsets.getBottom();
+        Point blockPoint = resolveBlockPoint(position, posterWidth, posterHeight, totalWidth, totalHeight,
+                contentWidth, contentHeight, baseLine, baselineOffset, lineHeight, decorInsets, paddingInsets, verticalLayout);
+        return new TextLayoutResult(font, baseLine, textAlign, textLayoutMode, overflowStrategy,
+                lineHeight, baselineOffset, blockPoint, totalWidth, totalHeight,
+                contentWidth, contentHeight, backgroundWidth, backgroundHeight,
+                lines, truncated, clipOverflow, decorInsets, paddingInsets);
+    }
+
+    /**
+     * Resolve the top-left drawing origin of the whole text block.
+     */
+    private Point resolveBlockPoint(Position position, int posterWidth, int posterHeight,
+                                    int totalWidth, int totalHeight, int contentWidth, int contentHeight,
+                                    BaseLine baseLine, int baselineOffset, int lineHeight,
+                                    TextDecorationInsets decorInsets, TextPaddingInsets paddingInsets,
+                                    boolean verticalLayout) {
         if (position instanceof AbsolutePosition) {
             Point anchor = position.calculate(posterWidth, posterHeight, contentWidth, contentHeight);
             if (verticalLayout) {
@@ -333,6 +272,38 @@ public final class TextLayoutEngine {
             return position.calculate(posterWidth, posterHeight, totalWidth, totalHeight);
         }
         return Point.ORIGIN_COORDINATE;
+    }
+
+    /**
+     * Resolve the top-left content point so line builders do not repeat the same offset math.
+     */
+    private Point resolveContentPoint(Position position, int posterWidth, int posterHeight, BaseLine baseLine,
+                                      int baselineOffset, int lineHeight, TextDecorationInsets decorInsets,
+                                      TextPaddingInsets paddingInsets, int contentWidth, int contentHeight,
+                                      boolean verticalLayout) {
+        int totalWidth = contentWidth + paddingInsets.getLeft() + paddingInsets.getRight()
+                + decorInsets.getLeft() + decorInsets.getRight();
+        int totalHeight = contentHeight + paddingInsets.getTop() + paddingInsets.getBottom()
+                + decorInsets.getTop() + decorInsets.getBottom();
+        Point blockPoint = resolveBlockPoint(position, posterWidth, posterHeight, totalWidth, totalHeight,
+                contentWidth, contentHeight, baseLine, baselineOffset, lineHeight, decorInsets, paddingInsets, verticalLayout);
+        return Point.of(
+                blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
+                blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
+        );
+    }
+
+    private int resolveLineHeight(Integer configuredLineHeight, int defaultLineHeight) {
+        return configuredLineHeight != null ? configuredLineHeight : defaultLineHeight;
+    }
+
+    private TextPaddingInsets resolvePaddingInsets(TextElementConfig config) {
+        return new TextPaddingInsets(
+                config.getTextPadding().getMarginLeft(),
+                config.getTextPadding().getMarginTop(),
+                config.getTextPadding().getMarginRight(),
+                config.getTextPadding().getMarginBottom()
+        );
     }
 
     private int resolveBaselineOffset(BaseLine baseLine, int baselineOffset, int lineHeight) {
@@ -665,7 +636,10 @@ public final class TextLayoutEngine {
         return line.getText() != null && line.getText().contains(" ");
     }
 
-    private TextOverflowStrategy getOverflowStrategy(TextElementConfig config) {
+    /**
+     * Resolve the effective overflow strategy from explicit config or width control mode.
+     */
+    private TextOverflowStrategy resolveOverflowStrategy(TextElementConfig config) {
         if (config.getOverflowStrategy() != null) return config.getOverflowStrategy();
         if (config.isAutoWordWrap()) return TextOverflowStrategy.WRAP;
         return TextOverflowStrategy.VISIBLE;
@@ -695,7 +669,7 @@ public final class TextLayoutEngine {
         return new TextRenderSpec(
                 config.getText(), textSpans, null,
                 java.awt.Color.BLACK, baseFont, config.getBaseLine(), lineHeight,
-                resolvedTextAlign, getOverflowStrategy(config), config.getMaxLines(),
+                resolvedTextAlign, resolveOverflowStrategy(config), config.getMaxLines(),
                 config.getEllipsis(), config.getShadow(), config.getStroke(),
                 config.getLetterSpacing(), config.getTextBackgroundColor(), config.getTextPadding(),
                 config.getTextBackgroundArcWidth(), config.getTextBackgroundArcHeight(),
@@ -870,7 +844,7 @@ public final class TextLayoutEngine {
                                                         TextAlign resolvedTextAlign) {
         TextRenderSpec baseSpec = buildRenderSpec(config, baseFont, resolvedTextAlign);
         ResolvedRichTextLines baseLines = RICH_WRAPPER.resolveRichTextLines(
-                baseSpec, g, getOverflowStrategy(config), createRichMeasurer(g));
+                baseSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
         if (baseLines.getLayoutWidth() <= config.getAutoFitTargetWidth()) {
             return baseSpec;
         }
@@ -878,7 +852,7 @@ public final class TextLayoutEngine {
         float minScale = resolveRichAutoFitMinScale(config, baseFont);
         TextRenderSpec minSpec = scaleRichRenderSpec(config, baseFont, resolvedTextAlign, minScale);
         ResolvedRichTextLines minLines = RICH_WRAPPER.resolveRichTextLines(
-                minSpec, g, getOverflowStrategy(config), createRichMeasurer(g));
+                minSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
         if (minLines.getLayoutWidth() > config.getAutoFitTargetWidth()) {
             return minSpec;
         }
@@ -890,7 +864,7 @@ public final class TextLayoutEngine {
             float mid = (low + high) / 2F;
             TextRenderSpec candidateSpec = scaleRichRenderSpec(config, baseFont, resolvedTextAlign, mid);
             ResolvedRichTextLines candidateLines = RICH_WRAPPER.resolveRichTextLines(
-                    candidateSpec, g, getOverflowStrategy(config), createRichMeasurer(g));
+                    candidateSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
             if (candidateLines.getLayoutWidth() <= config.getAutoFitTargetWidth()) {
                 bestSpec = candidateSpec;
                 low = mid;
@@ -1017,5 +991,38 @@ public final class TextLayoutEngine {
             width = Math.max(width, fm.stringWidth(glyph));
         }
         return width;
+    }
+
+    /**
+     * Measure each plain vertical column width once, then reuse the result for box calculation and line building.
+     */
+    private List<Integer> measureVerticalColumnWidths(List<String> columns, FontMetrics fm) {
+        List<Integer> columnWidths = new ArrayList<>(columns.size());
+        for (String column : columns) {
+            columnWidths.add(measureVerticalColumnWidth(column, fm));
+        }
+        return columnWidths;
+    }
+
+    /**
+     * Measure each rich vertical column width once, then reuse the result for box calculation and line building.
+     */
+    private List<Integer> measureVerticalRichColumnWidths(List<List<VerticalGlyph>> columns) {
+        List<Integer> columnWidths = new ArrayList<>(columns.size());
+        for (List<VerticalGlyph> column : columns) {
+            columnWidths.add(measureVerticalRichColumnWidth(column));
+        }
+        return columnWidths;
+    }
+
+    private int resolveColumnBlockWidth(List<Integer> columnWidths, int columnSpacing) {
+        int contentWidth = 0;
+        for (int i = 0; i < columnWidths.size(); i++) {
+            contentWidth += columnWidths.get(i);
+            if (i > 0) {
+                contentWidth += columnSpacing;
+            }
+        }
+        return contentWidth;
     }
 }
