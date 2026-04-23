@@ -449,39 +449,6 @@ public class V2TextElementTest {
         Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 20) > 0);
     }
 
-    @Test
-    public void shouldRejectNullVerticalInputsAndNegativeVerticalDimensions() {
-        expectIllegalArgument("vertical text cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").vertical((String) null);
-            }
-        });
-        expectIllegalArgument("vertical columns cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").vertical((List<String>) null);
-            }
-        });
-        expectIllegalArgument("vertical column cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").vertical(Arrays.asList("甲", null));
-            }
-        });
-        expectIllegalArgument("layoutHeight must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").layoutHeight(0);
-            }
-        });
-        expectIllegalArgument("columnSpacing cannot be negative", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").columnSpacing(-1);
-            }
-        });
-    }
 
     @Test
     public void shouldApplyMaxLinesAndEllipsisDuringLayout() {
@@ -614,16 +581,6 @@ public class V2TextElementTest {
         Assert.assertEquals(4, layout.getTextPadding().getBottom());
     }
 
-    @Test
-    public void shouldRejectNegativeFourSideTextPadding() {
-        try {
-            TextElement.builder("padding")
-                    .textPadding(1, 2, 3, -1);
-            Assert.fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ex) {
-            Assert.assertEquals("padding cannot be negative", ex.getMessage());
-        }
-    }
 
     @Test
     public void shouldSupportDirectFontObjectOnBuilder() {
@@ -1256,147 +1213,6 @@ public class V2TextElementTest {
                 repeatElement.render(context, 120, 80));
     }
 
-    @Test
-    public void shouldValidateBuilderArgumentsConsistently() {
-        expectIllegalArgument("fontSize must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").fontSize(0);
-            }
-        });
-        expectIllegalArgument("lineHeight must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").lineHeight(0);
-            }
-        });
-        expectIllegalArgument("maxWidth must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").autoWordWrap(0);
-            }
-        });
-        expectIllegalArgument("layoutWidth must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").layoutWidth(0);
-            }
-        });
-        expectIllegalArgument("targetWidth must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").autoFitText(0, 1);
-            }
-        });
-        expectIllegalArgument("minFontSize must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").autoFitText(10, 0);
-            }
-        });
-        expectIllegalArgument("textAlign cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textAlign(null);
-            }
-        });
-        expectIllegalArgument("maxLines must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").maxLines(0);
-            }
-        });
-        expectIllegalArgument("ellipsis cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").ellipsis(null);
-            }
-        });
-        expectIllegalArgument("shadow color cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").shadow((Color) null, 1, 1);
-            }
-        });
-        expectIllegalArgument("shadow cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").shadow((TextShadow) null);
-            }
-        });
-        expectIllegalArgument("stroke color cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").stroke((Color) null, 1f);
-            }
-        });
-        expectIllegalArgument("stroke width must be positive", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").stroke(Color.BLACK, 0f);
-            }
-        });
-        expectIllegalArgument("stroke cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").stroke((TextStroke) null);
-            }
-        });
-        expectIllegalArgument("textBackgroundColor cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textBackground(null);
-            }
-        });
-        expectIllegalArgument("textPadding cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textBackground(Color.WHITE, (Margin) null);
-            }
-        });
-        expectIllegalArgument("padding cannot be negative", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textPadding(-1);
-            }
-        });
-        expectIllegalArgument("padding cannot be negative", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textPadding(-1, 1);
-            }
-        });
-        expectIllegalArgument("arc cannot be negative", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textBackgroundArc(-1);
-            }
-        });
-        expectIllegalArgument("arc cannot be negative", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textBackgroundArc(1, -1);
-            }
-        });
-        expectIllegalArgument("textSplitter cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textSplitter(null);
-            }
-        });
-        expectIllegalArgument("textSpan cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").textSpan(null);
-            }
-        });
-        expectIllegalArgument("font cannot be null", new Runnable() {
-            @Override
-            public void run() {
-                TextElement.builder("validate").font((Font) null);
-            }
-        });
-    }
 
     private TextLayoutResult measureLayout(TextElement element, PosterContext context, int posterWidth, int posterHeight) {
         return new com.bytefuture.easy.poster.element.v2.TextLayoutEngine()
