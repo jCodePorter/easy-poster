@@ -84,8 +84,8 @@ public final class RichTextWrapper {
         Font baseFont = spec.getBaseFont();
         if (spec.getText() != null && !spec.getText().isEmpty()) {
             // 兼容普通文本与富文本片段混合输入。
-            spans.add(new ResolvedTextSpan(spec.getText(), baseFont, defaultColor,
-                    spec.isUnderline(), spec.isStrikeThrough()));
+            spans.add(new ResolvedTextSpan(spec.getText(), baseFont, defaultColor, null,
+                    spec.getShadow(), spec.getStroke(), 0, spec.isUnderline(), spec.isStrikeThrough()));
         }
         for (TextSpan textSpan : spec.getTextSpans()) {
             spans.add(resolveTextSpan(spec, textSpan, baseFont, defaultColor));
@@ -98,13 +98,22 @@ public final class RichTextWrapper {
         // span 未设置的样式字段回退到元素级默认样式。
         int resolvedStyle = textSpan.getFontStyle() != null ? textSpan.getFontStyle() : baseFont.getStyle();
         int resolvedSize = textSpan.getFontSize() != null ? textSpan.getFontSize() : Math.round(baseFont.getSize2D());
-        Font spanFont = resolvedStyle == baseFont.getStyle() && resolvedSize == Math.round(baseFont.getSize2D())
-                ? baseFont
-                : baseFont.deriveFont(resolvedStyle, (float) resolvedSize);
+        Font spanFont;
+        if (textSpan.getFontName() != null) {
+            spanFont = new Font(textSpan.getFontName(), resolvedStyle, resolvedSize);
+        } else if (resolvedStyle == baseFont.getStyle() && resolvedSize == Math.round(baseFont.getSize2D())) {
+            spanFont = baseFont;
+        } else {
+            spanFont = baseFont.deriveFont(resolvedStyle, (float) resolvedSize);
+        }
         Color spanColor = textSpan.getColor() != null ? textSpan.getColor() : defaultColor;
         boolean spanUnderline = textSpan.getUnderline() != null ? textSpan.getUnderline() : spec.isUnderline();
         boolean spanStrikeThrough = textSpan.getStrikeThrough() != null ? textSpan.getStrikeThrough() : spec.isStrikeThrough();
-        return new ResolvedTextSpan(textSpan.getText(), spanFont, spanColor, spanUnderline, spanStrikeThrough);
+        return new ResolvedTextSpan(textSpan.getText(), spanFont, spanColor, textSpan.getBackgroundColor(),
+                textSpan.getShadow() != null ? textSpan.getShadow() : spec.getShadow(),
+                textSpan.getStroke() != null ? textSpan.getStroke() : spec.getStroke(),
+                textSpan.getBaselineShift() != null ? textSpan.getBaselineShift() : 0,
+                spanUnderline, spanStrikeThrough);
     }
 
     private List<RichToken> tokenizeRichText(TextRenderSpec spec,
@@ -131,7 +140,9 @@ public final class RichTextWrapper {
                 String currentText = String.valueOf(current);
                 RichGlyph glyph = new RichGlyph(currentText,
                         measurer.measureBaseStringWidth(currentText, fontMetrics, graphics),
-                        span.getFont(), span.getColor(), span.isUnderline(), span.isStrikeThrough());
+                        span.getFont(), span.getColor(), span.getBackgroundColor(),
+                        span.getShadow(), span.getStroke(), span.getBaselineShift(),
+                        span.isUnderline(), span.isStrikeThrough());
                 RichTokenType currentType = resolveRichTokenType(current);
                 if (currentType == RichTokenType.WORD
                         || currentType == RichTokenType.WHITESPACE) {
@@ -389,6 +400,8 @@ public final class RichTextWrapper {
                 if (fragmentStyle != null) {
                     fragments.add(new RichTextFragment(fragmentText.toString(), fragmentStartX,
                             fragmentWidth, fragmentStyle.getFont(), fragmentStyle.getColor(),
+                            fragmentStyle.getBackgroundColor(), fragmentStyle.getShadow(),
+                            fragmentStyle.getStroke(), fragmentStyle.getBaselineShift(),
                             fragmentStyle.isUnderline(), fragmentStyle.isStrikeThrough()));
                 }
                 fragmentStyle = glyph;
@@ -407,6 +420,8 @@ public final class RichTextWrapper {
         if (fragmentStyle != null) {
             fragments.add(new RichTextFragment(fragmentText.toString(), fragmentStartX,
                     fragmentWidth, fragmentStyle.getFont(), fragmentStyle.getColor(),
+                    fragmentStyle.getBackgroundColor(), fragmentStyle.getShadow(),
+                    fragmentStyle.getStroke(), fragmentStyle.getBaselineShift(),
                     fragmentStyle.isUnderline(), fragmentStyle.isStrikeThrough()));
         }
         return new RichLine(textBuilder.toString(), currentX, fragments, copiedGlyphs);

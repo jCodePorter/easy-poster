@@ -171,6 +171,9 @@ public final class TextElementConfig {
      */
     public boolean isEmpty() {
         if (isVerticalLayout()) {
+            if (isRichText()) {
+                return false;
+            }
             return (verticalText == null || verticalText.isEmpty()) && verticalColumns.isEmpty();
         }
         return (text == null || text.isEmpty()) && textSpans.isEmpty();

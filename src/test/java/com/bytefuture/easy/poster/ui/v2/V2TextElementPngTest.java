@@ -289,6 +289,41 @@ public class V2TextElementPngTest {
      * 富文本显式换行
      */
     @Test
+    public void shouldRenderPlainTextBlockGradientToPng() {
+        EasyPoster poster = newPoster(760, 340);
+        addPanel(poster, 40, 40, 300, 240, new Color(246, 249, 255));
+        addPanel(poster, 400, 40, 300, 240, new Color(255, 249, 242));
+
+        addLabel(poster, "solid fill", 60, 64);
+        addLabel(poster, "block gradient fill", 420, 64);
+
+        String wrappedCopy = "Block gradient should flow across the full wrapped text area instead of restarting on each line.";
+        poster.addElement(TextElement.builder(wrappedCopy)
+                .font("Dialog", Font.BOLD, 24)
+                .color(new Color(44, 62, 80))
+                .autoWordWrap(220)
+                .lineHeight(38)
+                .textBackground(new Color(255, 255, 255), 18)
+                .textBackgroundArc(18)
+                .position(AbsolutePosition.of(Point.of(76, 106), Direction.TOP_LEFT))
+                .build());
+        poster.addElement(TextElement.builder(wrappedCopy)
+                .font("Dialog", Font.BOLD, 24)
+                .gradient(Gradient.of(new String[]{"#ff6b6b", "#4dabf7"}, GradientDirection.LEFT_RIGHT))
+                .autoWordWrap(220)
+                .lineHeight(38)
+                .textBackground(new Color(255, 255, 255), 18)
+                .textBackgroundArc(18)
+                .position(AbsolutePosition.of(Point.of(436, 106), Direction.TOP_LEFT))
+                .build());
+
+        poster.asFile("png", "out_v2_text_plain_block_gradient.png");
+    }
+
+    /**
+     * 瀵屾枃鏈樉寮忔崲琛?
+     */
+    @Test
     public void shouldRenderRichTextExplicitNewLinesToPng() {
         EasyPoster poster = newPoster(520, 260);
         poster.addElement(TextElement.builder(

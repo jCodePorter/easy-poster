@@ -158,11 +158,20 @@ public final class HtmlTextSpanParser {
             if (state.getColor() != null) {
                 span.setColor(state.getColor());
             }
+            if (state.getBackgroundColor() != null) {
+                span.setBackgroundColor(state.getBackgroundColor());
+            }
+            if (state.getFontName() != null) {
+                span.setFontName(state.getFontName());
+            }
             if (state.getFontStyle() != null) {
                 span.setFontStyle(state.getFontStyle());
             }
             if (state.getFontSize() != null) {
                 span.setFontSize(state.getFontSize());
+            }
+            if (state.getBaselineShift() != null) {
+                span.setBaselineShift(state.getBaselineShift().intValue());
             }
             if (Boolean.TRUE.equals(state.getUnderline())) {
                 span.setUnderline(true);
@@ -216,8 +225,11 @@ public final class HtmlTextSpanParser {
 
         private boolean hasSameStyle(TextSpan left, TextSpan right) {
             return sameColor(left.getColor(), right.getColor())
+                    && sameColor(left.getBackgroundColor(), right.getBackgroundColor())
                     && sameInteger(left.getFontStyle(), right.getFontStyle())
                     && sameInteger(left.getFontSize(), right.getFontSize())
+                    && sameString(left.getFontName(), right.getFontName())
+                    && sameInteger(left.getBaselineShift(), right.getBaselineShift())
                     && sameBoolean(left.getUnderline(), right.getUnderline())
                     && sameBoolean(left.getStrikeThrough(), right.getStrikeThrough());
         }
@@ -230,6 +242,10 @@ public final class HtmlTextSpanParser {
             return left == null ? right == null : left.equals(right);
         }
 
+        private boolean sameString(String left, String right) {
+            return left == null ? right == null : left.equals(right);
+        }
+
         private boolean sameBoolean(Boolean left, Boolean right) {
             return left == null ? right == null : left.equals(right);
         }
@@ -238,11 +254,20 @@ public final class HtmlTextSpanParser {
             if (source.getColor() != null) {
                 target.setColor(source.getColor());
             }
+            if (source.getBackgroundColor() != null) {
+                target.setBackgroundColor(source.getBackgroundColor());
+            }
+            if (source.getFontName() != null) {
+                target.setFontName(source.getFontName());
+            }
             if (source.getFontStyle() != null) {
                 target.setFontStyle(source.getFontStyle());
             }
             if (source.getFontSize() != null) {
                 target.setFontSize(source.getFontSize());
+            }
+            if (source.getBaselineShift() != null) {
+                target.setBaselineShift(source.getBaselineShift().intValue());
             }
             if (source.getUnderline() != null) {
                 target.setUnderline(source.getUnderline());
@@ -255,28 +280,38 @@ public final class HtmlTextSpanParser {
 
     private static final class HtmlStyleState {
         private final Color color;
+        private final Color backgroundColor;
+        private final String fontName;
         private final Integer fontStyle;
         private final Integer fontSize;
+        private final Integer baselineShift;
         private final Boolean underline;
         private final Boolean strikeThrough;
 
-        private HtmlStyleState(Color color, Integer fontStyle, Integer fontSize,
+        private HtmlStyleState(Color color, Color backgroundColor, String fontName,
+                               Integer fontStyle, Integer fontSize, Integer baselineShift,
                                Boolean underline, Boolean strikeThrough) {
             this.color = color;
+            this.backgroundColor = backgroundColor;
+            this.fontName = fontName;
             this.fontStyle = fontStyle;
             this.fontSize = fontSize;
+            this.baselineShift = baselineShift;
             this.underline = underline;
             this.strikeThrough = strikeThrough;
         }
 
         public static HtmlStyleState empty() {
-            return new HtmlStyleState(null, null, null, null, null);
+            return new HtmlStyleState(null, null, null, null, null, null, null, null);
         }
 
         public HtmlStyleState derive(HTML.Tag tag, MutableAttributeSet attributeSet) {
             Color nextColor = this.color;
+            Color nextBackgroundColor = this.backgroundColor;
+            String nextFontName = this.fontName;
             Integer nextFontStyle = this.fontStyle;
             Integer nextFontSize = this.fontSize;
+            Integer nextBaselineShift = this.baselineShift;
             Boolean nextUnderline = this.underline;
             Boolean nextStrikeThrough = this.strikeThrough;
 
@@ -288,6 +323,16 @@ public final class HtmlTextSpanParser {
                 nextUnderline = Boolean.TRUE;
             } else if (tag == HTML.Tag.S || tag == HTML.Tag.STRIKE) {
                 nextStrikeThrough = Boolean.TRUE;
+            } else if (tag == HTML.Tag.SUP) {
+                nextBaselineShift = Integer.valueOf(-6);
+                nextFontSize = shrinkFontSize(nextFontSize);
+            } else if (tag == HTML.Tag.SUB) {
+                nextBaselineShift = Integer.valueOf(6);
+                nextFontSize = shrinkFontSize(nextFontSize);
+            } else if (tag == HTML.Tag.CODE) {
+                nextFontName = "Monospaced";
+            } else if (tag == HTML.Tag.SMALL) {
+                nextFontSize = shrinkFontSize(nextFontSize);
             } else if (tag == HTML.Tag.FONT) {
                 Object colorAttr = attributeSet.getAttribute(HTML.Attribute.COLOR);
                 if (colorAttr != null) {
@@ -314,16 +359,27 @@ public final class HtmlTextSpanParser {
                         continue;
                     }
                     String key = kv[0].trim().toLowerCase(Locale.ROOT);
-                    String value = kv[1].trim().toLowerCase(Locale.ROOT);
+                    String rawValue = kv[1].trim();
+                    String value = rawValue.toLowerCase(Locale.ROOT);
                     if ("color".equals(key)) {
                         Color parsedColor = parseColor(value);
                         if (parsedColor != null) {
                             nextColor = parsedColor;
                         }
+                    } else if ("background-color".equals(key)) {
+                        Color parsedColor = parseColor(value);
+                        if (parsedColor != null) {
+                            nextBackgroundColor = parsedColor;
+                        }
                     } else if ("font-size".equals(key)) {
                         Integer parsedSize = parseCssFontSize(value);
                         if (parsedSize != null) {
                             nextFontSize = parsedSize;
+                        }
+                    } else if ("font-family".equals(key)) {
+                        String parsedFontFamily = parseCssFontFamily(rawValue);
+                        if (parsedFontFamily != null) {
+                            nextFontName = parsedFontFamily;
                         }
                     } else if ("font-weight".equals(key)) {
                         if (value.contains("bold")) {
@@ -353,11 +409,20 @@ public final class HtmlTextSpanParser {
                 }
             }
 
-            return new HtmlStyleState(nextColor, nextFontStyle, nextFontSize, nextUnderline, nextStrikeThrough);
+            return new HtmlStyleState(nextColor, nextBackgroundColor, nextFontName,
+                    nextFontStyle, nextFontSize, nextBaselineShift, nextUnderline, nextStrikeThrough);
         }
 
         public Color getColor() {
             return this.color;
+        }
+
+        public Color getBackgroundColor() {
+            return this.backgroundColor;
+        }
+
+        public String getFontName() {
+            return this.fontName;
         }
 
         public Integer getFontStyle() {
@@ -366,6 +431,10 @@ public final class HtmlTextSpanParser {
 
         public Integer getFontSize() {
             return this.fontSize;
+        }
+
+        public Integer getBaselineShift() {
+            return this.baselineShift;
         }
 
         public Boolean getUnderline() {
@@ -378,6 +447,11 @@ public final class HtmlTextSpanParser {
 
         private Integer appendFontStyle(Integer currentStyle, int styleFlag) {
             return Integer.valueOf((currentStyle == null ? Font.PLAIN : currentStyle.intValue()) | styleFlag);
+        }
+
+        private Integer shrinkFontSize(Integer currentSize) {
+            int size = currentSize != null ? currentSize.intValue() : 16;
+            return Integer.valueOf(Math.max(10, Math.round(size * 0.8f)));
         }
 
         private Color parseColor(String value) {
@@ -431,6 +505,15 @@ public final class HtmlTextSpanParser {
                 return null;
             }
             return Integer.valueOf(Integer.parseInt(digits));
+        }
+
+        private String parseCssFontFamily(String value) {
+            String normalized = value.replace("'", "").replace("\"", "").trim();
+            if (normalized.isEmpty()) {
+                return null;
+            }
+            int comma = normalized.indexOf(',');
+            return comma >= 0 ? normalized.substring(0, comma).trim() : normalized;
         }
 
         private Integer parseHtmlFontSize(String value) {

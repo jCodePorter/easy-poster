@@ -19,6 +19,16 @@ public class TextSpan {
 
     private Integer fontSize;
 
+    private String fontName;
+
+    private Color backgroundColor;
+
+    private TextShadow shadow;
+
+    private TextStroke stroke;
+
+    private Integer baselineShift;
+
     private Boolean underline;
 
     private Boolean strikeThrough;
@@ -49,6 +59,43 @@ public class TextSpan {
             throw new PosterException("span fontSize must be greater than 0");
         }
         this.fontSize = fontSize;
+        return this;
+    }
+
+    public TextSpan setFontName(String fontName) {
+        if (fontName == null) {
+            throw new PosterException("span fontName can not be null");
+        }
+        this.fontName = fontName;
+        return this;
+    }
+
+    public TextSpan setBackgroundColor(Color backgroundColor) {
+        if (backgroundColor == null) {
+            throw new PosterException("span backgroundColor can not be null");
+        }
+        this.backgroundColor = backgroundColor;
+        return this;
+    }
+
+    public TextSpan setShadow(TextShadow shadow) {
+        if (shadow == null) {
+            throw new PosterException("span shadow can not be null");
+        }
+        this.shadow = shadow;
+        return this;
+    }
+
+    public TextSpan setStroke(TextStroke stroke) {
+        if (stroke == null) {
+            throw new PosterException("span stroke can not be null");
+        }
+        this.stroke = stroke;
+        return this;
+    }
+
+    public TextSpan setBaselineShift(int baselineShift) {
+        this.baselineShift = baselineShift;
         return this;
     }
 

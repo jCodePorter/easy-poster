@@ -138,7 +138,8 @@ public final class EllipsisProcessor {
             String current = String.valueOf(spec.getEllipsis().charAt(i));
             suffixGlyphs.add(new RichGlyph(current,
                     measurer.measureBaseStringWidth(current, fontMetrics, graphics),
-                    templateGlyph.getFont(), templateGlyph.getColor(),
+                    templateGlyph.getFont(), templateGlyph.getColor(), templateGlyph.getBackgroundColor(),
+                    templateGlyph.getShadow(), templateGlyph.getStroke(), templateGlyph.getBaselineShift(),
                     templateGlyph.isUnderline(), templateGlyph.isStrikeThrough()));
         }
         return suffixGlyphs;
@@ -153,7 +154,8 @@ public final class EllipsisProcessor {
         FontMetrics fontMetrics = graphics.getFontMetrics(baseFont);
         return new RichGlyph(".",
                 measurer.measureBaseStringWidth(".", fontMetrics, graphics),
-                baseFont, defaultColor, spec.isUnderline(), spec.isStrikeThrough());
+                baseFont, defaultColor, null, spec.getShadow(), spec.getStroke(), 0,
+                spec.isUnderline(), spec.isStrikeThrough());
     }
 
     private List<RichGlyph> fitRichSuffixToWidth(List<RichGlyph> suffixGlyphs, int maxWidth,
@@ -199,6 +201,8 @@ public final class EllipsisProcessor {
                 if (fragmentStyle != null) {
                     fragments.add(new RichTextFragment(fragmentText.toString(), fragmentStartX,
                             fragmentWidth, fragmentStyle.getFont(), fragmentStyle.getColor(),
+                            fragmentStyle.getBackgroundColor(), fragmentStyle.getShadow(),
+                            fragmentStyle.getStroke(), fragmentStyle.getBaselineShift(),
                             fragmentStyle.isUnderline(), fragmentStyle.isStrikeThrough()));
                 }
                 fragmentStyle = glyph;
@@ -217,6 +221,8 @@ public final class EllipsisProcessor {
         if (fragmentStyle != null) {
             fragments.add(new RichTextFragment(fragmentText.toString(), fragmentStartX,
                     fragmentWidth, fragmentStyle.getFont(), fragmentStyle.getColor(),
+                    fragmentStyle.getBackgroundColor(), fragmentStyle.getShadow(),
+                    fragmentStyle.getStroke(), fragmentStyle.getBaselineShift(),
                     fragmentStyle.isUnderline(), fragmentStyle.isStrikeThrough()));
         }
         return new RichLine(textBuilder.toString(), currentX, fragments, copiedGlyphs);

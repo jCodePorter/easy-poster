@@ -59,7 +59,7 @@ public final class TextMetricsService {
 
         // 字间距只作用于相邻字符之间，因此总共增加 length - 1 次。
         int width = measureBaseStringWidth(line, fontMetrics, graphics)
-                + Math.max(0, line.length() - 1) * letterSpacing;
+                + Math.max(0, countRenderableUnits(line) - 1) * letterSpacing;
         this.lineWidthCache.put(cacheKey, Integer.valueOf(width));
         return width;
     }
@@ -95,6 +95,16 @@ public final class TextMetricsService {
 
     private String normalizeLineBreaks(String content) {
         return content.replace("\r\n", "\n").replace('\r', '\n');
+    }
+
+    private int countRenderableUnits(String text) {
+        int count = 0;
+        for (int i = 0; i < text.length(); ) {
+            int codePoint = text.codePointAt(i);
+            i += Character.charCount(codePoint);
+            count++;
+        }
+        return count;
     }
 
     private String repeat(char value, int count) {

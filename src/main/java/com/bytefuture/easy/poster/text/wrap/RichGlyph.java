@@ -1,5 +1,7 @@
 package com.bytefuture.easy.poster.text.wrap;
 
+import com.bytefuture.easy.poster.model.TextShadow;
+import com.bytefuture.easy.poster.model.TextStroke;
 import lombok.Getter;
 
 import java.awt.Color;
@@ -7,33 +9,61 @@ import java.awt.Font;
 
 @Getter
 public final class RichGlyph {
-    /** 字形对应的文本，一般为单个字符。 */
     private final String text;
-    /** 当前字形宽度。 */
     private final int width;
-    /** 当前字形字体。 */
     private final Font font;
-    /** 当前字形颜色。 */
     private final Color color;
-    /** 当前字形是否绘制下划线。 */
+    private final Color backgroundColor;
+    private final TextShadow shadow;
+    private final TextStroke stroke;
+    private final int baselineShift;
     private final boolean underline;
-    /** 当前字形是否绘制删除线。 */
     private final boolean strikeThrough;
 
-    public RichGlyph(String text, int width, Font font, Color color, boolean underline, boolean strikeThrough) {
+    public RichGlyph(String text, int width, Font font, Color color, Color backgroundColor,
+                     TextShadow shadow, TextStroke stroke, int baselineShift,
+                     boolean underline, boolean strikeThrough) {
         this.text = text;
         this.width = width;
         this.font = font;
         this.color = color;
+        this.backgroundColor = backgroundColor;
+        this.shadow = shadow;
+        this.stroke = stroke;
+        this.baselineShift = baselineShift;
         this.underline = underline;
         this.strikeThrough = strikeThrough;
     }
 
     public boolean hasSameStyle(RichGlyph other) {
-        // 只有样式完全一致时，才能安全合并到同一个渲染片段。
         return this.font.equals(other.font)
                 && this.color.equals(other.color)
+                && sameColor(this.backgroundColor, other.backgroundColor)
+                && sameShadow(this.shadow, other.shadow)
+                && sameStroke(this.stroke, other.stroke)
+                && this.baselineShift == other.baselineShift
                 && this.underline == other.underline
                 && this.strikeThrough == other.strikeThrough;
+    }
+
+    private boolean sameColor(Color left, Color right) {
+        return left == null ? right == null : left.equals(right);
+    }
+
+    private boolean sameShadow(TextShadow left, TextShadow right) {
+        if (left == null || right == null) {
+            return left == right;
+        }
+        return left.getColor().equals(right.getColor())
+                && left.getOffsetX() == right.getOffsetX()
+                && left.getOffsetY() == right.getOffsetY();
+    }
+
+    private boolean sameStroke(TextStroke left, TextStroke right) {
+        if (left == null || right == null) {
+            return left == right;
+        }
+        return left.getColor().equals(right.getColor())
+                && left.getWidth() == right.getWidth();
     }
 }

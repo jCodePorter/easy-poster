@@ -13,6 +13,8 @@ import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
 import com.bytefuture.easy.poster.model.BaseLine;
 import com.bytefuture.easy.poster.model.Config;
+import com.bytefuture.easy.poster.model.Gradient;
+import com.bytefuture.easy.poster.model.GradientDirection;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextAlign;
 import com.bytefuture.easy.poster.model.TextLayoutMode;
@@ -23,6 +25,7 @@ import com.bytefuture.easy.poster.model.TextStroke;
 import com.bytefuture.easy.poster.text.layout.LayoutLine;
 import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.text.layout.VerticalGlyph;
+import com.bytefuture.easy.poster.text.wrap.RichTextFragment;
 import com.bytefuture.easy.poster.text.split.TextSplitRequest;
 import com.bytefuture.easy.poster.text.split.TextSplitResult;
 import com.bytefuture.easy.poster.text.split.TextSplitterSimpleImpl;
@@ -410,6 +413,43 @@ public class V2TextElementTest {
     }
 
     @Test
+    public void shouldLayoutVerticalRichTextColumns() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder(
+                        TextSpan.of("春").setColor(Color.RED).setFontSize(24),
+                        TextSpan.of("夏").setColor(Color.GREEN).setFontStyle(Font.BOLD),
+                        TextSpan.of("秋冬").setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 20)
+                .textLayoutMode(TextLayoutMode.VERTICAL)
+                .layoutHeight(48)
+                .columnSpacing(8)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 300, 300);
+
+        Assert.assertTrue(layout.getLines().size() >= 2);
+        Assert.assertTrue(layout.getLines().get(0).hasVerticalGlyphs());
+        Assert.assertEquals(Color.RED, layout.getLines().get(0).getVerticalGlyphs().get(0).getColor());
+    }
+
+    @Test
+    public void shouldRenderVerticalRichTextUsingSpanColors() {
+        TextElement element = TextElement.builder(
+                        TextSpan.of("春").setColor(Color.RED),
+                        TextSpan.of("夏").setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 28)
+                .textLayoutMode(TextLayoutMode.VERTICAL)
+                .position(AbsolutePosition.of(Point.of(20, 40), Direction.TOP_LEFT))
+                .build();
+
+        BufferedImage image = renderElement(element, 160, 160);
+
+        Assert.assertTrue(countColorLikePixels(image, Color.RED, 20) > 0);
+        Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 20) > 0);
+    }
+
+    @Test
     public void shouldRejectNullVerticalInputsAndNegativeVerticalDimensions() {
         expectIllegalArgument("vertical text cannot be null", new Runnable() {
             @Override
@@ -752,6 +792,94 @@ public class V2TextElementTest {
     }
 
     @Test
+    public void shouldExposeSpanLevelStyleOverridesOnRichFragments() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder(
+                        TextSpan.of("mono")
+                                .setFontName("Monospaced")
+                                .setBackgroundColor(Color.YELLOW)
+                                .setShadow(TextShadow.of(Color.GRAY, 2, 1))
+                                .setStroke(TextStroke.of(Color.BLACK, 1f))
+                                .setBaselineShift(-3),
+                        TextSpan.of("plain").setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 20)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+        RichTextFragment first = layout.getLines().get(0).getRichFragments().get(0);
+
+        Assert.assertEquals("Monospaced", first.getFont().getFamily());
+        Assert.assertEquals(Color.YELLOW, first.getBackgroundColor());
+        Assert.assertEquals(Color.GRAY, first.getShadow().getColor());
+        Assert.assertEquals(Color.BLACK, first.getStroke().getColor());
+        Assert.assertEquals(-3, first.getBaselineShift());
+    }
+
+    @Test
+    public void shouldRenderSpanLevelBackgroundShadowAndStroke() {
+        TextElement element = TextElement.builder(
+                        TextSpan.of("fx")
+                                .setColor(Color.BLUE)
+                                .setBackgroundColor(Color.YELLOW)
+                                .setShadow(TextShadow.of(Color.GRAY, 2, 2))
+                                .setStroke(TextStroke.of(Color.BLACK, 1f))
+                                .setBaselineShift(-2))
+                .font("Dialog", Font.PLAIN, 28)
+                .position(AbsolutePosition.of(Point.of(20, 50), Direction.TOP_LEFT))
+                .build();
+
+        BufferedImage image = renderElement(element, 220, 120);
+
+        Assert.assertTrue(countColorLikePixels(image, Color.YELLOW, 20) > 0);
+        Assert.assertTrue(countColorLikePixels(image, Color.GRAY, 20) > 0);
+        Assert.assertTrue(countColorLikePixels(image, Color.BLACK, 20) > 0);
+        Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 20) > 0);
+    }
+
+    @Test
+    public void shouldRenderEmojiWithoutBreakingSurrogatePairsWhenLetterSpacingIsEnabled() {
+        PosterContext context = createContext();
+        TextElement compact = TextElement.builder("A🙂B")
+                .font("Dialog", Font.PLAIN, 24)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+        TextElement spaced = TextElement.builder("A🙂B")
+                .font("Dialog", Font.PLAIN, 24)
+                .letterSpacing(6)
+                .stroke(Color.BLACK, 1f)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult compactLayout = measureLayout(compact, context, 300, 200);
+        TextLayoutResult spacedLayout = measureLayout(spaced, context, 300, 200);
+        BufferedImage image = renderElement(spaced, 220, 120);
+
+        Assert.assertTrue(spacedLayout.getContentWidth() > compactLayout.getContentWidth());
+        Assert.assertTrue(countNonTransparentPixels(image) > 0);
+        Assert.assertTrue(countColorLikePixels(image, Color.BLACK, 20) > 0);
+    }
+
+    @Test
+    public void shouldMeasureEmojiWidthUsingRenderableUnitsForLetterSpacing() {
+        PosterContext context = createContext();
+        TextElement compact = TextElement.builder("🙂🙂")
+                .font("Dialog", Font.PLAIN, 24)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+        TextElement spaced = TextElement.builder("🙂🙂")
+                .font("Dialog", Font.PLAIN, 24)
+                .letterSpacing(8)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult compactLayout = measureLayout(compact, context, 300, 200);
+        TextLayoutResult spacedLayout = measureLayout(spaced, context, 300, 200);
+
+        Assert.assertEquals(compactLayout.getContentWidth() + 8, spacedLayout.getContentWidth());
+    }
+
+    @Test
     public void shouldParseHtmlIntoStyledTextSpans() {
         TextElement element = TextElement.builderHtml(
                         "<span style='color:#ff0000'>Red</span>"
@@ -777,6 +905,35 @@ public class V2TextElementTest {
         TextSpan big = element.getConfig().getTextSpans().get(3);
         Assert.assertEquals("Big", big.getText());
         Assert.assertEquals(Integer.valueOf(24), big.getFontSize());
+    }
+
+    @Test
+    public void shouldParseHtmlBackgroundFontFamilyAndBaselineTagsIntoStyledSpans() {
+        TextElement element = TextElement.builderHtml(
+                        "<span style='background-color:#ffeeaa;font-family:Monospaced'>A</span>"
+                                + "<sup>2</sup>"
+                                + "<sub>i</sub>"
+                                + "<small>tiny</small>"
+                                + "<code>x</code>")
+                .build();
+
+        Assert.assertEquals(5, element.getConfig().getTextSpans().size());
+
+        TextSpan background = element.getConfig().getTextSpans().get(0);
+        Assert.assertEquals(new Color(255, 238, 170), background.getBackgroundColor());
+        Assert.assertEquals("Monospaced", background.getFontName());
+
+        TextSpan superscript = element.getConfig().getTextSpans().get(1);
+        Assert.assertEquals(Integer.valueOf(-6), superscript.getBaselineShift());
+
+        TextSpan subscript = element.getConfig().getTextSpans().get(2);
+        Assert.assertEquals(Integer.valueOf(6), subscript.getBaselineShift());
+
+        TextSpan small = element.getConfig().getTextSpans().get(3);
+        Assert.assertTrue(small.getFontSize() <= 16);
+
+        TextSpan code = element.getConfig().getTextSpans().get(4);
+        Assert.assertEquals("Monospaced", code.getFontName());
     }
 
     @Test
@@ -814,6 +971,139 @@ public class V2TextElementTest {
     }
 
     @Test
+    public void shouldRenderPlainTextGradientWithReducedSolidColorDominanceComparedToSolidRenderForTask1() {
+        TextElement solidElement = TextElement.builder("gradient block")
+                .font("Dialog", Font.PLAIN, 28)
+                .color(Color.BLACK)
+                .position(AbsolutePosition.of(Point.of(20, 50), Direction.TOP_LEFT))
+                .build();
+        TextElement gradientElement = TextElement.builder("gradient block")
+                .font("Dialog", Font.PLAIN, 28)
+                .gradient(Gradient.of(new String[]{"#ff6b6b", "#4dabf7"}, GradientDirection.LEFT_RIGHT))
+                .position(AbsolutePosition.of(Point.of(20, 50), Direction.TOP_LEFT))
+                .build();
+
+        BufferedImage solidImage = renderElement(solidElement, 240, 120);
+        BufferedImage gradientImage = renderElement(gradientElement, 240, 120);
+
+        Assert.assertTrue(countNonTransparentPixels(solidImage) > 0);
+        Assert.assertTrue(countNonTransparentPixels(gradientImage) > 0);
+        Assert.assertTrue(countColorLikePixels(gradientImage, Color.BLACK, 8)
+                < countColorLikePixels(solidImage, Color.BLACK, 8));
+    }
+
+    @Test
+    public void shouldRenderRichTextGradientWithReducedSpanColorDominanceComparedToSolidRichRenderForTask1() {
+        PosterContext context = createContext();
+        TextElement solidElement = TextElement.builder(
+                        TextSpan.of("Red").setColor(Color.RED),
+                        TextSpan.of(" Blue").setColor(Color.BLUE).setFontStyle(Font.BOLD))
+                .font("Dialog", Font.PLAIN, 28)
+                .position(AbsolutePosition.of(Point.of(20, 50), Direction.TOP_LEFT))
+                .build();
+        TextElement gradientElement = TextElement.builder(
+                        TextSpan.of("Red").setColor(Color.RED),
+                        TextSpan.of(" Blue").setColor(Color.BLUE).setFontStyle(Font.BOLD))
+                .font("Dialog", Font.PLAIN, 28)
+                .gradient(Gradient.of(new String[]{"#ff6b6b", "#4dabf7"}, GradientDirection.LEFT_RIGHT))
+                .position(AbsolutePosition.of(Point.of(20, 50), Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(gradientElement, context, 400, 300);
+        BufferedImage solidImage = renderElement(solidElement, 240, 120);
+        BufferedImage gradientImage = renderElement(gradientElement, 240, 120);
+        int solidOpaquePixels = countNonTransparentPixels(solidImage);
+        int gradientOpaquePixels = countNonTransparentPixels(gradientImage);
+        int solidSpanColorPixels = countColorLikePixels(solidImage, Color.RED, 24)
+                + countColorLikePixels(solidImage, Color.BLUE, 24);
+        int gradientSpanColorPixels = countColorLikePixels(gradientImage, Color.RED, 24)
+                + countColorLikePixels(gradientImage, Color.BLUE, 24);
+        Assert.assertFalse(layout.getLines().isEmpty());
+        LayoutLine firstLine = layout.getLines().get(0);
+
+        Assert.assertEquals(1, layout.getLines().size());
+        Assert.assertTrue(firstLine.hasRichFragments());
+        Assert.assertFalse(firstLine.getRichFragments().isEmpty());
+        Assert.assertEquals(2, firstLine.getRichFragments().size());
+        Assert.assertEquals("Red", firstLine.getRichFragments().get(0).getText());
+        Assert.assertEquals(" Blue", firstLine.getRichFragments().get(1).getText());
+        Assert.assertTrue(layout.getContentWidth() > 0);
+        Assert.assertTrue(layout.getContentHeight() > 0);
+        Assert.assertTrue(solidOpaquePixels > 0);
+        Assert.assertTrue(gradientOpaquePixels > 0);
+        Assert.assertTrue("gradient-configured rich text should reduce dominance of exact span colors in the rendered output",
+                (double) gradientSpanColorPixels / gradientOpaquePixels
+                        < (double) solidSpanColorPixels / solidOpaquePixels);
+    }
+
+    @Test
+    public void shouldPreserveRichNonFillStyleMetadataInLayoutWhenGradientEnabled() {
+        PosterContext context = createContext();
+        TextShadow shadow = TextShadow.of(Color.GRAY, 2, 1);
+        TextStroke stroke = TextStroke.of(Color.BLACK, 1f);
+        TextElement element = TextElement.builder(
+                        TextSpan.of("mono")
+                                .setFontName("Monospaced")
+                                .setBackgroundColor(Color.YELLOW)
+                                .setShadow(shadow)
+                                .setStroke(stroke)
+                                .setBaselineShift(-3)
+                                .setUnderline(true),
+                        TextSpan.of("plain").setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 20)
+                .gradient(Gradient.of(new String[]{"#ff6b6b", "#4dabf7"}, GradientDirection.LEFT_RIGHT))
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+        BufferedImage image = renderElement(element, 240, 120);
+        Assert.assertFalse(layout.getLines().isEmpty());
+        LayoutLine firstLine = layout.getLines().get(0);
+
+        Assert.assertTrue(firstLine.hasRichFragments());
+        Assert.assertFalse(firstLine.getRichFragments().isEmpty());
+        RichTextFragment first = firstLine.getRichFragments().get(0);
+        Assert.assertEquals("Monospaced", first.getFont().getFamily());
+        Assert.assertEquals(Color.YELLOW, first.getBackgroundColor());
+        Assert.assertEquals(shadow, first.getShadow());
+        Assert.assertEquals(stroke, first.getStroke());
+        Assert.assertEquals(-3, first.getBaselineShift());
+        Assert.assertTrue(first.isUnderline());
+        Assert.assertTrue(countNonTransparentPixels(image) > 0);
+    }
+
+    @Test
+    public void shouldRenderVerticalTextGradientWithReducedSolidColorDominanceComparedToSolidRenderForTask1() {
+        PosterContext context = createContext();
+        TextElement solidElement = TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 28)
+                .vertical("天地玄黄")
+                .layoutHeight(90)
+                .color(Color.BLACK)
+                .position(AbsolutePosition.of(Point.of(30, 20), Direction.TOP_LEFT))
+                .build();
+        TextElement gradientElement = TextElement.builder("unused")
+                .font("Dialog", Font.PLAIN, 28)
+                .vertical("天地玄黄")
+                .layoutHeight(90)
+                .gradient(Gradient.of(new String[]{"#ff6b6b", "#4dabf7"}, GradientDirection.TOP_BOTTOM))
+                .position(AbsolutePosition.of(Point.of(30, 20), Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(gradientElement, context, 240, 200);
+        BufferedImage solidImage = renderElement(solidElement, 240, 200);
+        BufferedImage gradientImage = renderElement(gradientElement, 240, 200);
+
+        Assert.assertEquals(TextLayoutMode.VERTICAL, layout.getTextLayoutMode());
+        Assert.assertFalse(layout.getLines().isEmpty());
+        Assert.assertTrue(layout.getLines().get(0).hasVerticalGlyphs());
+        Assert.assertTrue(countNonTransparentPixels(solidImage) > 0);
+        Assert.assertTrue(countNonTransparentPixels(gradientImage) > 0);
+        Assert.assertTrue(countColorLikePixels(gradientImage, Color.BLACK, 8)
+                < countColorLikePixels(solidImage, Color.BLACK, 8));
+    }
+
+    @Test
     public void shouldSupportAbsolutePositionAndBaselineOffsets() {
         PosterContext context = createContext();
         Point anchor = Point.of(80, 90);
@@ -847,37 +1137,110 @@ public class V2TextElementTest {
     }
 
     @Test
-    public void shouldRejectRichTextAutoFitWithPosterException() {
+    public void shouldAutoFitRichTextByScalingAllSpanSizesProportionally() {
         PosterContext context = createContext();
-        TextElement element = TextElement.builder(TextSpan.of("rich"))
-                .font("Dialog", Font.PLAIN, 18)
+        TextElement element = TextElement.builder(
+                        TextSpan.of("BIG").setFontSize(30).setColor(Color.RED),
+                        TextSpan.of(" / ").setFontSize(18).setFontStyle(Font.BOLD),
+                        TextSpan.of("small").setFontSize(12).setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 24)
                 .autoFitText(100, 10)
-                .position(AbsolutePosition.of(Point.of(20, 20), Direction.TOP_LEFT))
+                .position(RelativePosition.of(Direction.TOP_LEFT))
                 .build();
 
-        try {
-            measureLayout(element, context, 400, 300);
-            Assert.fail("Expected PosterException");
-        } catch (PosterException ex) {
-            Assert.assertEquals("rich text span does not support autoFitText yet", ex.getMessage());
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+        List<RichTextFragment> fragments = layout.getLines().get(0).getRichFragments();
+
+        Assert.assertTrue(layout.getContentWidth() <= 100);
+        Assert.assertTrue(fragments.get(0).getFont().getSize() > fragments.get(1).getFont().getSize());
+        Assert.assertTrue(fragments.get(1).getFont().getSize() > fragments.get(2).getFont().getSize());
+    }
+
+    @Test
+    public void shouldHonorRichTextAutoFitMinimumFontSize() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder(
+                        TextSpan.of("Wide").setFontSize(26),
+                        TextSpan.of(" rich ").setFontSize(16),
+                        TextSpan.of("text").setFontSize(12))
+                .font("Dialog", Font.PLAIN, 22)
+                .autoFitText(40, 10)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+        List<RichTextFragment> fragments = layout.getLines().get(0).getRichFragments();
+
+        Assert.assertTrue(layout.getContentWidth() > 40);
+        Assert.assertTrue(fragments.get(0).getFont().getSize() >= 10);
+        Assert.assertTrue(fragments.get(1).getFont().getSize() >= 10);
+        Assert.assertTrue(fragments.get(2).getFont().getSize() >= 10);
+    }
+
+    @Test
+    public void shouldJustifyWrappedRichIntermediateLine() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder(
+                        TextSpan.of("alpha ").setColor(Color.RED),
+                        TextSpan.of("beta ").setFontStyle(Font.BOLD),
+                        TextSpan.of("gamma delta epsilon zeta").setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 20)
+                .autoWordWrap(120)
+                .textAlign(TextAlign.JUSTIFY)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+
+        Assert.assertTrue(layout.getLines().size() > 1);
+        Assert.assertTrue(layout.getLines().get(0).isJustified());
+        Assert.assertEquals(layout.getContentWidth(), layout.getLines().get(0).getRenderWidth());
+        Assert.assertFalse(layout.getLines().get(layout.getLines().size() - 1).isJustified());
+    }
+
+    @Test
+    public void shouldNotJustifyRichLineWithoutSpaces() {
+        PosterContext context = createContext();
+        TextElement element = TextElement.builder(
+                        TextSpan.of("abcdefghij").setColor(Color.RED),
+                        TextSpan.of("klmnopqrst").setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 20)
+                .autoWordWrap(90)
+                .textAlign(TextAlign.JUSTIFY)
+                .position(RelativePosition.of(Direction.TOP_LEFT))
+                .build();
+
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+
+        Assert.assertTrue(layout.getLines().size() > 1);
+        for (LayoutLine line : layout.getLines()) {
+            Assert.assertFalse(line.isJustified());
+            Assert.assertEquals(line.getWidth(), line.getRenderWidth());
         }
     }
 
     @Test
-    public void shouldRejectRichTextJustifyWithPosterException() {
+    public void shouldPreserveRichFragmentOrderWhenJustifyingAcrossSpanBoundaries() {
         PosterContext context = createContext();
-        TextElement element = TextElement.builder(TextSpan.of("rich"))
-                .font("Dialog", Font.PLAIN, 18)
+        TextElement element = TextElement.builder(
+                        TextSpan.of("left ").setColor(Color.RED),
+                        TextSpan.of("mid ").setColor(Color.GREEN),
+                        TextSpan.of("right tail").setColor(Color.BLUE))
+                .font("Dialog", Font.PLAIN, 20)
+                .autoWordWrap(120)
                 .textAlign(TextAlign.JUSTIFY)
-                .position(AbsolutePosition.of(Point.of(20, 20), Direction.TOP_LEFT))
+                .position(RelativePosition.of(Direction.TOP_LEFT))
                 .build();
 
-        try {
-            measureLayout(element, context, 400, 300);
-            Assert.fail("Expected PosterException");
-        } catch (PosterException ex) {
-            Assert.assertEquals("rich text span does not support justify yet", ex.getMessage());
-        }
+        TextLayoutResult layout = measureLayout(element, context, 400, 300);
+        LayoutLine firstLine = layout.getLines().get(0);
+
+        Assert.assertTrue(firstLine.hasRichFragments());
+        Assert.assertTrue(firstLine.isJustified());
+        Assert.assertTrue(firstLine.getRichFragments().size() >= 2);
+        Assert.assertEquals(Color.RED, firstLine.getRichFragments().get(0).getColor());
+        Assert.assertTrue(firstLine.getRichFragments().get(1).getXOffset()
+                >= firstLine.getRichFragments().get(0).getXOffset() + firstLine.getRichFragments().get(0).getWidth());
     }
 
     @Test
@@ -1068,6 +1431,7 @@ public class V2TextElementTest {
         context.setConfig(config);
         context.setGraphics(graphics);
 
+        element.calculateDimension(context, width, height);
         element.render(context, width, height);
         graphics.dispose();
         return image;

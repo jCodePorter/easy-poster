@@ -411,6 +411,7 @@ TextElement element = TextElement.builderHtml(
 本次还补充了 UI PNG 手工验证测试：
 
 - `src/test/java/com/bytefuture/easy/poster/ui/v2/V2TextElementHtmlPngTest.java`
+- `src/test/java/com/bytefuture/easy/poster/ui/v2/V2TextElementRichExpansionPngTest.java`
 
 ## 14. 建议使用方式
 

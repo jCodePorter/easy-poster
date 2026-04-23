@@ -78,17 +78,13 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             layout = layoutEngine.layout(config, position, rotate, context, posterWidth, posterHeight);
             this.lastLayout = layout;
         }
-        return renderer.render(config, rotate, context, dimension, layout);
+        return renderer.render(config, rotate, color != null ? color : context.getConfig().getColor(),
+                gradient, context, dimension, layout);
     }
 
     @Override
     public void beforeRender(PosterContext context) {
         super.beforeRender(context);
-        if (gradient != null && lastLayout != null) {
-            context.getGraphics().setPaint(gradient.toGradient(lastLayout.toDimension(rotate)));
-        } else {
-            context.getGraphics().setPaint(color != null ? color : context.getConfig().getColor());
-        }
     }
 
     public TextElementConfig getConfig() {
