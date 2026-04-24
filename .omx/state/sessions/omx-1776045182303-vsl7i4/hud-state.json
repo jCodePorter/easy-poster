@@ -1,6 +1,0 @@
-{
-  "last_turn_at": "2026-04-13T03:43:53.397Z",
-  "last_progress_at": "2026-04-13T03:43:53.397Z",
-  "turn_count": 9,
-  "last_agent_output": "当前模式：$ralph  \n结果：已完成实现并验证，通过清理收尾并清除了 Ralph 状态。\n\n已改文件：\n- `src/main/java/com/bytefuture/easy/poster/el"
-}

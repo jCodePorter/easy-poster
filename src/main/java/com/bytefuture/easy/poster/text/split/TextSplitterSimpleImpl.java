@@ -12,11 +12,11 @@ import java.util.Map;
  */
 public class TextSplitterSimpleImpl implements ITextSplitter {
     /** ASCII 字符宽度缓存，减少重复调用 FontMetrics。 */
-    private static final Map<Character, Integer> charSizeMap = new HashMap<Character, Integer>();
+    private static final Map<Character, Integer> charSizeMap = new HashMap<>();
 
     @Override
     public TextSplitResult split(TextSplitRequest request) {
-        List<SplitTextInfo> lines = new ArrayList<SplitTextInfo>();
+        List<SplitTextInfo> lines = new ArrayList<>();
         if (request == null || request.getFontMetrics() == null) {
             return TextSplitResult.of(lines);
         }

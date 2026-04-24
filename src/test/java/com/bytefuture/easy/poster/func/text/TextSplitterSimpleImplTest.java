@@ -60,10 +60,32 @@ public class TextSplitterSimpleImplTest {
         Assert.assertEquals("now", lines.get(lines.size() - 1));
     }
 
+    @Test
+    public void shouldMeasureOversizedTokenUsingCurrentFontMetrics() {
+        TextSplitterSimpleImpl splitter = new TextSplitterSimpleImpl();
+        FontMetrics smallMetrics = createFontMetrics(12);
+        FontMetrics largeMetrics = createFontMetrics(36);
+
+        splitter.split(TextSplitRequest.of("WWWW", smallMetrics.charWidth('W'), smallMetrics));
+
+        int maxWidth = largeMetrics.charWidth('W') * 2;
+        TextSplitResult result = splitter.split(TextSplitRequest.of("WWWW", maxWidth, largeMetrics));
+        List<String> lines = result.getLines().stream().map(SplitTextInfo::getText).collect(Collectors.toList());
+
+        Assert.assertTrue(lines.size() >= 2);
+        for (String line : lines) {
+            Assert.assertTrue("line should fit current font metrics", largeMetrics.stringWidth(line) <= maxWidth);
+        }
+    }
+
     private FontMetrics createFontMetrics() {
+        return createFontMetrics(18);
+    }
+
+    private FontMetrics createFontMetrics(int fontSize) {
         BufferedImage image = new BufferedImage(400, 200, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
-        graphics.setFont(new Font("Dialog", Font.PLAIN, 18));
+        graphics.setFont(new Font("Dialog", Font.PLAIN, fontSize));
         return graphics.getFontMetrics();
     }
 }

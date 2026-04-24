@@ -61,7 +61,15 @@ public class LineElement extends AbstractElement<LineElement> implements IElemen
 
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
-        return null;
+        int minX = Math.min(this.start.getX(), this.end.getX());
+        int minY = Math.min(this.start.getY(), this.end.getY());
+        int width = Math.abs(this.end.getX() - this.start.getX());
+        int height = Math.abs(this.end.getY() - this.start.getY());
+        return Dimension.builder()
+                .point(Point.of(minX, minY))
+                .width(width)
+                .height(height)
+                .build();
     }
 
     @Override

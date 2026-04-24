@@ -308,7 +308,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         BaseLine baseLineCfg = getBaseLineCfg(context);
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(width)
-                .height(singleLineHeight)
+                .height(totalHeight)
                 .yOffset(getYOffset(baseLineCfg, fm, singleLineHeight))
                 .point(Point.of(firstPoint.getX(), firstPoint.getY()));
         if (this.getRotate() != 0) {
@@ -372,29 +372,37 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         Point point = dimension.getPoint();
         int xDiff = dimension.getPoint().getX() - this.splitTextPointWrapper.get(0).getPoint().getX();
         int yDiff = dimension.getPoint().getY() - this.splitTextPointWrapper.get(0).getPoint().getY();
+        int lineHeight = resolveLineHeight(dimension);
 
         for (int i = 0; i < this.splitTextPointWrapper.size(); i++) {
             SplitTextPointWrapper wrapper = this.splitTextPointWrapper.get(i);
 
             int startX = wrapper.getPoint().getX() + dimension.getXOffset() + xDiff;
-            int startY = wrapper.getPoint().getY() + dimension.getYOffset() + i * dimension.getHeight() + yDiff;
+            int startY = wrapper.getPoint().getY() + dimension.getYOffset() + i * lineHeight + yDiff;
             if (this.getRotate() != 0) {
                 double rotateX = point.getX() + dimension.getWidth() / 2.0;
-                double rotateY = point.getY() + dimension.getHeight() / 2.0 + i * dimension.getHeight();
+                double rotateY = point.getY() + lineHeight / 2.0 + i * lineHeight;
 
                 AffineTransform rotateTransform = AffineTransform.getRotateInstance(Math.toRadians(rotate), rotateX, rotateY);
                 AffineTransform savedTransform = g.getTransform();
                 g.setTransform(rotateTransform);
-                doDrawText(context, wrapper.getInfo().getText(), startX, startY, dimension);
+                doDrawText(context, wrapper.getInfo().getText(), startX, startY, dimension, lineHeight);
                 g.setTransform(savedTransform);
             } else {
-                doDrawText(context, wrapper.getInfo().getText(), startX, startY, dimension);
+                doDrawText(context, wrapper.getInfo().getText(), startX, startY, dimension, lineHeight);
             }
         }
         return dimension.getPoint();
     }
 
-    private void doDrawText(PosterContext context, String text, int startX, int startY, Dimension dimension) {
+    private int resolveLineHeight(Dimension dimension) {
+        if (this.splitTextPointWrapper == null || this.splitTextPointWrapper.isEmpty()) {
+            return dimension.getHeight();
+        }
+        return Math.max(1, dimension.getHeight() / this.splitTextPointWrapper.size());
+    }
+
+    private void doDrawText(PosterContext context, String text, int startX, int startY, Dimension dimension, int lineHeight) {
         Graphics2D g = context.getGraphics();
 
         if (context.getConfig().isDebug()) {
@@ -410,7 +418,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
             } else if (baseLineCfg == BaseLine.BOTTOM) {
                 baseY -= diffHeight;
             }
-            g.drawRect(startX, baseY, dimension.getWidth(), dimension.getHeight());
+            g.drawRect(startX, baseY, dimension.getWidth(), lineHeight);
         }
         if (this.strikeThrough) {
             AttributedString as = new AttributedString(text);

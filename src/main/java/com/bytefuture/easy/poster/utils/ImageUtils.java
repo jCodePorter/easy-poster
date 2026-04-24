@@ -8,6 +8,12 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -17,6 +23,9 @@ import java.net.URL;
  * @since 2025/03/09
  */
 public class ImageUtils {
+    private static final int CONNECT_TIMEOUT_MILLIS = 3000;
+    private static final int READ_TIMEOUT_MILLIS = 5000;
+    private static final int MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
     private ImageUtils() {
 
@@ -30,9 +39,97 @@ public class ImageUtils {
      */
     public static BufferedImage loadUrl(String httpUrl) {
         try {
-            return ImageIO.read(new URL(httpUrl));
+            URL url = validateRemoteImageUrl(httpUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
+            connection.setReadTimeout(READ_TIMEOUT_MILLIS);
+            connection.setInstanceFollowRedirects(false);
+            connection.setRequestMethod("GET");
+
+            int contentLength = connection.getContentLength();
+            if (contentLength > MAX_IMAGE_BYTES) {
+                throw new PosterException("remote image is too large");
+            }
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode < 200 || responseCode >= 300) {
+                throw new PosterException("remote image request failed: " + responseCode);
+            }
+
+            try (InputStream inputStream = new BoundedInputStream(connection.getInputStream(), MAX_IMAGE_BYTES)) {
+                BufferedImage image = ImageIO.read(inputStream);
+                if (image == null) {
+                    throw new PosterException("unsupported remote image content");
+                }
+                return image;
+            } finally {
+                connection.disconnect();
+            }
         } catch (Exception e) {
+            if (e instanceof PosterException) {
+                throw (PosterException) e;
+            }
             throw new PosterException(e);
+        }
+    }
+
+    private static URL validateRemoteImageUrl(String httpUrl) throws Exception {
+        if (httpUrl == null || httpUrl.trim().isEmpty()) {
+            throw new PosterException("remote image url can not be empty");
+        }
+
+        URI uri = new URI(httpUrl.trim());
+        String scheme = uri.getScheme();
+        if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
+            throw new PosterException("only http/https remote image urls are allowed");
+        }
+        if (uri.getHost() == null || uri.getHost().trim().isEmpty()) {
+            throw new PosterException("remote image host can not be empty");
+        }
+
+        InetAddress address = InetAddress.getByName(uri.getHost());
+        if (address.isAnyLocalAddress()
+                || address.isLoopbackAddress()
+                || address.isSiteLocalAddress()
+                || address.isLinkLocalAddress()) {
+            throw new PosterException("local or private remote image hosts are not allowed");
+        }
+
+        return uri.toURL();
+    }
+
+    private static final class BoundedInputStream extends FilterInputStream {
+        private final int maxBytes;
+        private int bytesRead;
+
+        private BoundedInputStream(InputStream inputStream, int maxBytes) {
+            super(inputStream);
+            this.maxBytes = maxBytes;
+        }
+
+        @Override
+        public int read() throws IOException {
+            int value = super.read();
+            if (value != -1) {
+                incrementCount(1);
+            }
+            return value;
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int length) throws IOException {
+            int read = super.read(buffer, offset, length);
+            if (read > 0) {
+                incrementCount(read);
+            }
+            return read;
+        }
+
+        private void incrementCount(int delta) {
+            bytesRead += delta;
+            if (bytesRead > maxBytes) {
+                throw new PosterException("remote image is too large");
+            }
         }
     }
 
@@ -127,8 +224,8 @@ public class ImageUtils {
                 width = image.getWidth() * height / image.getHeight();
                 break;
             case WIDTH_HEIGHT:
-                height = scale.getWidth();
-                width = scale.getHeight();
+                width = scale.getWidth();
+                height = scale.getHeight();
                 break;
             case RATIO:
                 height = (int) (scale.getRatio() * image.getHeight());
