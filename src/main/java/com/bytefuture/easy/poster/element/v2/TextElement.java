@@ -1,6 +1,7 @@
 package com.bytefuture.easy.poster.element.v2;
 
 import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
+import com.bytefuture.easy.poster.element.v2.text.split.ITextSplitter;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
@@ -9,7 +10,7 @@ import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextSpan;
 import com.bytefuture.easy.poster.model.VerticalAlign;
 import com.bytefuture.easy.poster.model.VerticalDirection;
-import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 
 import java.awt.*;
 import java.util.List;
@@ -291,7 +292,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder textSplitter(com.bytefuture.easy.poster.text.split.ITextSplitter splitter) {
+        public Builder textSplitter(ITextSplitter splitter) {
             configBuilder.textSplitter(splitter);
             return this;
         }

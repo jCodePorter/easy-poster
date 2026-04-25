@@ -2,8 +2,8 @@ package com.bytefuture.easy.poster.element.v2;
 
 import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.model.*;
-import com.bytefuture.easy.poster.text.html.HtmlTextSpanParser;
-import com.bytefuture.easy.poster.text.split.ITextSplitter;
+import com.bytefuture.easy.poster.element.v2.text.parser.HtmlTextSpanParser;
+import com.bytefuture.easy.poster.element.v2.text.split.ITextSplitter;
 import lombok.Getter;
 
 import java.awt.*;
@@ -469,7 +469,7 @@ public final class TextElementConfig {
         }
 
         // ========== 拆分器 ==========
-        public Builder textSplitter(com.bytefuture.easy.poster.text.split.ITextSplitter splitter) {
+        public Builder textSplitter(ITextSplitter splitter) {
             this.textSplitter = splitter;
             return this;
         }

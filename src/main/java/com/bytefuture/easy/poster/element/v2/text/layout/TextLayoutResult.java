@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.text.layout;
+package com.bytefuture.easy.poster.element.v2.text.layout;
 
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;

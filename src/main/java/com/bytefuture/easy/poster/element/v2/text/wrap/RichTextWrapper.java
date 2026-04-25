@@ -1,6 +1,6 @@
-package com.bytefuture.easy.poster.text.wrap;
+package com.bytefuture.easy.poster.element.v2.text.wrap;
 
-import com.bytefuture.easy.poster.text.layout.TextRenderSpec;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextRenderSpec;
 import com.bytefuture.easy.poster.model.TextOverflowStrategy;
 import com.bytefuture.easy.poster.model.TextSpan;
 

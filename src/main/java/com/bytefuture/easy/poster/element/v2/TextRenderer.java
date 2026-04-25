@@ -4,10 +4,10 @@ import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.Gradient;
 import com.bytefuture.easy.poster.model.PosterContext;
-import com.bytefuture.easy.poster.text.layout.LayoutLine;
-import com.bytefuture.easy.poster.text.layout.TextLayoutResult;
-import com.bytefuture.easy.poster.text.layout.VerticalGlyph;
-import com.bytefuture.easy.poster.text.wrap.RichTextFragment;
+import com.bytefuture.easy.poster.element.v2.text.layout.LayoutLine;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.element.v2.text.layout.VerticalGlyph;
+import com.bytefuture.easy.poster.element.v2.text.wrap.RichTextFragment;
 
 import java.awt.*;
 import java.awt.font.LineMetrics;

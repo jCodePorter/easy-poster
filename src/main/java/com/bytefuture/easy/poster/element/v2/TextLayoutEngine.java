@@ -1,15 +1,15 @@
 package com.bytefuture.easy.poster.element.v2;
 
+import com.bytefuture.easy.poster.element.v2.text.layout.*;
+import com.bytefuture.easy.poster.element.v2.text.wrap.*;
 import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.*;
-import com.bytefuture.easy.poster.text.layout.*;
-import com.bytefuture.easy.poster.text.metrics.DecorationMetricsResolver;
-import com.bytefuture.easy.poster.text.metrics.TextMetricsService;
-import com.bytefuture.easy.poster.text.split.ITextSplitter;
-import com.bytefuture.easy.poster.text.split.SplitTextInfo;
-import com.bytefuture.easy.poster.text.split.TextSplitterSimpleImpl;
-import com.bytefuture.easy.poster.text.wrap.*;
+import com.bytefuture.easy.poster.element.v2.text.metrics.DecorationMetricsResolver;
+import com.bytefuture.easy.poster.element.v2.text.metrics.TextMetricsService;
+import com.bytefuture.easy.poster.element.v2.text.split.ITextSplitter;
+import com.bytefuture.easy.poster.element.v2.text.split.SplitTextInfo;
+import com.bytefuture.easy.poster.element.v2.text.split.TextSplitterSimpleImpl;
 
 import java.awt.*;
 import java.util.ArrayList;

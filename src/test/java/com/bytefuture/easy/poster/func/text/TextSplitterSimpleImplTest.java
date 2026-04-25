@@ -1,9 +1,9 @@
 package com.bytefuture.easy.poster.func.text;
 
-import com.bytefuture.easy.poster.text.split.SplitTextInfo;
-import com.bytefuture.easy.poster.text.split.TextSplitRequest;
-import com.bytefuture.easy.poster.text.split.TextSplitResult;
-import com.bytefuture.easy.poster.text.split.TextSplitterSimpleImpl;
+import com.bytefuture.easy.poster.element.v2.text.split.SplitTextInfo;
+import com.bytefuture.easy.poster.element.v2.text.split.TextSplitRequest;
+import com.bytefuture.easy.poster.element.v2.text.split.TextSplitResult;
+import com.bytefuture.easy.poster.element.v2.text.split.TextSplitterSimpleImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

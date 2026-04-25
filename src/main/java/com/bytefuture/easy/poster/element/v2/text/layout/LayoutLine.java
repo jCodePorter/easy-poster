@@ -1,7 +1,7 @@
-package com.bytefuture.easy.poster.text.layout;
+package com.bytefuture.easy.poster.element.v2.text.layout;
 
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.text.wrap.RichTextFragment;
+import com.bytefuture.easy.poster.element.v2.text.wrap.RichTextFragment;
 import lombok.Getter;
 
 import java.util.List;

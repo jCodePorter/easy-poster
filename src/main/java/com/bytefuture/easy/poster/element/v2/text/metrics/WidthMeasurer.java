@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.text.metrics;
+package com.bytefuture.easy.poster.element.v2.text.metrics;
 
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;

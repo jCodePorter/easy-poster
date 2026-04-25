@@ -1,11 +1,11 @@
-package com.bytefuture.easy.poster.text.wrap;
+package com.bytefuture.easy.poster.element.v2.text.wrap;
 
-import com.bytefuture.easy.poster.text.layout.TextRenderSpec;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextRenderSpec;
 import com.bytefuture.easy.poster.model.TextOverflowStrategy;
-import com.bytefuture.easy.poster.text.split.ITextSplitter;
-import com.bytefuture.easy.poster.text.split.SplitTextInfo;
-import com.bytefuture.easy.poster.text.split.TextSplitRequest;
-import com.bytefuture.easy.poster.text.split.TextSplitResult;
+import com.bytefuture.easy.poster.element.v2.text.split.ITextSplitter;
+import com.bytefuture.easy.poster.element.v2.text.split.SplitTextInfo;
+import com.bytefuture.easy.poster.element.v2.text.split.TextSplitRequest;
+import com.bytefuture.easy.poster.element.v2.text.split.TextSplitResult;
 
 import java.awt.Font;
 import java.awt.FontMetrics;

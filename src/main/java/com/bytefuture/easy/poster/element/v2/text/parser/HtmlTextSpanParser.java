@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.text.html;
+package com.bytefuture.easy.poster.element.v2.text.parser;
 
 import com.bytefuture.easy.poster.model.TextSpan;
 import com.bytefuture.easy.poster.utils.HexUtils;

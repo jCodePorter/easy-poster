@@ -1,7 +1,7 @@
-package com.bytefuture.easy.poster.text.wrap;
+package com.bytefuture.easy.poster.element.v2.text.wrap;
 
-import com.bytefuture.easy.poster.text.split.SplitTextInfo;
-import com.bytefuture.easy.poster.text.layout.TextRenderSpec;
+import com.bytefuture.easy.poster.element.v2.text.split.SplitTextInfo;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextRenderSpec;
 
 import java.awt.Color;
 import java.awt.Font;

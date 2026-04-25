@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.text.split;
+package com.bytefuture.easy.poster.element.v2.text.split;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 public class SplitTextInfo {
 
-    /** 单行文本内容。 */
+    /** 单行文本内容 */
     private String text;
 
-    /** 单行文本实际宽度。 */
+    /** 单行文本实际宽度 */
     private int width;
 
     private SplitTextInfo(String text, int width) {

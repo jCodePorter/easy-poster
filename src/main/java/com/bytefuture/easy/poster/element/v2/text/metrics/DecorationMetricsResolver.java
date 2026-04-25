@@ -1,9 +1,9 @@
-package com.bytefuture.easy.poster.text.metrics;
+package com.bytefuture.easy.poster.element.v2.text.metrics;
 
-import com.bytefuture.easy.poster.text.layout.TextDecorationInsets;
-import com.bytefuture.easy.poster.text.layout.TextRenderSpec;
-import com.bytefuture.easy.poster.text.wrap.RichLine;
-import com.bytefuture.easy.poster.text.wrap.RichTextFragment;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextDecorationInsets;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextRenderSpec;
+import com.bytefuture.easy.poster.element.v2.text.wrap.RichLine;
+import com.bytefuture.easy.poster.element.v2.text.wrap.RichTextFragment;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
