@@ -1,15 +1,13 @@
 package com.bytefuture.easy.poster.element.v2;
 
+import cn.augrain.easy.tool.support.ColorUtils;
 import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
 import com.bytefuture.easy.poster.element.v2.text.split.ITextSplitter;
 import com.bytefuture.easy.poster.geometry.Dimension;
+import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
-import com.bytefuture.easy.poster.model.TextLayoutMode;
-import com.bytefuture.easy.poster.model.PosterContext;
-import com.bytefuture.easy.poster.model.TextSpan;
-import com.bytefuture.easy.poster.model.VerticalAlign;
-import com.bytefuture.easy.poster.model.VerticalDirection;
+import com.bytefuture.easy.poster.model.*;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 
 import java.awt.*;
@@ -98,7 +96,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         private float alpha = 1F;
         private int rotate = 0;
         private Color color = Color.BLACK;
-        private com.bytefuture.easy.poster.model.Gradient gradient;
+        private Gradient gradient;
 
         private Builder(String text) {
             this.configBuilder = TextElementConfig.builder(text);
@@ -137,7 +135,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder baseLine(com.bytefuture.easy.poster.model.BaseLine baseLine) {
+        public Builder baseLine(BaseLine baseLine) {
             configBuilder.baseLine(baseLine);
             return this;
         }
@@ -147,7 +145,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder textAlign(com.bytefuture.easy.poster.model.TextAlign textAlign) {
+        public Builder textAlign(TextAlign textAlign) {
             configBuilder.textAlign(textAlign);
             return this;
         }
@@ -187,7 +185,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder overflowStrategy(com.bytefuture.easy.poster.model.TextOverflowStrategy strategy) {
+        public Builder overflowStrategy(TextOverflowStrategy strategy) {
             configBuilder.overflowStrategy(strategy);
             return this;
         }
@@ -237,7 +235,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder shadow(com.bytefuture.easy.poster.model.TextShadow shadow) {
+        public Builder shadow(TextShadow shadow) {
             configBuilder.shadow(shadow);
             return this;
         }
@@ -247,7 +245,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder stroke(com.bytefuture.easy.poster.model.TextStroke stroke) {
+        public Builder stroke(TextStroke stroke) {
             configBuilder.stroke(stroke);
             return this;
         }
@@ -262,7 +260,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder textBackground(Color color, com.bytefuture.easy.poster.geometry.Margin padding) {
+        public Builder textBackground(Color color, Margin padding) {
             configBuilder.textBackground(color, padding);
             return this;
         }
@@ -302,7 +300,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             return this;
         }
 
-        public Builder textSpans(java.util.List<TextSpan> spans) {
+        public Builder textSpans(List<TextSpan> spans) {
             configBuilder.textSpans(spans);
             return this;
         }
@@ -331,11 +329,11 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         }
 
         public Builder color(String hexColor) {
-            this.color = cn.augrain.easy.tool.support.ColorUtils.hexToColor(hexColor);
+            this.color = ColorUtils.hexToColor(hexColor);
             return this;
         }
 
-        public Builder gradient(com.bytefuture.easy.poster.model.Gradient gradient) {
+        public Builder gradient(Gradient gradient) {
             this.gradient = gradient;
             return this;
         }
