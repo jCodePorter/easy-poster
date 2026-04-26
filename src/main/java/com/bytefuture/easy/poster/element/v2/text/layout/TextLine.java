@@ -14,23 +14,32 @@ import java.util.List;
 @Getter
 public final class TextLine {
     /**
-     * 行文本内容。
+     * 行文本内容
      */
     private final String text;
-    /** 行宽度。 */
+
+    /**
+     * 行宽度
+     */
     private final int width;
-    /** 相对布局起点的 X 轴偏移。 */
+
+    /**
+     * 相对布局起点的 X 轴偏移
+     */
     private final int offsetX;
-    /** 行内运行段列表。 */
+
+    /**
+     * 行内运行段列表
+     */
     private final List<ResolvedTextRun> runs;
 
     /**
      * 创建文本行。
      *
-     * @param text 行文本内容
-     * @param width 行宽度
+     * @param text    行文本内容
+     * @param width   行宽度
      * @param offsetX X 轴偏移
-     * @param runs 行内运行段
+     * @param runs    行内运行段
      */
     public TextLine(String text, int width, int offsetX, List<ResolvedTextRun> runs) {
         this.text = text;

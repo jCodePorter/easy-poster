@@ -15,6 +15,7 @@ public final class ResolvedTextStyle {
      * 最终字体
      */
     private final Font font;
+
     /**
      * 最终颜色
      */

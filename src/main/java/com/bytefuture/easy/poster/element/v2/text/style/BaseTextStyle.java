@@ -11,18 +11,27 @@ import java.awt.*;
 @Getter
 public class BaseTextStyle {
     /**
-     * 文本颜色。
+     * 文本颜色
      */
     private Color color;
-    /** 字体名称。 */
+
+    /**
+     * 字体名称
+     */
     private String fontName;
-    /** 字体样式。 */
+
+    /**
+     * 字体样式
+     */
     private Integer fontStyle;
-    /** 字体大小。 */
+
+    /**
+     * 字体大小
+     */
     private Integer fontSize;
 
     /**
-     * 设置文本颜色。
+     * 设置文本颜色
      *
      * @param color 颜色值
      * @return 当前样式
@@ -44,7 +53,7 @@ public class BaseTextStyle {
     }
 
     /**
-     * 设置字体样式。
+     * 设置字体样式
      *
      * @param fontStyle 字体样式
      * @return 当前样式
@@ -55,7 +64,7 @@ public class BaseTextStyle {
     }
 
     /**
-     * 设置字体大小。
+     * 设置字体大小
      *
      * @param fontSize 字体大小
      * @return 当前样式

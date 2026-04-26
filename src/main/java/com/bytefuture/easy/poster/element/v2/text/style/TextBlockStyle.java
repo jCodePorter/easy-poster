@@ -19,6 +19,7 @@ public final class TextBlockStyle extends BaseTextStyle {
     private TextAlign textAlign = TextAlign.LEFT;
     private boolean autoWordWrap = false;
     private int maxTextWidth = 0;
+    private Integer lineHeight;
 
     public TextBlockStyle setColor(Color color) {
         if (color == null) {
@@ -97,6 +98,20 @@ public final class TextBlockStyle extends BaseTextStyle {
     public TextBlockStyle setLayoutWidth(int layoutWidth) {
         this.autoWordWrap = layoutWidth > 0;
         this.maxTextWidth = layoutWidth;
+        return this;
+    }
+
+    /**
+     * 设置块级行高。
+     *
+     * @param lineHeight 行高，单位为像素，必须大于 0
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setLineHeight(Integer lineHeight) {
+        if (lineHeight == null || lineHeight.intValue() <= 0) {
+            throw new PosterException("lineHeight must be greater than 0");
+        }
+        this.lineHeight = lineHeight;
         return this;
     }
 }

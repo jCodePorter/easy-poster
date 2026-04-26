@@ -52,7 +52,7 @@ public class V2TextElementUiPngTest {
         poster.addElement(
                 TextElement.of(
                                 TextSpan.of("Block defaults "),
-                                TextSpan.of("red ").setColor(Color.RED),
+                                TextSpan.of("red small").setColor(Color.RED).setFontSize(12),
                                 TextSpan.of("bigger").setFontSize(36).setColor(new Color(70, 90, 220)))
                         .setFontName("Dialog")
                         .setFontStyle(Font.BOLD)
@@ -111,6 +111,22 @@ public class V2TextElementUiPngTest {
         );
 
         poster.asFile("png", "out_v2_text_alignment.png");
+    }
+
+    @Test
+    public void shouldOutputCustomLineHeightPreviewPng() {
+        EasyPoster poster = createPoster(560, 320);
+
+        poster.addElement(
+                TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setAutoWordWrap(220)
+                        .setLineHeight(80)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_line_height.png");
     }
 
     private EasyPoster createPoster(int width, int height) {

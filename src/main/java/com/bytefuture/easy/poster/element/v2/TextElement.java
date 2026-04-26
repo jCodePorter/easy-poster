@@ -5,7 +5,9 @@ import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
+import com.bytefuture.easy.poster.model.BaseLine;
 import com.bytefuture.easy.poster.model.PosterContext;
+import com.bytefuture.easy.poster.model.TextAlign;
 import com.bytefuture.easy.poster.model.TextSpan;
 import lombok.Getter;
 
@@ -195,7 +197,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @param baseLine 基线策略
      * @return 当前元素
      */
-    public TextElement setBaseLine(com.bytefuture.easy.poster.model.BaseLine baseLine) {
+    public TextElement setBaseLine(BaseLine baseLine) {
         this.blockStyle.setBaseLine(baseLine);
         return this;
     }
@@ -206,7 +208,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @param textAlign 对齐方式
      * @return 当前元素
      */
-    public TextElement setTextAlign(com.bytefuture.easy.poster.model.TextAlign textAlign) {
+    public TextElement setTextAlign(TextAlign textAlign) {
         this.blockStyle.setTextAlign(textAlign);
         return this;
     }
@@ -230,6 +232,17 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      */
     public TextElement setLayoutWidth(int layoutWidth) {
         this.blockStyle.setLayoutWidth(layoutWidth);
+        return this;
+    }
+
+    /**
+     * 设置块级行高。
+     *
+     * @param lineHeight 行高，单位为像素
+     * @return 当前元素
+     */
+    public TextElement setLineHeight(int lineHeight) {
+        this.blockStyle.setLineHeight(Integer.valueOf(lineHeight));
         return this;
     }
 }

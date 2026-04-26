@@ -1,8 +1,6 @@
-package com.bytefuture.easy.poster.element.v2.text.resolve;
+package com.bytefuture.easy.poster.element.v2.text.style;
 
-import com.bytefuture.easy.poster.element.v2.text.style.BaseTextStyle;
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextStyle;
-import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
+import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedTextRun;
 import com.bytefuture.easy.poster.model.TextSpan;
 
 import java.awt.*;
@@ -42,9 +40,9 @@ public final class TextStyleResolver {
         // 字体名称：片段 > 块级 > 基础字体族名
         String fontName = firstNonNull(spanStyle.getFontName(), blockStyle.getFontName(), baseFont.getFamily());
         // 字体样式：片段 > 块级 > 基础字体样式
-        int fontStyle = firstNonNull(spanStyle.getFontStyle(), blockStyle.getFontStyle(), Integer.valueOf(baseFont.getStyle())).intValue();
+        int fontStyle = firstNonNull(spanStyle.getFontStyle(), blockStyle.getFontStyle(), baseFont.getStyle());
         // 字体大小：片段 > 块级 > 基础字体大小
-        int fontSize = firstNonNull(spanStyle.getFontSize(), blockStyle.getFontSize(), Integer.valueOf(baseFont.getSize())).intValue();
+        int fontSize = firstNonNull(spanStyle.getFontSize(), blockStyle.getFontSize(), baseFont.getSize());
         // 颜色：片段 > 块级 > 默认颜色
         Color color = firstNonNull(spanStyle.getColor(), blockStyle.getColor(), defaultColor);
         return new ResolvedTextRun(span.getText(), new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color));

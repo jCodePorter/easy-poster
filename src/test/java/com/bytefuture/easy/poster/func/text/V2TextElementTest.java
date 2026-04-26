@@ -131,6 +131,24 @@ public class V2TextElementTest {
     }
 
     @Test
+    public void shouldUseBlockLevelLineHeightForMultiLineLayout() {
+        TextElement element = TextElement.of("alpha beta gamma delta epsilon")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setAutoWordWrap(80)
+                .setLineHeight(40)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 300, 200);
+        TextLayoutResult layout = element.getLastLayout();
+
+        Assert.assertTrue(layout.getLines().size() > 1);
+        Assert.assertEquals(40, layout.getLineHeight());
+        Assert.assertEquals(layout.getLines().size() * 40, layout.getHeight());
+        Assert.assertTrue(layout.getBaselineOffset() < layout.getLineHeight());
+    }
+
+    @Test
     public void shouldRenderBasicRichTextColors() {
         TextElement element = TextElement.of(
                         TextSpan.of("RED").setColor(Color.RED),

@@ -11,17 +11,21 @@ import java.util.Objects;
  */
 @Getter
 public final class ResolvedTextRun {
+
     /**
-     * 运行段文本。
+     * 运行段文本
      */
     private final String text;
-    /** 运行段样式。 */
+
+    /**
+     * 运行段样式
+     */
     private final ResolvedTextStyle style;
 
     /**
      * 创建文本运行段。
      *
-     * @param text 运行段文本
+     * @param text  运行段文本
      * @param style 运行段样式
      */
     public ResolvedTextRun(String text, ResolvedTextStyle style) {
