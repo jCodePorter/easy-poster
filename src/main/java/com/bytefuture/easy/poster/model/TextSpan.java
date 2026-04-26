@@ -1,37 +1,15 @@
 package com.bytefuture.easy.poster.model;
 
+import com.bytefuture.easy.poster.element.v2.text.style.TextSpanStyle;
 import com.bytefuture.easy.poster.exception.PosterException;
 import lombok.Getter;
 
-import java.awt.*;
+import java.awt.Color;
 
-/**
- * Inline rich text span for TextElementUpgrade.
- */
 @Getter
 public class TextSpan {
-
     private final String text;
-
-    private Color color;
-
-    private Integer fontStyle;
-
-    private Integer fontSize;
-
-    private String fontName;
-
-    private Color backgroundColor;
-
-    private TextShadow shadow;
-
-    private TextStroke stroke;
-
-    private Integer baselineShift;
-
-    private Boolean underline;
-
-    private Boolean strikeThrough;
+    private final TextSpanStyle style = new TextSpanStyle();
 
     private TextSpan(String text) {
         this.text = text == null ? "" : text;
@@ -41,16 +19,36 @@ public class TextSpan {
         return new TextSpan(text);
     }
 
+    public Color getColor() {
+        return this.style.getColor();
+    }
+
+    public Integer getFontStyle() {
+        return this.style.getFontStyle();
+    }
+
+    public Integer getFontSize() {
+        return this.style.getFontSize();
+    }
+
+    public String getFontName() {
+        return this.style.getFontName();
+    }
+
+    public TextSpanStyle getStyle() {
+        return this.style;
+    }
+
     public TextSpan setColor(Color color) {
         if (color == null) {
             throw new PosterException("span color can not be null");
         }
-        this.color = color;
+        this.style.setColor(color);
         return this;
     }
 
     public TextSpan setFontStyle(int fontStyle) {
-        this.fontStyle = fontStyle;
+        this.style.setFontStyle(Integer.valueOf(fontStyle));
         return this;
     }
 
@@ -58,7 +56,7 @@ public class TextSpan {
         if (fontSize <= 0) {
             throw new PosterException("span fontSize must be greater than 0");
         }
-        this.fontSize = fontSize;
+        this.style.setFontSize(Integer.valueOf(fontSize));
         return this;
     }
 
@@ -66,46 +64,7 @@ public class TextSpan {
         if (fontName == null) {
             throw new PosterException("span fontName can not be null");
         }
-        this.fontName = fontName;
-        return this;
-    }
-
-    public TextSpan setBackgroundColor(Color backgroundColor) {
-        if (backgroundColor == null) {
-            throw new PosterException("span backgroundColor can not be null");
-        }
-        this.backgroundColor = backgroundColor;
-        return this;
-    }
-
-    public TextSpan setShadow(TextShadow shadow) {
-        if (shadow == null) {
-            throw new PosterException("span shadow can not be null");
-        }
-        this.shadow = shadow;
-        return this;
-    }
-
-    public TextSpan setStroke(TextStroke stroke) {
-        if (stroke == null) {
-            throw new PosterException("span stroke can not be null");
-        }
-        this.stroke = stroke;
-        return this;
-    }
-
-    public TextSpan setBaselineShift(int baselineShift) {
-        this.baselineShift = baselineShift;
-        return this;
-    }
-
-    public TextSpan setUnderline(boolean underline) {
-        this.underline = underline;
-        return this;
-    }
-
-    public TextSpan setStrikeThrough(boolean strikeThrough) {
-        this.strikeThrough = strikeThrough;
+        this.style.setFontName(fontName);
         return this;
     }
 }

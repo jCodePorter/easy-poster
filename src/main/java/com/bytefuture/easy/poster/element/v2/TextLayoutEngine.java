@@ -1,1028 +1,312 @@
 package com.bytefuture.easy.poster.element.v2;
 
-import com.bytefuture.easy.poster.element.v2.text.layout.*;
-import com.bytefuture.easy.poster.element.v2.text.wrap.*;
-import com.bytefuture.easy.poster.geometry.*;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
+import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedTextRun;
+import com.bytefuture.easy.poster.element.v2.text.resolve.TextStyleResolver;
+import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextStyle;
+import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
+import com.bytefuture.easy.poster.geometry.AbsolutePosition;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.model.*;
-import com.bytefuture.easy.poster.element.v2.text.metrics.DecorationMetricsResolver;
-import com.bytefuture.easy.poster.element.v2.text.metrics.TextMetricsService;
-import com.bytefuture.easy.poster.element.v2.text.split.ITextSplitter;
-import com.bytefuture.easy.poster.element.v2.text.split.SplitTextInfo;
-import com.bytefuture.easy.poster.element.v2.text.split.TextSplitterSimpleImpl;
+import com.bytefuture.easy.poster.geometry.Position;
+import com.bytefuture.easy.poster.model.Config;
+import com.bytefuture.easy.poster.model.PosterContext;
+import com.bytefuture.easy.poster.model.TextAlign;
+import com.bytefuture.easy.poster.model.TextSpan;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public final class TextLayoutEngine {
+    private final TextStyleResolver styleResolver = new TextStyleResolver();
 
-    private static final ITextSplitter DEFAULT_SPLITTER = new TextSplitterSimpleImpl();
-    private static final PlainTextWrapper PLAIN_WRAPPER = new PlainTextWrapper();
-    private static final RichTextWrapper RICH_WRAPPER = new RichTextWrapper();
-    private static final TextMetricsService METRICS = new TextMetricsService();
-    private static final DecorationMetricsResolver DECORATION = new DecorationMetricsResolver();
-    private static final TextDecorationInsets EMPTY_DECORATION_INSETS = new TextDecorationInsets(0, 0, 0, 0);
-
-    /**
-     * Calculate the final layout result for the current text element.
-     */
-    public TextLayoutResult layout(TextElementConfig config, Position position, int rotate,
+    public TextLayoutResult layout(TextElementConfig config, Position position, int rotate, Color overrideColor,
                                    PosterContext context, int posterWidth, int posterHeight) {
         if (config.isEmpty()) {
-            return createEmptyResult(position);
+            return TextLayoutResult.empty(position);
         }
-        return computeLayout(config, position, rotate, context, posterWidth, posterHeight);
-    }
 
-    /**
-     * Dispatch layout work by content type first, then by layout direction.
-     */
-    private TextLayoutResult computeLayout(TextElementConfig config, Position position, int rotate,
-                                           PosterContext context, int posterWidth, int posterHeight) {
+        Graphics2D graphics = context.getGraphics();
         Font baseFont = resolveBaseFont(config, context.getConfig());
-        if (config.isVerticalLayout()) {
-            return config.isRichText()
-                    ? layoutRichVertical(config, position, context, posterWidth, posterHeight, baseFont)
-                    : layoutPlainVertical(config, position, context, posterWidth, posterHeight, baseFont);
-        }
-        return config.isRichText()
-                ? layoutRichHorizontal(config, position, context, posterWidth, posterHeight, baseFont)
-                : layoutPlainHorizontal(config, position, context, posterWidth, posterHeight, baseFont);
+        Color defaultColor = resolveDefaultColor(config, overrideColor, context.getConfig());
+        TextBlockStyle blockStyle = config.toBlockStyle();
+        List<ResolvedTextRun> runs = resolveRuns(config.toRichSpans(), blockStyle, baseFont, defaultColor);
+        int lineHeight = resolveLineHeight(graphics, runs, baseFont);
+        int baselineOffset = resolveBaselineOffset(graphics, runs, baseFont);
+        int widthLimit = config.isAutoWordWrap() ? Math.max(0, config.getMaxTextWidth()) : 0;
+        List<TextLine> lines = wrapRuns(graphics, runs, widthLimit);
+        int layoutWidth = widthLimit > 0 ? widthLimit : resolveMaxLineWidth(lines);
+        List<TextLine> alignedLines = alignLines(lines, layoutWidth, config.getTextAlign());
+        int totalHeight = alignedLines.size() * lineHeight;
+        Point point = resolvePoint(position, posterWidth, posterHeight, layoutWidth, totalHeight);
+        int drawOffsetY = position instanceof AbsolutePosition ? config.getBaseLine().getOffset(
+                graphics.getFontMetrics(baseFont), lineHeight) : baselineOffset;
+        return new TextLayoutResult(point, layoutWidth, totalHeight, lineHeight, baselineOffset, drawOffsetY, alignedLines);
     }
 
-    /**
-     * Layout plain text in horizontal mode.
-     */
-    private TextLayoutResult layoutPlainHorizontal(TextElementConfig config, Position position,
-                                                   PosterContext context, int posterWidth, int posterHeight,
-                                                   Font baseFont) {
-        Graphics2D g = context.getGraphics();
-        TextAlign resolvedTextAlign = resolveTextAlign(config, position);
-        String text = normalizeText(config.getText());
-        Font renderFont = resolveRenderFont(config, text, baseFont, g);
-        FontMetrics fm = g.getFontMetrics(renderFont);
-        int lineHeight = resolveLineHeight(config.getLineHeight(), fm.getHeight());
-        int baselineOffset = METRICS.resolveBaselineOffset(fm, lineHeight);
-        TextRenderSpec renderSpec = buildRenderSpec(config, baseFont, resolvedTextAlign);
-
-        ITextSplitter splitter = config.getTextSplitter() != null ? config.getTextSplitter() : DEFAULT_SPLITTER;
-        PlainTextWrapper.ResolvedLines resolvedLines = PLAIN_WRAPPER.resolveLines(
-                renderSpec, text, fm, g, renderFont, splitter,
-                createPlainMeasurer(config));
-        TextDecorationInsets decorInsets = DECORATION.resolveTextInsets(
-                renderSpec, g, fm, lineHeight, baselineOffset);
-        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
-        int textWidth = resolvedLines.getLayoutWidth();
-        int textHeight = lineHeight * resolvedLines.getLines().size();
-        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
-                baselineOffset, lineHeight, decorInsets, paddingInsets, textWidth, textHeight, false);
-        List<LayoutLine> layoutLines = buildPlainLines(resolvedLines, contentPoint, resolvedTextAlign);
-        return buildLayoutResult(renderFont, config.getBaseLine(), resolvedTextAlign, TextLayoutMode.HORIZONTAL,
-                resolveOverflowStrategy(config), lineHeight, baselineOffset, position, posterWidth, posterHeight,
-                textWidth, textHeight, layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
-                decorInsets, paddingInsets, false);
-    }
-
-    /**
-     * Layout plain text in vertical mode.
-     */
-    private TextLayoutResult layoutPlainVertical(TextElementConfig config, Position position,
-                                                 PosterContext context, int posterWidth, int posterHeight,
-                                                 Font baseFont) {
-        Graphics2D g = context.getGraphics();
-        Font renderFont = baseFont;
-        FontMetrics fm = g.getFontMetrics(renderFont);
-        int lineHeight = resolveLineHeight(config.getLineHeight(), fm.getHeight());
-        int baselineOffset = METRICS.resolveBaselineOffset(fm, lineHeight);
-        List<String> columns = resolveVerticalColumns(config, lineHeight);
-        List<Integer> columnWidths = measureVerticalColumnWidths(columns, fm);
-        int contentWidth = resolveColumnBlockWidth(columnWidths, config.getColumnSpacing());
-        int contentHeight = resolveVerticalContentHeight(columns, config, lineHeight);
-        TextDecorationInsets decorInsets = EMPTY_DECORATION_INSETS;
-        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
-        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
-                baselineOffset, lineHeight, decorInsets, paddingInsets, contentWidth, contentHeight, true);
-        List<LayoutLine> layoutLines = buildVerticalLines(columns, columnWidths, contentPoint, contentHeight,
-                lineHeight, baselineOffset, fm, config.getVerticalAlign(), config.getVerticalDirection(),
-                config.getColumnSpacing());
-        return buildLayoutResult(renderFont, config.getBaseLine(), TextAlign.LEFT, TextLayoutMode.VERTICAL,
-                TextOverflowStrategy.VISIBLE, lineHeight, baselineOffset, position, posterWidth, posterHeight,
-                contentWidth, contentHeight, layoutLines, false, false, decorInsets, paddingInsets, true);
-    }
-
-    /**
-     * Layout rich text in horizontal mode.
-     */
-    private TextLayoutResult layoutRichHorizontal(TextElementConfig config, Position position,
-                                                  PosterContext context, int posterWidth, int posterHeight,
-                                                  Font baseFont) {
-        Graphics2D g = context.getGraphics();
-        TextAlign resolvedTextAlign = resolveTextAlign(config, position);
-        TextRenderSpec renderSpec = config.isAutoFitText()
-                ? resolveRichAutoFitRenderSpec(config, baseFont, g, resolvedTextAlign)
-                : buildRenderSpec(config, baseFont, resolvedTextAlign);
-        Font renderFont = renderSpec.getBaseFont();
-        int lineHeight = resolveRichLineHeight(renderSpec, g);
-        int baselineOffset = resolveRichBaselineOffset(renderSpec, g, lineHeight);
-        ResolvedRichTextLines resolvedLines = RICH_WRAPPER.resolveRichTextLines(
-                renderSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
-        List<RichLine> richLines = resolvedLines.getLines();
-        TextDecorationInsets decorInsets = DECORATION.resolveRichTextInsets(
-                renderSpec, g, renderFont, lineHeight, baselineOffset, richLines);
-        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
-        int textWidth = resolvedLines.getLayoutWidth();
-        int textHeight = lineHeight * richLines.size();
-        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
-                baselineOffset, lineHeight, decorInsets, paddingInsets, textWidth, textHeight, false);
-        List<LayoutLine> layoutLines = buildRichLines(richLines, contentPoint, textWidth,
-                resolvedTextAlign, resolvedLines, config.getLetterSpacing());
-        return buildLayoutResult(renderFont, config.getBaseLine(), resolvedTextAlign, TextLayoutMode.HORIZONTAL,
-                resolveOverflowStrategy(config), lineHeight, baselineOffset, position, posterWidth, posterHeight,
-                textWidth, textHeight, layoutLines, resolvedLines.isTruncated(), resolvedLines.isClipOverflow(),
-                decorInsets, paddingInsets, false);
-    }
-
-    /**
-     * Layout rich text in vertical mode.
-     */
-    private TextLayoutResult layoutRichVertical(TextElementConfig config, Position position,
-                                                PosterContext context, int posterWidth, int posterHeight,
-                                                Font baseFont) {
-        Graphics2D g = context.getGraphics();
-        Font renderFont = baseFont;
-        FontMetrics fm = g.getFontMetrics(renderFont);
-        int lineHeight = resolveLineHeight(config.getLineHeight(), fm.getHeight());
-        int baselineOffset = METRICS.resolveBaselineOffset(fm, lineHeight);
-        List<List<VerticalGlyph>> columns = resolveVerticalRichColumns(config, renderFont, lineHeight, g);
-        List<Integer> columnWidths = measureVerticalRichColumnWidths(columns);
-        int contentWidth = resolveColumnBlockWidth(columnWidths, config.getColumnSpacing());
-        int contentHeight = resolveVerticalRichContentHeight(columns, config, lineHeight);
-        TextDecorationInsets decorInsets = EMPTY_DECORATION_INSETS;
-        TextPaddingInsets paddingInsets = resolvePaddingInsets(config);
-        Point contentPoint = resolveContentPoint(position, posterWidth, posterHeight, config.getBaseLine(),
-                baselineOffset, lineHeight, decorInsets, paddingInsets, contentWidth, contentHeight, true);
-        List<LayoutLine> layoutLines = buildVerticalRichLines(columns, columnWidths, contentPoint, contentHeight,
-                lineHeight, config.getVerticalAlign(), config.getVerticalDirection(), config.getColumnSpacing());
-        return buildLayoutResult(renderFont, config.getBaseLine(), TextAlign.LEFT, TextLayoutMode.VERTICAL,
-                TextOverflowStrategy.VISIBLE, lineHeight, baselineOffset, position, posterWidth, posterHeight,
-                contentWidth, contentHeight, layoutLines, false, false, decorInsets, paddingInsets, true);
-    }
-
-    /**
-     * Resolve the base font used by the current text block.
-     */
-    private Font resolveBaseFont(TextElementConfig config, Config globalConfig) {
-        if (config.getFont() != null) {
-            return config.getFont();
-        }
-        Font baseFont = globalConfig.getFont();
-        if (baseFont != null) {
-            if (config.getFontName() != null) {
-                return new Font(config.getFontName(), config.getFontStyle(), config.getFontSize());
-            }
-            if (config.getFontStyle() == baseFont.getStyle() && config.getFontSize() == baseFont.getSize()) {
-                return baseFont;
-            }
-            return baseFont.deriveFont(config.getFontStyle(), (float) config.getFontSize());
-        }
-        return new Font(
-                config.getFontName() != null ? config.getFontName() : globalConfig.getFontName(),
-                config.getFontStyle(),
-                config.getFontSize()
-        );
-    }
-
-    private Font resolveRenderFont(TextElementConfig config, String text, Font baseFont, Graphics2D g) {
-        if (!config.isAutoFitText() || config.getAutoFitTargetWidth() <= 0 || text.isEmpty()) {
-            return baseFont;
-        }
-
-        int baseSize = baseFont.getSize();
-        int minSize = Math.max(1, Math.min(baseSize, config.getAutoFitMinFontSize()));
-        int baseWidth = METRICS.measureParagraphWidth(text, g.getFontMetrics(baseFont), g, config.getLetterSpacing());
-
-        if (baseWidth <= config.getAutoFitTargetWidth() || baseSize == minSize) {
-            return baseSize == minSize ? METRICS.deriveFont(baseFont, minSize) : baseFont;
-        }
-
-        Font bestFont = METRICS.deriveFont(baseFont, minSize);
-        int low = minSize;
-        int high = baseSize;
-        while (low <= high) {
-            int mid = (low + high) >>> 1;
-            Font candidate = METRICS.deriveFont(baseFont, mid);
-            int width = METRICS.measureParagraphWidth(text, g.getFontMetrics(candidate), g, config.getLetterSpacing());
-            if (width <= config.getAutoFitTargetWidth()) {
-                bestFont = candidate;
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
-        }
-        return bestFont;
-    }
-
-    /**
-     * Build the final result from shared box metrics instead of repeating width/height math per branch.
-     */
-    private TextLayoutResult buildLayoutResult(Font font, BaseLine baseLine, TextAlign textAlign,
-                                               TextLayoutMode textLayoutMode, TextOverflowStrategy overflowStrategy,
-                                               int lineHeight, int baselineOffset, Position position,
-                                               int posterWidth, int posterHeight, int contentWidth, int contentHeight,
-                                               List<LayoutLine> lines, boolean truncated, boolean clipOverflow,
-                                               TextDecorationInsets decorInsets, TextPaddingInsets paddingInsets,
-                                               boolean verticalLayout) {
-        int backgroundWidth = contentWidth + paddingInsets.getLeft() + paddingInsets.getRight();
-        int backgroundHeight = contentHeight + paddingInsets.getTop() + paddingInsets.getBottom();
-        int totalWidth = backgroundWidth + decorInsets.getLeft() + decorInsets.getRight();
-        int totalHeight = backgroundHeight + decorInsets.getTop() + decorInsets.getBottom();
-        Point blockPoint = resolveBlockPoint(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                contentWidth, contentHeight, baseLine, baselineOffset, lineHeight, decorInsets, paddingInsets, verticalLayout);
-        return new TextLayoutResult(font, baseLine, textAlign, textLayoutMode, overflowStrategy,
-                lineHeight, baselineOffset, blockPoint, totalWidth, totalHeight,
-                contentWidth, contentHeight, backgroundWidth, backgroundHeight,
-                lines, truncated, clipOverflow, decorInsets, paddingInsets);
-    }
-
-    /**
-     * Resolve the top-left drawing origin of the whole text block.
-     */
-    private Point resolveBlockPoint(Position position, int posterWidth, int posterHeight,
-                                    int totalWidth, int totalHeight, int contentWidth, int contentHeight,
-                                    BaseLine baseLine, int baselineOffset, int lineHeight,
-                                    TextDecorationInsets decorInsets, TextPaddingInsets paddingInsets,
-                                    boolean verticalLayout) {
-        if (position instanceof AbsolutePosition) {
-            Point anchor = position.calculate(posterWidth, posterHeight, contentWidth, contentHeight);
-            if (verticalLayout) {
-                return Point.of(
-                        anchor.getX() - decorInsets.getLeft() - paddingInsets.getLeft(),
-                        anchor.getY() - decorInsets.getTop() - paddingInsets.getTop()
-                );
-            }
-            int offsetY = resolveBaselineOffset(baseLine, baselineOffset, lineHeight);
-            return Point.of(
-                    anchor.getX() - decorInsets.getLeft() - paddingInsets.getLeft(),
-                    anchor.getY() - offsetY - decorInsets.getTop() - paddingInsets.getTop()
-            );
-        }
-        if (position != null) {
-            return position.calculate(posterWidth, posterHeight, totalWidth, totalHeight);
-        }
-        return Point.ORIGIN_COORDINATE;
-    }
-
-    /**
-     * Resolve the top-left content point so line builders do not repeat the same offset math.
-     */
-    private Point resolveContentPoint(Position position, int posterWidth, int posterHeight, BaseLine baseLine,
-                                      int baselineOffset, int lineHeight, TextDecorationInsets decorInsets,
-                                      TextPaddingInsets paddingInsets, int contentWidth, int contentHeight,
-                                      boolean verticalLayout) {
-        int totalWidth = contentWidth + paddingInsets.getLeft() + paddingInsets.getRight()
-                + decorInsets.getLeft() + decorInsets.getRight();
-        int totalHeight = contentHeight + paddingInsets.getTop() + paddingInsets.getBottom()
-                + decorInsets.getTop() + decorInsets.getBottom();
-        Point blockPoint = resolveBlockPoint(position, posterWidth, posterHeight, totalWidth, totalHeight,
-                contentWidth, contentHeight, baseLine, baselineOffset, lineHeight, decorInsets, paddingInsets, verticalLayout);
-        return Point.of(
-                blockPoint.getX() + decorInsets.getLeft() + paddingInsets.getLeft(),
-                blockPoint.getY() + decorInsets.getTop() + paddingInsets.getTop()
-        );
-    }
-
-    private int resolveLineHeight(Integer configuredLineHeight, int defaultLineHeight) {
-        return configuredLineHeight != null ? configuredLineHeight : defaultLineHeight;
-    }
-
-    private TextPaddingInsets resolvePaddingInsets(TextElementConfig config) {
-        return new TextPaddingInsets(
-                config.getTextPadding().getMarginLeft(),
-                config.getTextPadding().getMarginTop(),
-                config.getTextPadding().getMarginRight(),
-                config.getTextPadding().getMarginBottom()
-        );
-    }
-
-    private int resolveBaselineOffset(BaseLine baseLine, int baselineOffset, int lineHeight) {
-        switch (baseLine) {
-            case TOP:
-                return 0;
-            case CENTER:
-                return lineHeight / 2;
-            case BOTTOM:
-                return lineHeight;
-            default:
-                return baselineOffset;
-        }
-    }
-
-    private List<LayoutLine> buildPlainLines(PlainTextWrapper.ResolvedLines resolved, Point contentPoint, TextAlign align) {
-        List<LayoutLine> lines = new ArrayList<>(resolved.getLines().size());
-        int layoutWidth = resolved.getLayoutWidth();
-        boolean clipOverflow = resolved.isClipOverflow();
-
-        for (int i = 0; i < resolved.getLines().size(); i++) {
-            SplitTextInfo line = resolved.getLines().get(i);
-            boolean justified = shouldJustify(align, line, i, resolved);
-            int offsetX = justified ? 0 : align.offset(layoutWidth, line.getWidth());
-            int renderWidth = justified ? layoutWidth : (clipOverflow ? Math.min(line.getWidth(), layoutWidth) : line.getWidth());
-
-            lines.add(new LayoutLine(line.getText(), line.getWidth(),
-                    Point.of(contentPoint.getX() + offsetX, contentPoint.getY()),
-                    justified, renderWidth, null));
-        }
-        return lines;
-    }
-
-    private List<LayoutLine> buildVerticalLines(List<String> columns, List<Integer> columnWidths, Point contentPoint,
-                                                int contentHeight, int lineHeight, int baselineOffset, FontMetrics fm,
-                                                VerticalAlign verticalAlign, VerticalDirection verticalDirection,
-                                                int columnSpacing) {
-        List<LayoutLine> lines = new ArrayList<>(columns.size());
-        if (columns.isEmpty()) {
-            return lines;
-        }
-
-        int totalWidth = 0;
-        for (int i = 0; i < columnWidths.size(); i++) {
-            totalWidth += columnWidths.get(i);
-            if (i > 0) {
-                totalWidth += columnSpacing;
-            }
-        }
-
-        int currentX = verticalDirection == VerticalDirection.LEFT_TO_RIGHT
-                ? contentPoint.getX()
-                : contentPoint.getX() + totalWidth;
-        for (int i = 0; i < columns.size(); i++) {
-            int columnWidth = columnWidths.get(i);
-            if (verticalDirection == VerticalDirection.RIGHT_TO_LEFT) {
-                currentX -= columnWidth;
-            }
-            List<VerticalGlyph> glyphs = buildVerticalGlyphs(columns.get(i), columnWidth, contentHeight, lineHeight,
-                    baselineOffset, fm, verticalAlign);
-            lines.add(new LayoutLine(columns.get(i), columnWidth, Point.of(currentX, contentPoint.getY()),
-                    false, columnWidth, null, glyphs));
-            if (verticalDirection == VerticalDirection.LEFT_TO_RIGHT) {
-                currentX += columnWidth + columnSpacing;
-            } else {
-                currentX -= columnSpacing;
-            }
-        }
-        return lines;
-    }
-
-    private List<LayoutLine> buildVerticalRichLines(List<List<VerticalGlyph>> columns, List<Integer> columnWidths,
-                                                    Point contentPoint, int contentHeight, int lineHeight,
-                                                    VerticalAlign verticalAlign, VerticalDirection verticalDirection,
-                                                    int columnSpacing) {
-        List<LayoutLine> lines = new ArrayList<>(columns.size());
-        if (columns.isEmpty()) {
-            return lines;
-        }
-
-        int totalWidth = 0;
-        for (int i = 0; i < columnWidths.size(); i++) {
-            totalWidth += columnWidths.get(i);
-            if (i > 0) {
-                totalWidth += columnSpacing;
-            }
-        }
-
-        int currentX = verticalDirection == VerticalDirection.LEFT_TO_RIGHT
-                ? contentPoint.getX()
-                : contentPoint.getX() + totalWidth;
-        for (int i = 0; i < columns.size(); i++) {
-            int columnWidth = columnWidths.get(i);
-            if (verticalDirection == VerticalDirection.RIGHT_TO_LEFT) {
-                currentX -= columnWidth;
-            }
-            List<VerticalGlyph> glyphs = positionVerticalRichGlyphs(columns.get(i), columnWidth, contentHeight,
-                    lineHeight, verticalAlign);
-            StringBuilder text = new StringBuilder();
-            for (VerticalGlyph glyph : glyphs) {
-                text.append(glyph.getText());
-            }
-            lines.add(new LayoutLine(text.toString(), columnWidth, Point.of(currentX, contentPoint.getY()),
-                    false, columnWidth, null, glyphs));
-            if (verticalDirection == VerticalDirection.LEFT_TO_RIGHT) {
-                currentX += columnWidth + columnSpacing;
-            } else {
-                currentX -= columnSpacing;
-            }
-        }
-        return lines;
-    }
-
-    private List<VerticalGlyph> buildVerticalGlyphs(String column, int columnWidth, int contentHeight, int lineHeight,
-                                                    int baselineOffset, FontMetrics fm, VerticalAlign verticalAlign) {
-        if (column == null || column.isEmpty()) {
+    private List<ResolvedTextRun> resolveRuns(List<TextSpan> spans, TextBlockStyle blockStyle,
+                                              Font baseFont, Color defaultColor) {
+        if (spans.isEmpty()) {
             return Collections.emptyList();
         }
-        List<String> glyphTexts = splitGlyphs(column);
-        int glyphCount = glyphTexts.size();
-        int naturalHeight = glyphCount * lineHeight;
-        int startY = resolveVerticalStartY(verticalAlign, contentHeight, naturalHeight);
-        double justifyStep = resolveJustifyStep(verticalAlign, glyphCount, contentHeight, lineHeight);
-
-        List<VerticalGlyph> glyphs = new ArrayList<>(glyphCount);
-        for (int i = 0; i < glyphCount; i++) {
-            String glyphText = glyphTexts.get(i);
-            int glyphWidth = fm.stringWidth(glyphText);
-            int xOffset = Math.max(0, (columnWidth - glyphWidth) / 2);
-            int yOffset = verticalAlign == VerticalAlign.JUSTIFY && glyphCount > 1
-                    ? (int) Math.round(i * justifyStep)
-                    : startY + i * lineHeight;
-            glyphs.add(new VerticalGlyph(glyphText, xOffset, yOffset, glyphWidth));
+        List<ResolvedTextRun> runs = new ArrayList<ResolvedTextRun>(spans.size());
+        for (TextSpan span : spans) {
+            runs.add(styleResolver.resolve(span, blockStyle, baseFont, defaultColor));
         }
-        return glyphs;
+        return runs;
     }
 
-    private List<VerticalGlyph> positionVerticalRichGlyphs(List<VerticalGlyph> glyphs, int columnWidth,
-                                                           int contentHeight, int lineHeight,
-                                                           VerticalAlign verticalAlign) {
-        if (glyphs.isEmpty()) {
-            return Collections.emptyList();
+    private List<TextLine> wrapRuns(Graphics2D graphics, List<ResolvedTextRun> runs, int widthLimit) {
+        List<Token> tokens = tokenizeRuns(runs, graphics);
+        if (tokens.isEmpty()) {
+            return Collections.singletonList(TextLine.empty());
         }
-        int naturalHeight = glyphs.size() * lineHeight;
-        int startY = resolveVerticalStartY(verticalAlign, contentHeight, naturalHeight);
-        double justifyStep = resolveJustifyStep(verticalAlign, glyphs.size(), contentHeight, lineHeight);
-        List<VerticalGlyph> positioned = new ArrayList<>(glyphs.size());
-        for (int i = 0; i < glyphs.size(); i++) {
-            VerticalGlyph glyph = glyphs.get(i);
-            int xOffset = Math.max(0, (columnWidth - glyph.getWidth()) / 2);
-            int yOffset = verticalAlign == VerticalAlign.JUSTIFY && glyphs.size() > 1
-                    ? (int) Math.round(i * justifyStep)
-                    : startY + i * lineHeight;
-            positioned.add(new VerticalGlyph(glyph.getText(), xOffset, yOffset, glyph.getWidth(),
-                    glyph.getFont(), glyph.getColor(), glyph.isUnderline(), glyph.isStrikeThrough()));
+
+        List<TextLine> lines = new ArrayList<TextLine>();
+        List<Token> current = new ArrayList<Token>();
+        int currentWidth = 0;
+
+        for (Token token : tokens) {
+            if (token.type == TokenType.NEWLINE) {
+                lines.add(buildLine(current, currentWidth));
+                current = new ArrayList<Token>();
+                currentWidth = 0;
+                continue;
+            }
+
+            if (widthLimit <= 0) {
+                current.add(token);
+                currentWidth += token.width;
+                continue;
+            }
+
+            if (token.type == TokenType.SPACE && current.isEmpty()) {
+                continue;
+            }
+
+            if (token.width > widthLimit) {
+                if (!current.isEmpty()) {
+                    lines.add(buildLine(current, currentWidth));
+                    current = new ArrayList<Token>();
+                    currentWidth = 0;
+                }
+                List<Token> pieces = splitOversizedToken(token, widthLimit, graphics);
+                for (int i = 0; i < pieces.size(); i++) {
+                    Token piece = pieces.get(i);
+                    if (i == pieces.size() - 1) {
+                        current.add(piece);
+                        currentWidth = piece.width;
+                    } else {
+                        lines.add(buildLine(Collections.singletonList(piece), piece.width));
+                    }
+                }
+                continue;
+            }
+
+            if (currentWidth + token.width <= widthLimit || current.isEmpty()) {
+                current.add(token);
+                currentWidth += token.width;
+                continue;
+            }
+
+            if (token.type == TokenType.SPACE) {
+                lines.add(buildLine(current, currentWidth));
+                current = new ArrayList<Token>();
+                currentWidth = 0;
+                continue;
+            }
+
+            lines.add(buildLine(current, currentWidth));
+            current = new ArrayList<Token>();
+            current.add(token);
+            currentWidth = token.width;
         }
-        return positioned;
+
+        if (!current.isEmpty() || lines.isEmpty()) {
+            lines.add(buildLine(current, currentWidth));
+        }
+        return lines;
     }
 
-    private List<String> splitGlyphs(String text) {
-        List<String> glyphs = new ArrayList<>();
-        for (int i = 0; i < text.length(); ) {
-            int codePoint = text.codePointAt(i);
-            glyphs.add(new String(Character.toChars(codePoint)));
+    private List<Token> tokenizeRuns(List<ResolvedTextRun> runs, Graphics2D graphics) {
+        List<Token> tokens = new ArrayList<Token>();
+        for (ResolvedTextRun run : runs) {
+            String text = run.getText();
+            if (text.isEmpty()) {
+                continue;
+            }
+            StringBuilder buffer = new StringBuilder();
+            TokenType currentType = null;
+            for (int i = 0; i < text.length(); ) {
+                int codePoint = text.codePointAt(i);
+                String ch = new String(Character.toChars(codePoint));
+                i += Character.charCount(codePoint);
+
+                if ("\r".equals(ch)) {
+                    continue;
+                }
+                if ("\n".equals(ch)) {
+                    flushBufferedToken(tokens, buffer, currentType, run, graphics);
+                    currentType = null;
+                    tokens.add(new Token(TokenType.NEWLINE, "\n", run.getStyle(), 0));
+                    continue;
+                }
+
+                TokenType tokenType = Character.isWhitespace(codePoint) ? TokenType.SPACE : TokenType.WORD;
+                if (currentType != null && currentType != tokenType) {
+                    flushBufferedToken(tokens, buffer, currentType, run, graphics);
+                }
+                currentType = tokenType;
+                buffer.append(ch);
+            }
+            flushBufferedToken(tokens, buffer, currentType, run, graphics);
+        }
+        return tokens;
+    }
+
+    private void flushBufferedToken(List<Token> tokens, StringBuilder buffer, TokenType type,
+                                    ResolvedTextRun run, Graphics2D graphics) {
+        if (type == null || buffer.length() == 0) {
+            return;
+        }
+        String text = buffer.toString();
+        int width = measureText(graphics, text, run.getStyle().getFont());
+        tokens.add(new Token(type, text, run.getStyle(), width));
+        buffer.setLength(0);
+    }
+
+    private List<Token> splitOversizedToken(Token token, int widthLimit, Graphics2D graphics) {
+        List<Token> pieces = new ArrayList<Token>();
+        StringBuilder builder = new StringBuilder();
+        int width = 0;
+        for (int i = 0; i < token.text.length(); ) {
+            int codePoint = token.text.codePointAt(i);
+            String ch = new String(Character.toChars(codePoint));
             i += Character.charCount(codePoint);
+            int charWidth = measureText(graphics, ch, token.style.getFont());
+            if (builder.length() > 0 && width + charWidth > widthLimit) {
+                pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width));
+                builder.setLength(0);
+                width = 0;
+            }
+            builder.append(ch);
+            width += charWidth;
         }
-        return glyphs;
+        if (builder.length() > 0) {
+            pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width));
+        }
+        return pieces;
     }
 
-    private int resolveVerticalStartY(VerticalAlign verticalAlign, int contentHeight, int naturalHeight) {
-        switch (verticalAlign) {
-            case BOTTOM:
-                return Math.max(0, contentHeight - naturalHeight);
-            case MIDDLE:
-                return Math.max(0, (contentHeight - naturalHeight) / 2);
-            default:
-                return 0;
+    private TextLine buildLine(List<Token> tokens, int width) {
+        if (tokens.isEmpty()) {
+            return TextLine.empty();
         }
-    }
-
-    private double resolveJustifyStep(VerticalAlign verticalAlign, int glyphCount, int contentHeight, int lineHeight) {
-        if (verticalAlign != VerticalAlign.JUSTIFY || glyphCount <= 1) {
-            return lineHeight;
-        }
-        return (double) (contentHeight - lineHeight) / (glyphCount - 1);
-    }
-
-    private List<LayoutLine> buildRichLines(List<RichLine> richLines, Point contentPoint, int textWidth,
-                                            TextAlign align, ResolvedRichTextLines resolved, int letterSpacing) {
-        List<LayoutLine> lines = new ArrayList<>(richLines.size());
-        boolean clipOverflow = resolved.isClipOverflow();
-
-        for (int i = 0; i < richLines.size(); i++) {
-            RichLine richLine = richLines.get(i);
-            boolean justified = shouldJustify(align, richLine, i, richLines, textWidth);
-            int offsetX = justified ? 0 : align.offset(textWidth, richLine.getWidth());
-            List<RichTextFragment> fragments = justified
-                    ? justifyRichFragments(richLine, textWidth, letterSpacing)
-                    : shiftRichFragments(richLine.getFragments(), offsetX);
-            int renderWidth = justified
-                    ? textWidth
-                    : (clipOverflow ? Math.min(richLine.getWidth(), textWidth) : richLine.getWidth());
-
-            lines.add(new LayoutLine(richLine.getText(), richLine.getWidth(),
-                    Point.of(contentPoint.getX(), contentPoint.getY()),
-                    justified, renderWidth, fragments));
-        }
-        return lines;
-    }
-
-    private List<RichTextFragment> shiftRichFragments(List<RichTextFragment> fragments, int offsetX) {
-        List<RichTextFragment> shifted = new ArrayList<>(fragments.size());
-        for (RichTextFragment fragment : fragments) {
-            shifted.add(fragment.shiftX(offsetX));
-        }
-        return shifted;
-    }
-
-    private boolean shouldJustify(TextAlign align, RichLine line, int index, List<RichLine> lines, int layoutWidth) {
-        if (align != TextAlign.JUSTIFY) return false;
-        if (index >= lines.size() - 1) return false;
-        if (layoutWidth <= line.getWidth()) return false;
-        return line.getText() != null && line.getText().contains(" ");
-    }
-
-    private List<RichTextFragment> justifyRichFragments(RichLine line, int layoutWidth, int letterSpacing) {
-        List<RichTextFragment> segmented = splitFragmentsForJustify(line, letterSpacing);
-        if (segmented.isEmpty()) {
-            return segmented;
-        }
-
-        int totalExtra = layoutWidth - line.getWidth();
-        int gapCount = countExpandableRichGaps(segmented);
-        if (totalExtra <= 0 || gapCount <= 0) {
-            return segmented;
-        }
-
-        int baseExtra = totalExtra / gapCount;
-        int remainder = totalExtra % gapCount;
-        int shiftX = 0;
-        List<RichTextFragment> justified = new ArrayList<>(segmented.size());
-        for (RichTextFragment fragment : segmented) {
-            justified.add(fragment.shiftX(shiftX));
-            if (fragment.getText().endsWith(" ")) {
-                shiftX += baseExtra;
-                if (remainder > 0) {
-                    shiftX++;
-                    remainder--;
-                }
+        List<ResolvedTextRun> runs = new ArrayList<ResolvedTextRun>(tokens.size());
+        StringBuilder builder = new StringBuilder();
+        for (Token token : tokens) {
+            builder.append(token.text);
+            if (!runs.isEmpty() && hasSameStyle(runs.get(runs.size() - 1).getStyle(), token.style)) {
+                ResolvedTextRun previous = runs.remove(runs.size() - 1);
+                runs.add(new ResolvedTextRun(previous.getText() + token.text, previous.getStyle()));
+            } else {
+                runs.add(new ResolvedTextRun(token.text, token.style));
             }
         }
-        return justified;
+        return new TextLine(builder.toString(), width, 0, runs);
     }
 
-    private List<RichTextFragment> splitFragmentsForJustify(RichLine line, int letterSpacing) {
-        List<RichTextFragment> segmented = new ArrayList<>();
-        List<RichGlyph> glyphs = line.getGlyphs();
-        if (glyphs == null || glyphs.isEmpty()) {
-            return segmented;
+    private boolean hasSameStyle(ResolvedTextStyle left, ResolvedTextStyle right) {
+        return left.getFont().equals(right.getFont()) && left.getColor().equals(right.getColor());
+    }
+
+    private List<TextLine> alignLines(List<TextLine> lines, int layoutWidth, TextAlign align) {
+        List<TextLine> aligned = new ArrayList<TextLine>(lines.size());
+        for (TextLine line : lines) {
+            aligned.add(line.withOffsetX(align.offset(layoutWidth, line.getWidth())));
         }
+        return aligned;
+    }
 
-        StringBuilder segmentText = new StringBuilder();
-        RichGlyph segmentStyle = null;
-        int segmentStartX = 0;
-        int segmentWidth = 0;
-        int currentX = 0;
-        boolean firstGlyph = true;
-
-        for (RichGlyph glyph : glyphs) {
-            if (!firstGlyph) {
-                currentX += letterSpacing;
-            }
-
-            if (segmentStyle == null || !segmentStyle.hasSameStyle(glyph)) {
-                if (segmentStyle != null && segmentText.length() > 0) {
-                    segmented.add(new RichTextFragment(segmentText.toString(), segmentStartX, segmentWidth,
-                            segmentStyle.getFont(), segmentStyle.getColor(),
-                            segmentStyle.getBackgroundColor(), segmentStyle.getShadow(),
-                            segmentStyle.getStroke(), segmentStyle.getBaselineShift(),
-                            segmentStyle.isUnderline(), segmentStyle.isStrikeThrough()));
-                }
-                segmentText = new StringBuilder();
-                segmentStyle = glyph;
-                segmentStartX = currentX;
-                segmentWidth = 0;
-            }
-
-            segmentText.append(glyph.getText());
-            segmentWidth = currentX + glyph.getWidth() - segmentStartX;
-
-            if (" ".equals(glyph.getText())) {
-                segmented.add(new RichTextFragment(segmentText.toString(), segmentStartX, segmentWidth,
-                        segmentStyle.getFont(), segmentStyle.getColor(),
-                        segmentStyle.getBackgroundColor(), segmentStyle.getShadow(),
-                        segmentStyle.getStroke(), segmentStyle.getBaselineShift(),
-                        segmentStyle.isUnderline(), segmentStyle.isStrikeThrough()));
-                segmentText = new StringBuilder();
-                segmentStyle = null;
-                segmentWidth = 0;
-            }
-
-            currentX += glyph.getWidth();
-            firstGlyph = false;
+    private int resolveMaxLineWidth(List<TextLine> lines) {
+        int maxWidth = 0;
+        for (TextLine line : lines) {
+            maxWidth = Math.max(maxWidth, line.getWidth());
         }
+        return maxWidth;
+    }
 
-        if (segmentStyle != null && segmentText.length() > 0) {
-            segmented.add(new RichTextFragment(segmentText.toString(), segmentStartX, segmentWidth,
-                    segmentStyle.getFont(), segmentStyle.getColor(),
-                    segmentStyle.getBackgroundColor(), segmentStyle.getShadow(),
-                    segmentStyle.getStroke(), segmentStyle.getBaselineShift(),
-                    segmentStyle.isUnderline(), segmentStyle.isStrikeThrough()));
+    private Point resolvePoint(Position position, int posterWidth, int posterHeight, int width, int height) {
+        if (position == null) {
+            return Point.ORIGIN_COORDINATE;
         }
-        return segmented;
+        return position.calculate(posterWidth, posterHeight, width, height);
     }
 
-    private int countExpandableRichGaps(List<RichTextFragment> fragments) {
-        int gapCount = 0;
-        for (RichTextFragment fragment : fragments) {
-            if (fragment.getText().endsWith(" ")) {
-                gapCount++;
-            }
-        }
-        return gapCount;
-    }
-
-    private boolean shouldJustify(TextAlign align, SplitTextInfo line, int index, PlainTextWrapper.ResolvedLines resolved) {
-        if (align != TextAlign.JUSTIFY) return false;
-        if (index >= resolved.getLines().size() - 1) return false;
-        if (resolved.getLayoutWidth() <= line.getWidth()) return false;
-        return line.getText() != null && line.getText().contains(" ");
-    }
-
-    /**
-     * Resolve the effective overflow strategy from explicit config or width control mode.
-     */
-    private TextOverflowStrategy resolveOverflowStrategy(TextElementConfig config) {
-        if (config.getOverflowStrategy() != null) return config.getOverflowStrategy();
-        if (config.isAutoWordWrap()) return TextOverflowStrategy.WRAP;
-        return TextOverflowStrategy.VISIBLE;
-    }
-
-    private String normalizeText(String text) {
-        return text == null ? "" : text.replace("\r\n", "\n").replace('\r', '\n');
-    }
-
-    private TextLayoutResult createEmptyResult(Position position) {
-        Point point = position != null ? position.calculate(0, 0, 0, 0) : Point.ORIGIN_COORDINATE;
-        TextPaddingInsets padding = new TextPaddingInsets(0, 0, 0, 0);
-        TextDecorationInsets decor = new TextDecorationInsets(0, 0, 0, 0);
-        return new TextLayoutResult(
-                new Font("SansSerif", Font.PLAIN, 16), BaseLine.BASE_LINE, TextAlign.LEFT, TextLayoutMode.HORIZONTAL,
-                TextOverflowStrategy.VISIBLE, 16, 12, point, 0, 0, 0, 0, 0, 0,
-                new ArrayList<LayoutLine>(), false, false, decor, padding
-        );
-    }
-
-    private TextRenderSpec buildRenderSpec(TextElementConfig config, Font baseFont, TextAlign resolvedTextAlign) {
-        return buildRenderSpec(config, baseFont, resolvedTextAlign, config.getTextSpans(), config.getLineHeight());
-    }
-
-    private TextRenderSpec buildRenderSpec(TextElementConfig config, Font baseFont, TextAlign resolvedTextAlign,
-                                           List<TextSpan> textSpans, Integer lineHeight) {
-        return new TextRenderSpec(
-                config.getText(), textSpans, null,
-                java.awt.Color.BLACK, baseFont, config.getBaseLine(), lineHeight,
-                resolvedTextAlign, resolveOverflowStrategy(config), config.getMaxLines(),
-                config.getEllipsis(), config.getShadow(), config.getStroke(),
-                config.getLetterSpacing(), config.getTextBackgroundColor(), config.getTextPadding(),
-                config.getTextBackgroundArcWidth(), config.getTextBackgroundArcHeight(),
-                0, config.isAutoWordWrap(), config.getMaxTextWidth(),
-                config.isAutoFitText(), config.getAutoFitTargetWidth(), config.getAutoFitMinFontSize(),
-                config.isUnderline(), config.isStrikeThrough()
-        );
-    }
-
-    private TextAlign resolveTextAlign(TextElementConfig config, Position position) {
-        if (config.getTextAlign() != null) {
-            return config.getTextAlign();
-        }
-        if (position instanceof RelativePosition) {
-            Direction direction = ((RelativePosition) position).getDirection();
-            if (direction == Direction.CENTER || direction == Direction.TOP_CENTER || direction == Direction.BOTTOM_CENTER) {
-                return TextAlign.CENTER;
-            }
-            if (direction == Direction.TOP_RIGHT || direction == Direction.RIGHT_CENTER || direction == Direction.RIGHT_BOTTOM) {
-                return TextAlign.RIGHT;
-            }
-        }
-        return TextAlign.LEFT;
-    }
-
-    private PlainTextWrapper.Measurer createPlainMeasurer(final TextElementConfig config) {
-        return new PlainTextWrapper.Measurer() {
-            @Override
-            public int measureLineWidth(String text, FontMetrics fm, Graphics2D g) {
-                return METRICS.measureLineWidth(text, fm, g, config.getLetterSpacing());
-            }
-
-            @Override
-            public int measureParagraphWidth(String text, FontMetrics fm, Graphics2D g) {
-                return METRICS.measureParagraphWidth(text, fm, g, config.getLetterSpacing());
-            }
-        };
-    }
-
-    private RichTextWrapper.Measurer createRichMeasurer(Graphics2D g) {
-        return new RichTextWrapper.Measurer() {
-            @Override
-            public int measureBaseStringWidth(String text, FontMetrics fm, Graphics2D graphics) {
-                return METRICS.measureBaseStringWidth(text, fm, graphics);
-            }
-
-            @Override
-            public int measureRichGlyphsWidth(List<RichGlyph> glyphs, int letterSpacing) {
-                int width = 0;
-                for (int i = 0; i < glyphs.size(); i++) {
-                    if (i > 0) width += letterSpacing;
-                    width += glyphs.get(i).getWidth();
-                }
-                return width;
-            }
-
-            @Override
-            public String normalizeLineBreaks(String text) {
-                return text.replace("\r\n", "\n").replace('\r', '\n');
-            }
-        };
-    }
-
-    private int resolveRichLineHeight(TextRenderSpec renderSpec, Graphics2D graphics) {
-        if (renderSpec.getLineHeight() != null) {
-            return renderSpec.getLineHeight();
-        }
-        Font baseFont = renderSpec.getBaseFont();
+    private int resolveLineHeight(Graphics2D graphics, List<ResolvedTextRun> runs, Font baseFont) {
         int maxHeight = graphics.getFontMetrics(baseFont).getHeight();
-        for (TextSpan span : renderSpec.getTextSpans()) {
-            Font spanFont = resolveRichSpanFont(span, baseFont);
-            maxHeight = Math.max(maxHeight, graphics.getFontMetrics(spanFont).getHeight());
+        for (ResolvedTextRun run : runs) {
+            maxHeight = Math.max(maxHeight, graphics.getFontMetrics(run.getStyle().getFont()).getHeight());
         }
         return maxHeight;
     }
 
-    private int resolveRichBaselineOffset(TextRenderSpec renderSpec, Graphics2D graphics, int lineHeight) {
-        Font baseFont = renderSpec.getBaseFont();
-        int maxOffset = METRICS.resolveBaselineOffset(graphics.getFontMetrics(baseFont), lineHeight);
-        for (TextSpan span : renderSpec.getTextSpans()) {
-            Font spanFont = resolveRichSpanFont(span, baseFont);
-            maxOffset = Math.max(maxOffset,
-                    METRICS.resolveBaselineOffset(graphics.getFontMetrics(spanFont), lineHeight));
+    private int resolveBaselineOffset(Graphics2D graphics, List<ResolvedTextRun> runs, Font baseFont) {
+        int maxAscent = graphics.getFontMetrics(baseFont).getAscent();
+        for (ResolvedTextRun run : runs) {
+            maxAscent = Math.max(maxAscent, graphics.getFontMetrics(run.getStyle().getFont()).getAscent());
         }
-        return maxOffset;
+        return maxAscent;
     }
 
-    private Font resolveRichSpanFont(TextSpan span, Font baseFont) {
-        int resolvedStyle = span.getFontStyle() != null ? span.getFontStyle() : baseFont.getStyle();
-        int resolvedSize = span.getFontSize() != null ? span.getFontSize() : Math.round(baseFont.getSize2D());
-        if (span.getFontName() != null) {
-            return new Font(span.getFontName(), resolvedStyle, resolvedSize);
-        }
-        if (resolvedStyle == baseFont.getStyle() && resolvedSize == Math.round(baseFont.getSize2D())) {
-            return baseFont;
-        }
-        return baseFont.deriveFont(resolvedStyle, (float) resolvedSize);
+    private int measureText(Graphics2D graphics, String text, Font font) {
+        FontMetrics metrics = graphics.getFontMetrics(font);
+        return metrics.stringWidth(text);
     }
 
-    private List<List<VerticalGlyph>> resolveVerticalRichColumns(TextElementConfig config, Font baseFont,
-                                                                 int lineHeight, Graphics2D graphics) {
-        List<List<VerticalGlyph>> rawColumns = new ArrayList<>();
-        List<VerticalGlyph> currentColumn = new ArrayList<>();
-        Color defaultColor = Color.BLACK;
-        for (TextSpan span : config.getTextSpans()) {
-            Font spanFont = resolveRichSpanFont(span, baseFont);
-            Color spanColor = span.getColor() != null ? span.getColor() : defaultColor;
-            boolean underline = span.getUnderline() != null ? span.getUnderline() : config.isUnderline();
-            boolean strikeThrough = span.getStrikeThrough() != null ? span.getStrikeThrough() : config.isStrikeThrough();
-            String normalized = normalizeText(span.getText());
-            for (int i = 0; i < normalized.length(); ) {
-                int codePoint = normalized.codePointAt(i);
-                i += Character.charCount(codePoint);
-                if (codePoint == '\n') {
-                    rawColumns.add(currentColumn);
-                    currentColumn = new ArrayList<>();
-                    continue;
-                }
-                String glyphText = new String(Character.toChars(codePoint));
-                int width = graphics.getFontMetrics(spanFont).stringWidth(glyphText);
-                currentColumn.add(new VerticalGlyph(glyphText, 0, 0, width, spanFont, spanColor, underline, strikeThrough));
-            }
+    private Font resolveBaseFont(TextElementConfig config, Config globalConfig) {
+        if (config.getFont() != null) {
+            return config.getFont();
         }
-        rawColumns.add(currentColumn);
-
-        int capacity = resolveVerticalCapacity(config, lineHeight);
-        if (capacity == Integer.MAX_VALUE) {
-            return rawColumns;
-        }
-
-        List<List<VerticalGlyph>> columns = new ArrayList<>();
-        for (List<VerticalGlyph> rawColumn : rawColumns) {
-            if (rawColumn.isEmpty()) {
-                columns.add(new ArrayList<VerticalGlyph>());
-                continue;
-            }
-            List<VerticalGlyph> current = new ArrayList<>(capacity);
-            for (VerticalGlyph glyph : rawColumn) {
-                current.add(glyph);
-                if (current.size() >= capacity) {
-                    columns.add(current);
-                    current = new ArrayList<>(capacity);
-                }
-            }
-            if (!current.isEmpty()) {
-                columns.add(current);
-            }
-        }
-        return columns;
+        String fontName = config.getFontName() != null ? config.getFontName() : globalConfig.getFontName();
+        return new Font(fontName, config.getFontStyle(), config.getFontSize());
     }
 
-    private int resolveVerticalRichContentHeight(List<List<VerticalGlyph>> columns, TextElementConfig config, int lineHeight) {
-        if (config.getLayoutHeight() > 0) {
-            return config.getLayoutHeight();
+    private Color resolveDefaultColor(TextElementConfig config, Color overrideColor, Config globalConfig) {
+        if (overrideColor != null) {
+            return overrideColor;
         }
-        int maxGlyphCount = 0;
-        for (List<VerticalGlyph> column : columns) {
-            maxGlyphCount = Math.max(maxGlyphCount, column.size());
+        if (config.getColor() != null) {
+            return config.getColor();
         }
-        return maxGlyphCount * lineHeight;
+        if (globalConfig != null && globalConfig.getColor() != null) {
+            return globalConfig.getColor();
+        }
+        return Color.BLACK;
     }
 
-    private int measureVerticalRichColumnWidth(List<VerticalGlyph> column) {
-        int width = 0;
-        for (VerticalGlyph glyph : column) {
-            width = Math.max(width, glyph.getWidth());
-        }
-        return width;
+    private enum TokenType {
+        WORD,
+        SPACE,
+        NEWLINE
     }
 
-    private TextRenderSpec resolveRichAutoFitRenderSpec(TextElementConfig config, Font baseFont, Graphics2D g,
-                                                        TextAlign resolvedTextAlign) {
-        TextRenderSpec baseSpec = buildRenderSpec(config, baseFont, resolvedTextAlign);
-        ResolvedRichTextLines baseLines = RICH_WRAPPER.resolveRichTextLines(
-                baseSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
-        if (baseLines.getLayoutWidth() <= config.getAutoFitTargetWidth()) {
-            return baseSpec;
-        }
+    private static final class Token {
+        private final TokenType type;
+        private final String text;
+        private final ResolvedTextStyle style;
+        private final int width;
 
-        float minScale = resolveRichAutoFitMinScale(config, baseFont);
-        TextRenderSpec minSpec = scaleRichRenderSpec(config, baseFont, resolvedTextAlign, minScale);
-        ResolvedRichTextLines minLines = RICH_WRAPPER.resolveRichTextLines(
-                minSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
-        if (minLines.getLayoutWidth() > config.getAutoFitTargetWidth()) {
-            return minSpec;
+        private Token(TokenType type, String text, ResolvedTextStyle style, int width) {
+            this.type = type;
+            this.text = text;
+            this.style = style;
+            this.width = width;
         }
-
-        float low = minScale;
-        float high = 1F;
-        TextRenderSpec bestSpec = minSpec;
-        for (int i = 0; i < 12; i++) {
-            float mid = (low + high) / 2F;
-            TextRenderSpec candidateSpec = scaleRichRenderSpec(config, baseFont, resolvedTextAlign, mid);
-            ResolvedRichTextLines candidateLines = RICH_WRAPPER.resolveRichTextLines(
-                    candidateSpec, g, resolveOverflowStrategy(config), createRichMeasurer(g));
-            if (candidateLines.getLayoutWidth() <= config.getAutoFitTargetWidth()) {
-                bestSpec = candidateSpec;
-                low = mid;
-            } else {
-                high = mid;
-            }
-        }
-        return bestSpec;
-    }
-
-    private float resolveRichAutoFitMinScale(TextElementConfig config, Font baseFont) {
-        int minFontSize = config.getAutoFitMinFontSize();
-        float minScale = Math.min(1F, minFontSize / Math.max(1F, baseFont.getSize2D()));
-        for (TextSpan span : config.getTextSpans()) {
-            if (span.getFontSize() != null) {
-                minScale = Math.max(minScale, minFontSize / (float) span.getFontSize());
-            }
-        }
-        return Math.min(1F, minScale);
-    }
-
-    private TextRenderSpec scaleRichRenderSpec(TextElementConfig config, Font baseFont,
-                                               TextAlign resolvedTextAlign, float scale) {
-        Font scaledBaseFont = METRICS.deriveFont(baseFont,
-                Math.max(config.getAutoFitMinFontSize(), Math.round(baseFont.getSize2D() * scale)));
-        Integer scaledLineHeight = config.getLineHeight() == null
-                ? null
-                : Math.max(1, Math.round(config.getLineHeight() * scale));
-        List<TextSpan> scaledSpans = scaleTextSpans(config.getTextSpans(), scale, config.getAutoFitMinFontSize());
-        return buildRenderSpec(config, scaledBaseFont, resolvedTextAlign, scaledSpans, scaledLineHeight);
-    }
-
-    private List<TextSpan> scaleTextSpans(List<TextSpan> sourceSpans, float scale, int minFontSize) {
-        List<TextSpan> scaled = new ArrayList<>(sourceSpans.size());
-        for (TextSpan span : sourceSpans) {
-            TextSpan scaledSpan = TextSpan.of(span.getText());
-            if (span.getColor() != null) {
-                scaledSpan.setColor(span.getColor());
-            }
-            if (span.getFontName() != null) {
-                scaledSpan.setFontName(span.getFontName());
-            }
-            if (span.getFontStyle() != null) {
-                scaledSpan.setFontStyle(span.getFontStyle());
-            }
-            if (span.getFontSize() != null) {
-                scaledSpan.setFontSize(Math.max(minFontSize, Math.round(span.getFontSize() * scale)));
-            }
-            if (span.getBackgroundColor() != null) {
-                scaledSpan.setBackgroundColor(span.getBackgroundColor());
-            }
-            if (span.getShadow() != null) {
-                scaledSpan.setShadow(span.getShadow());
-            }
-            if (span.getStroke() != null) {
-                scaledSpan.setStroke(span.getStroke());
-            }
-            if (span.getBaselineShift() != null) {
-                scaledSpan.setBaselineShift(Math.round(span.getBaselineShift() * scale));
-            }
-            if (span.getUnderline() != null) {
-                scaledSpan.setUnderline(span.getUnderline());
-            }
-            if (span.getStrikeThrough() != null) {
-                scaledSpan.setStrikeThrough(span.getStrikeThrough());
-            }
-            scaled.add(scaledSpan);
-        }
-        return scaled;
-    }
-
-    private List<String> resolveVerticalColumns(TextElementConfig config, int lineHeight) {
-        if (!config.getVerticalColumns().isEmpty()) {
-            return config.getVerticalColumns();
-        }
-        String text = normalizeText(config.getVerticalText());
-        if (text.isEmpty()) {
-            return Collections.emptyList();
-        }
-        String[] explicitColumns = text.split("\n", -1);
-        if (explicitColumns.length > 1) {
-            List<String> columns = new ArrayList<>(explicitColumns.length);
-            Collections.addAll(columns, explicitColumns);
-            return columns;
-        }
-        int capacity = resolveVerticalCapacity(config, lineHeight);
-        List<String> columns = new ArrayList<>();
-        List<String> glyphs = splitGlyphs(text);
-        StringBuilder builder = new StringBuilder();
-        for (String glyph : glyphs) {
-            builder.append(glyph);
-            if (builder.length() >= capacity) {
-                columns.add(builder.toString());
-                builder.setLength(0);
-            }
-        }
-        if (builder.length() > 0) {
-            columns.add(builder.toString());
-        }
-        return columns;
-    }
-
-    private int resolveVerticalCapacity(TextElementConfig config, int lineHeight) {
-        if (config.getLayoutHeight() <= 0) {
-            return Integer.MAX_VALUE;
-        }
-        return Math.max(1, config.getLayoutHeight() / lineHeight);
-    }
-
-    private int resolveVerticalContentHeight(List<String> columns, TextElementConfig config, int lineHeight) {
-        if (config.getLayoutHeight() > 0) {
-            return config.getLayoutHeight();
-        }
-        int maxGlyphCount = 0;
-        for (String column : columns) {
-            maxGlyphCount = Math.max(maxGlyphCount, splitGlyphs(column).size());
-        }
-        return maxGlyphCount * lineHeight;
-    }
-
-    private int measureVerticalColumnWidth(String column, FontMetrics fm) {
-        int width = 0;
-        for (String glyph : splitGlyphs(column)) {
-            width = Math.max(width, fm.stringWidth(glyph));
-        }
-        return width;
-    }
-
-    /**
-     * Measure each plain vertical column width once, then reuse the result for box calculation and line building.
-     */
-    private List<Integer> measureVerticalColumnWidths(List<String> columns, FontMetrics fm) {
-        List<Integer> columnWidths = new ArrayList<>(columns.size());
-        for (String column : columns) {
-            columnWidths.add(measureVerticalColumnWidth(column, fm));
-        }
-        return columnWidths;
-    }
-
-    /**
-     * Measure each rich vertical column width once, then reuse the result for box calculation and line building.
-     */
-    private List<Integer> measureVerticalRichColumnWidths(List<List<VerticalGlyph>> columns) {
-        List<Integer> columnWidths = new ArrayList<>(columns.size());
-        for (List<VerticalGlyph> column : columns) {
-            columnWidths.add(measureVerticalRichColumnWidth(column));
-        }
-        return columnWidths;
-    }
-
-    private int resolveColumnBlockWidth(List<Integer> columnWidths, int columnSpacing) {
-        int contentWidth = 0;
-        for (int i = 0; i < columnWidths.size(); i++) {
-            contentWidth += columnWidths.get(i);
-            if (i > 0) {
-                contentWidth += columnSpacing;
-            }
-        }
-        return contentWidth;
     }
 }

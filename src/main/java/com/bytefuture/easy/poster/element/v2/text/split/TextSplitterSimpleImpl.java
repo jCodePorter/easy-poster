@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class TextSplitterSimpleImpl implements ITextSplitter {
     /** ASCII 字符宽度缓存，减少重复调用 FontMetrics。 */
-    private static final Map<Character, Integer> charSizeMap = new HashMap<>();
+    private static final Map<String, Integer> charSizeMap = new HashMap<String, Integer>();
 
     @Override
     public TextSplitResult split(TextSplitRequest request) {
@@ -200,7 +200,15 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         if (isFullWidthChar(c)) {
             return defaultSize;
         }
-        return charSizeMap.computeIfAbsent(c, k -> fm.charWidth(c));
+        String cacheKey = fm.getFont().getName() + "#" + fm.getFont().getStyle()
+                + "#" + fm.getFont().getSize() + "#" + c;
+        Integer cached = charSizeMap.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+        int width = fm.charWidth(c);
+        charSizeMap.put(cacheKey, width);
+        return width;
     }
 
     private static boolean isAsciiWordLikeChar(char c) {

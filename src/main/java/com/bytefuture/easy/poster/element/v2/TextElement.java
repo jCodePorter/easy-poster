@@ -1,71 +1,56 @@
 package com.bytefuture.easy.poster.element.v2;
 
-import cn.augrain.easy.tool.support.ColorUtils;
 import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
-import com.bytefuture.easy.poster.element.v2.text.split.ITextSplitter;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.geometry.Dimension;
-import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
-import com.bytefuture.easy.poster.model.*;
-import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.model.BaseLine;
+import com.bytefuture.easy.poster.model.PosterContext;
+import com.bytefuture.easy.poster.model.TextAlign;
+import com.bytefuture.easy.poster.model.TextSpan;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.List;
 
-/**
- * Text element V2.
- *
- * @author biaoy
- * @since 2025/04/15
- */
 public class TextElement extends AbstractRepeatableElement<TextElement> {
 
-    /** Text config */
     private final TextElementConfig config;
-
-    /** Layout engine */
     private final TextLayoutEngine layoutEngine;
-
-    /** Renderer */
     private final TextRenderer renderer;
-
-    /** Cached layout result */
     private transient TextLayoutResult lastLayout;
+
+    public TextElement(String text) {
+        this(TextElementConfig.builder(text).build());
+    }
 
     public TextElement(TextElementConfig config) {
         this.config = config;
         this.layoutEngine = new TextLayoutEngine();
         this.renderer = new TextRenderer();
+        this.color = null;
     }
 
     public static TextElement of(String text) {
-        return new TextElement(TextElementConfig.builder(text).build());
+        return new TextElement(text);
     }
 
     public static TextElement rich(TextSpan... spans) {
         return new TextElement(TextElementConfig.builder(spans).build());
     }
 
-    public static TextElement html(String html) {
-        return new TextElement(TextElementConfig.builderHtml(html).build());
+    public static Builder builder(String text) {
+        return new Builder(text);
     }
 
-    public static TextElement.Builder builder(String text) {
-        return new TextElement.Builder(text);
-    }
-
-    public static TextElement.Builder builder(TextSpan... spans) {
-        return new TextElement.Builder(spans);
-    }
-
-    public static TextElement.Builder builderHtml(String html) {
-        return new TextElement.Builder(TextElementConfig.builderHtml(html));
+    public static Builder builder(TextSpan... spans) {
+        return new Builder(spans);
     }
 
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
-        TextLayoutResult layout = layoutEngine.layout(config, position, rotate, context, posterWidth, posterHeight);
+        TextLayoutResult layout = layoutEngine.layout(config, position, rotate, color, context, posterWidth, posterHeight);
         this.lastLayout = layout;
         return layout.toDimension(rotate);
     }
@@ -74,29 +59,25 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
         TextLayoutResult layout = lastLayout;
         if (layout == null) {
-            layout = layoutEngine.layout(config, position, rotate, context, posterWidth, posterHeight);
+            layout = layoutEngine.layout(config, position, rotate, color, context, posterWidth, posterHeight);
             this.lastLayout = layout;
         }
-        return renderer.render(config, rotate, color != null ? color : context.getConfig().getColor(),
-                gradient, context, dimension, layout);
-    }
-
-    @Override
-    public void beforeRender(PosterContext context) {
-        super.beforeRender(context);
+        return renderer.render(context, dimension, layout, rotate);
     }
 
     public TextElementConfig getConfig() {
         return config;
     }
 
+    public TextLayoutResult getLastLayout() {
+        return lastLayout;
+    }
+
     public static final class Builder {
-        private TextElementConfig.Builder configBuilder;
+        private final TextElementConfig.Builder configBuilder;
         private Position position;
         private float alpha = 1F;
         private int rotate = 0;
-        private Color color = Color.BLACK;
-        private Gradient gradient;
 
         private Builder(String text) {
             this.configBuilder = TextElementConfig.builder(text);
@@ -106,202 +87,68 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
             this.configBuilder = TextElementConfig.builder(spans);
         }
 
-        private Builder(TextElementConfig.Builder configBuilder) {
-            this.configBuilder = configBuilder;
+        public Builder color(Color color) {
+            this.configBuilder.color(color);
+            return this;
+        }
+
+        public Builder color(String hexColor) {
+            this.configBuilder.color(hexColor);
+            return this;
         }
 
         public Builder fontName(String fontName) {
-            configBuilder.fontName(fontName);
+            this.configBuilder.fontName(fontName);
             return this;
         }
 
         public Builder fontStyle(int fontStyle) {
-            configBuilder.fontStyle(fontStyle);
+            this.configBuilder.fontStyle(fontStyle);
             return this;
         }
 
         public Builder fontSize(int fontSize) {
-            configBuilder.fontSize(fontSize);
+            this.configBuilder.fontSize(fontSize);
             return this;
         }
 
         public Builder font(String fontName, int fontStyle, int fontSize) {
-            configBuilder.font(fontName, fontStyle, fontSize);
+            this.configBuilder.font(fontName, fontStyle, fontSize);
             return this;
         }
 
         public Builder font(Font font) {
-            configBuilder.font(font);
+            this.configBuilder.font(font);
             return this;
         }
 
         public Builder baseLine(BaseLine baseLine) {
-            configBuilder.baseLine(baseLine);
-            return this;
-        }
-
-        public Builder lineHeight(int lineHeight) {
-            configBuilder.lineHeight(lineHeight);
+            this.configBuilder.baseLine(baseLine);
             return this;
         }
 
         public Builder textAlign(TextAlign textAlign) {
-            configBuilder.textAlign(textAlign);
-            return this;
-        }
-
-        public Builder textLayoutMode(TextLayoutMode textLayoutMode) {
-            configBuilder.textLayoutMode(textLayoutMode);
-            return this;
-        }
-
-        public Builder vertical(String text) {
-            configBuilder.vertical(text);
-            return this;
-        }
-
-        public Builder vertical(List<String> columns) {
-            configBuilder.vertical(columns);
-            return this;
-        }
-
-        public Builder verticalDirection(VerticalDirection verticalDirection) {
-            configBuilder.verticalDirection(verticalDirection);
-            return this;
-        }
-
-        public Builder verticalAlign(VerticalAlign verticalAlign) {
-            configBuilder.verticalAlign(verticalAlign);
-            return this;
-        }
-
-        public Builder layoutHeight(int layoutHeight) {
-            configBuilder.layoutHeight(layoutHeight);
-            return this;
-        }
-
-        public Builder columnSpacing(int columnSpacing) {
-            configBuilder.columnSpacing(columnSpacing);
-            return this;
-        }
-
-        public Builder overflowStrategy(TextOverflowStrategy strategy) {
-            configBuilder.overflowStrategy(strategy);
-            return this;
-        }
-
-        public Builder maxLines(int maxLines) {
-            configBuilder.maxLines(maxLines);
-            return this;
-        }
-
-        public Builder ellipsis(String ellipsis) {
-            configBuilder.ellipsis(ellipsis);
+            this.configBuilder.textAlign(textAlign);
             return this;
         }
 
         public Builder autoWordWrap(int maxWidth) {
-            configBuilder.autoWordWrap(maxWidth);
+            this.configBuilder.autoWordWrap(maxWidth);
             return this;
         }
 
         public Builder layoutWidth(int layoutWidth) {
-            configBuilder.layoutWidth(layoutWidth);
-            return this;
-        }
-
-        public Builder autoFitText(int targetWidth, int minFontSize) {
-            configBuilder.autoFitText(targetWidth, minFontSize);
-            return this;
-        }
-
-        public Builder letterSpacing(int spacing) {
-            configBuilder.letterSpacing(spacing);
-            return this;
-        }
-
-        public Builder underline(boolean underline) {
-            configBuilder.underline(underline);
-            return this;
-        }
-
-        public Builder strikeThrough(boolean strike) {
-            configBuilder.strikeThrough(strike);
-            return this;
-        }
-
-        public Builder shadow(Color color, int offsetX, int offsetY) {
-            configBuilder.shadow(color, offsetX, offsetY);
-            return this;
-        }
-
-        public Builder shadow(TextShadow shadow) {
-            configBuilder.shadow(shadow);
-            return this;
-        }
-
-        public Builder stroke(Color color, float width) {
-            configBuilder.stroke(color, width);
-            return this;
-        }
-
-        public Builder stroke(TextStroke stroke) {
-            configBuilder.stroke(stroke);
-            return this;
-        }
-
-        public Builder textBackground(Color color) {
-            configBuilder.textBackground(color);
-            return this;
-        }
-
-        public Builder textBackground(Color color, int padding) {
-            configBuilder.textBackground(color, padding);
-            return this;
-        }
-
-        public Builder textBackground(Color color, Margin padding) {
-            configBuilder.textBackground(color, padding);
-            return this;
-        }
-
-        public Builder textPadding(int padding) {
-            configBuilder.textPadding(padding);
-            return this;
-        }
-
-        public Builder textPadding(int horizontal, int vertical) {
-            configBuilder.textPadding(horizontal, vertical);
-            return this;
-        }
-
-        public Builder textPadding(int left, int top, int right, int bottom) {
-            configBuilder.textPadding(left, top, right, bottom);
-            return this;
-        }
-
-        public Builder textBackgroundArc(int arc) {
-            configBuilder.textBackgroundArc(arc);
-            return this;
-        }
-
-        public Builder textBackgroundArc(int arcWidth, int arcHeight) {
-            configBuilder.textBackgroundArc(arcWidth, arcHeight);
-            return this;
-        }
-
-        public Builder textSplitter(ITextSplitter splitter) {
-            configBuilder.textSplitter(splitter);
+            this.configBuilder.layoutWidth(layoutWidth);
             return this;
         }
 
         public Builder textSpan(TextSpan span) {
-            configBuilder.textSpan(span);
+            this.configBuilder.textSpan(span);
             return this;
         }
 
         public Builder textSpans(List<TextSpan> spans) {
-            configBuilder.textSpans(spans);
+            this.configBuilder.textSpans(spans);
             return this;
         }
 
@@ -311,41 +158,20 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         }
 
         public Builder alpha(float alpha) {
-            if (alpha < 0 || alpha > 1) {
-                throw new IllegalArgumentException("alpha must be between 0 and 1");
-            }
             this.alpha = alpha;
             return this;
         }
 
-        public Builder rotate(int degrees) {
-            this.rotate = degrees;
-            return this;
-        }
-
-        public Builder color(Color color) {
-            this.color = color;
-            return this;
-        }
-
-        public Builder color(String hexColor) {
-            this.color = ColorUtils.hexToColor(hexColor);
-            return this;
-        }
-
-        public Builder gradient(Gradient gradient) {
-            this.gradient = gradient;
+        public Builder rotate(int rotate) {
+            this.rotate = rotate;
             return this;
         }
 
         public TextElement build() {
-            TextElementConfig config = configBuilder.build();
-            TextElement element = new TextElement(config);
+            TextElement element = new TextElement(configBuilder.build());
             element.position = this.position;
             element.alpha = this.alpha;
             element.rotate = this.rotate;
-            element.color = this.color;
-            element.gradient = this.gradient;
             return element;
         }
     }
