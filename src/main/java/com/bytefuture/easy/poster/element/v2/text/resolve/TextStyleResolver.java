@@ -27,7 +27,7 @@ public final class TextStyleResolver {
      * 样式合并遵循以下优先级（从高到低）：
      * <ol>
      *   <li>TextSpan 片段级样式 - 用户为特定文本设置的样式</li>
-     *   <li>TextBlockStyle 块级样式 - TextElementConfig 中配置的默认样式</li>
+     *   <li>TextBlockStyle 块级样式 - TextElement 上配置的默认样式</li>
      *   <li>baseFont/defaultColor - 从全局配置或系统默认值推导的基础样式</li>
      * </ol>
      *

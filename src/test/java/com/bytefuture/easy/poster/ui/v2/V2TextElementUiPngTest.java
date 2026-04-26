@@ -9,8 +9,7 @@ import com.bytefuture.easy.poster.model.TextAlign;
 import com.bytefuture.easy.poster.model.TextSpan;
 import org.junit.Test;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 
 public class V2TextElementUiPngTest {
 
@@ -19,12 +18,11 @@ public class V2TextElementUiPngTest {
         EasyPoster poster = createPoster(520, 180);
 
         poster.addElement(
-                TextElement.builder("plain text goes through rich pipeline")
-                        .fontName("Dialog")
-                        .fontSize(28)
-                        .color(Color.BLACK)
-                        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
-                        .build()
+                TextElement.of("plain text goes through rich pipeline")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setColor(Color.BLACK)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
         poster.asFile("png", "out_v2_text_plain_as_rich.png");
@@ -35,14 +33,13 @@ public class V2TextElementUiPngTest {
         EasyPoster poster = createPoster(520, 180);
 
         poster.addElement(
-                TextElement.builder(
+                TextElement.of(
                                 TextSpan.of("Hello ").setColor(new Color(220, 40, 40)),
                                 TextSpan.of("Rich ").setColor(new Color(30, 120, 255)).setFontStyle(Font.BOLD),
                                 TextSpan.of("Text").setColor(new Color(20, 160, 90)).setFontSize(34))
-                        .fontName("Dialog")
-                        .fontSize(30)
-                        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
-                        .build()
+                        .setFontName("Dialog")
+                        .setFontSize(30)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
         poster.asFile("png", "out_v2_text_rich_text.png");
@@ -53,16 +50,15 @@ public class V2TextElementUiPngTest {
         EasyPoster poster = createPoster(560, 220);
 
         poster.addElement(
-                TextElement.builder(
+                TextElement.of(
                                 TextSpan.of("Block defaults "),
                                 TextSpan.of("red ").setColor(Color.RED),
                                 TextSpan.of("bigger").setFontSize(36).setColor(new Color(70, 90, 220)))
-                        .fontName("Dialog")
-                        .fontStyle(Font.BOLD)
-                        .fontSize(26)
-                        .color(new Color(40, 40, 40))
-                        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
-                        .build()
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(26)
+                        .setColor(new Color(40, 40, 40))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
         poster.asFile("png", "out_v2_text_span_override.png");
@@ -73,12 +69,11 @@ public class V2TextElementUiPngTest {
         EasyPoster poster = createPoster(560, 260);
 
         poster.addElement(
-                TextElement.builder("alpha beta gamma delta epsilon zeta eta theta iota kappa")
-                        .fontName("Dialog")
-                        .fontSize(28)
-                        .autoWordWrap(220)
-                        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
-                        .build()
+                TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setAutoWordWrap(220)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
         poster.asFile("png", "out_v2_text_wrap.png");
@@ -89,33 +84,30 @@ public class V2TextElementUiPngTest {
         EasyPoster poster = createPoster(560, 320);
 
         poster.addElement(
-                TextElement.builder("LEFT")
-                        .fontName("Dialog")
-                        .fontSize(28)
-                        .autoWordWrap(260)
-                        .textAlign(TextAlign.LEFT)
-                        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 24, 0, 0)))
-                        .build()
+                TextElement.of("LEFT")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setAutoWordWrap(260)
+                        .setTextAlign(TextAlign.LEFT)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 24, 0, 0)))
         );
 
         poster.addElement(
-                TextElement.builder("CENTER")
-                        .fontName("Dialog")
-                        .fontSize(28)
-                        .autoWordWrap(260)
-                        .textAlign(TextAlign.CENTER)
-                        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 110, 0, 0)))
-                        .build()
+                TextElement.of("CENTER")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setAutoWordWrap(260)
+                        .setTextAlign(TextAlign.CENTER)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 110, 0, 0)))
         );
 
         poster.addElement(
-                TextElement.builder("RIGHT")
-                        .fontName("Dialog")
-                        .fontSize(28)
-                        .autoWordWrap(260)
-                        .textAlign(TextAlign.RIGHT)
-                        .position(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 196, 0, 0)))
-                        .build()
+                TextElement.of("RIGHT")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setAutoWordWrap(260)
+                        .setTextAlign(TextAlign.RIGHT)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 196, 0, 0)))
         );
 
         poster.asFile("png", "out_v2_text_alignment.png");

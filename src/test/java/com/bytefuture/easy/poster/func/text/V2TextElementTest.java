@@ -19,15 +19,14 @@ public class V2TextElementTest {
 
     @Test
     public void shouldMergeBlockDefaultsWithSpanOverrides() {
-        TextElement element = TextElement.builder(
+        TextElement element = TextElement.of(
                         TextSpan.of("Hello"),
                         TextSpan.of("World").setColor(Color.RED).setFontSize(24))
-                .fontName("Dialog")
-                .fontStyle(Font.BOLD)
-                .fontSize(20)
-                .color(Color.BLUE)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
+                .setFontName("Dialog")
+                .setFontStyle(Font.BOLD)
+                .setFontSize(20)
+                .setColor(Color.BLUE)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         measure(element, 300, 120);
         TextLayoutResult layout = element.getLastLayout();
@@ -47,19 +46,17 @@ public class V2TextElementTest {
 
     @Test
     public void shouldConvertPlainTextIntoEquivalentRichTextRun() {
-        TextElement plain = TextElement.builder("plain text")
-                .fontName("Dialog")
-                .fontSize(18)
-                .color(Color.BLACK)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
+        TextElement plain = TextElement.of("plain text")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setColor(Color.BLACK)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
-        TextElement rich = TextElement.builder(TextSpan.of("plain text"))
-                .fontName("Dialog")
-                .fontSize(18)
-                .color(Color.BLACK)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
+        TextElement rich = TextElement.of(TextSpan.of("plain text"))
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setColor(Color.BLACK)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         measure(plain, 300, 120);
         measure(rich, 300, 120);
@@ -83,12 +80,11 @@ public class V2TextElementTest {
 
     @Test
     public void shouldWrapHorizontalTextWithinConfiguredWidth() {
-        TextElement element = TextElement.builder("alpha beta gamma delta epsilon")
-                .fontName("Dialog")
-                .fontSize(18)
-                .autoWordWrap(80)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
+        TextElement element = TextElement.of("alpha beta gamma delta epsilon")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setAutoWordWrap(80)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         measure(element, 300, 200);
         TextLayoutResult layout = element.getLastLayout();
@@ -102,27 +98,24 @@ public class V2TextElementTest {
 
     @Test
     public void shouldApplyAlignmentInsideLayoutWidth() {
-        TextElement left = TextElement.builder("align")
-                .fontName("Dialog")
-                .fontSize(18)
-                .autoWordWrap(200)
-                .textAlign(TextAlign.LEFT)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
-        TextElement center = TextElement.builder("align")
-                .fontName("Dialog")
-                .fontSize(18)
-                .autoWordWrap(200)
-                .textAlign(TextAlign.CENTER)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
-        TextElement right = TextElement.builder("align")
-                .fontName("Dialog")
-                .fontSize(18)
-                .autoWordWrap(200)
-                .textAlign(TextAlign.RIGHT)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
+        TextElement left = TextElement.of("align")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setAutoWordWrap(200)
+                .setTextAlign(TextAlign.LEFT)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+        TextElement center = TextElement.of("align")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setAutoWordWrap(200)
+                .setTextAlign(TextAlign.CENTER)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+        TextElement right = TextElement.of("align")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setAutoWordWrap(200)
+                .setTextAlign(TextAlign.RIGHT)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         measure(left, 300, 120);
         measure(center, 300, 120);
@@ -139,13 +132,12 @@ public class V2TextElementTest {
 
     @Test
     public void shouldRenderBasicRichTextColors() {
-        TextElement element = TextElement.builder(
+        TextElement element = TextElement.of(
                         TextSpan.of("RED").setColor(Color.RED),
                         TextSpan.of(" BLUE").setColor(Color.BLUE))
-                .fontName("Dialog")
-                .fontSize(24)
-                .position(RelativePosition.of(Direction.TOP_LEFT))
-                .build();
+                .setFontName("Dialog")
+                .setFontSize(24)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         BufferedImage image = render(element, 240, 80);
         Assert.assertTrue(countColorLikePixels(image, Color.RED, 80) > 0);

@@ -8,16 +8,22 @@ import java.awt.*;
 
 @Getter
 public class TextSpan {
-    private final String text;
+    private String text;
 
-    private final BaseTextStyle spanStyle = new BaseTextStyle();
-
-    private TextSpan(String text) {
-        this.text = text == null ? "" : text;
-    }
+    private BaseTextStyle spanStyle;
 
     public static TextSpan of(String text) {
-        return new TextSpan(text);
+        TextSpan textSpan = new TextSpan();
+        textSpan.spanStyle = new BaseTextStyle();
+        textSpan.text = text;
+        return textSpan;
+    }
+
+    public static TextSpan of(String text, BaseTextStyle style) {
+        TextSpan textSpan = new TextSpan();
+        textSpan.spanStyle = style;
+        textSpan.text = text;
+        return textSpan;
     }
 
     public Color getColor() {
