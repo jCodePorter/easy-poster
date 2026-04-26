@@ -24,6 +24,12 @@ public class TextSplitResult {
         this.maxLineWidth = maxLineWidth;
     }
 
+    /**
+     * 创建拆分结果，并同步计算最大行宽。
+     *
+     * @param lines 分行结果
+     * @return 拆分结果
+     */
     public static TextSplitResult of(List<SplitTextInfo> lines) {
         int maxWidth = 0;
         for (SplitTextInfo line : lines) {

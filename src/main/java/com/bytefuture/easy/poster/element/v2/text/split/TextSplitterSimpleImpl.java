@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.element.v2.text.split;
 
-import java.awt.FontMetrics;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,12 +11,20 @@ import java.util.Map;
  * 通过分词、标点规避和必要时的逐字切分完成自动换行。
  */
 public class TextSplitterSimpleImpl implements ITextSplitter {
-    /** ASCII 字符宽度缓存，减少重复调用 FontMetrics。 */
+    /**
+     * ASCII 字符宽度缓存，减少重复调用 {@link FontMetrics}。
+     */
     private static final Map<String, Integer> charSizeMap = new HashMap<String, Integer>();
 
+    /**
+     * 按给定规则将文本拆分为多行。
+     *
+     * @param request 拆分请求
+     * @return 拆分结果
+     */
     @Override
     public TextSplitResult split(TextSplitRequest request) {
-        List<SplitTextInfo> lines = new ArrayList<>();
+        List<SplitTextInfo> lines = new ArrayList<SplitTextInfo>();
         if (request == null || request.getFontMetrics() == null) {
             return TextSplitResult.of(lines);
         }
@@ -84,6 +92,14 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         return TextSplitResult.of(lines);
     }
 
+    /**
+     * 将当前缓冲中的 token 刷新为一行文本。
+     *
+     * @param lines 输出行列表
+     * @param lineBuffer 当前行缓冲
+     * @param request 拆分请求
+     * @param explicitNewLine 是否由显式换行触发
+     */
     private static void flushCurrentLine(List<SplitTextInfo> lines, LineBuffer lineBuffer,
                                          TextSplitRequest request, boolean explicitNewLine) {
         if (lineBuffer.isEmpty()) {
@@ -104,10 +120,24 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         lineBuffer.clear();
     }
 
+    /**
+     * 判断是否应当将当前 token 强制挂到上一行尾部。
+     *
+     * @param token 当前 token
+     * @param lineBuffer 当前行缓冲
+     * @return 需要强制挂接时返回 {@code true}
+     */
     private static boolean shouldForceAppendToCurrentLine(Token token, LineBuffer lineBuffer) {
         return !lineBuffer.isEmpty() && token.type == TokenType.CLOSING_PUNCTUATION;
     }
 
+    /**
+     * 将文本切分为适合换行处理的 token。
+     *
+     * @param text 原始文本
+     * @param fontMetrics 字体度量
+     * @return token 列表
+     */
     private static List<Token> tokenize(String text, FontMetrics fontMetrics) {
         List<Token> tokens = new ArrayList<Token>();
         String normalized = text.replace("\r\n", "\n").replace('\r', '\n');
@@ -165,6 +195,14 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         return tokens;
     }
 
+    /**
+     * 按字符级别切分超宽 token。
+     *
+     * @param token 超宽 token
+     * @param width 最大宽度
+     * @param fontMetrics 字体度量
+     * @return 切分后的行结果
+     */
     private static List<SplitTextInfo> splitOversizedToken(Token token, int width, FontMetrics fontMetrics) {
         List<SplitTextInfo> result = new ArrayList<SplitTextInfo>();
         if (token == null || token.text == null || token.text.isEmpty()) {
@@ -192,10 +230,25 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         return result;
     }
 
+    /**
+     * 计算字符串宽度。
+     *
+     * @param text 文本内容
+     * @param fontMetrics 字体度量
+     * @return 文本宽度
+     */
     private static int getTextWidth(String text, FontMetrics fontMetrics) {
         return text == null || text.isEmpty() ? 0 : fontMetrics.stringWidth(text);
     }
 
+    /**
+     * 计算单个字符宽度，并对常见 ASCII 字符做缓存。
+     *
+     * @param c 字符
+     * @param defaultSize 默认宽度
+     * @param fm 字体度量
+     * @return 字符宽度
+     */
     private static int getCharSize(char c, int defaultSize, FontMetrics fm) {
         if (isFullWidthChar(c)) {
             return defaultSize;
@@ -211,25 +264,52 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         return width;
     }
 
+    /**
+     * 判断字符是否适合作为 ASCII 单词的一部分。
+     *
+     * @param c 待判断字符
+     * @return 适合并入 ASCII 单词时返回 {@code true}
+     */
     private static boolean isAsciiWordLikeChar(char c) {
         return c < 128 && !Character.isWhitespace(c) && !isAsciiBreakPunctuation(c);
     }
 
+    /**
+     * 判断字符是否属于会触发断词的 ASCII 标点。
+     *
+     * @param c 待判断字符
+     * @return 是断词标点时返回 {@code true}
+     */
     private static boolean isAsciiBreakPunctuation(char c) {
         return ",;!()[]{}<>\"".indexOf(c) >= 0;
     }
 
+    /**
+     * 判断字符是否为开头标点。
+     *
+     * @param c 待判断字符
+     * @return 是开头标点时返回 {@code true}
+     */
     private static boolean isOpeningPunctuation(char c) {
         return "([{<\"'“‘《「『【".indexOf(c) >= 0;
     }
 
+    /**
+     * 判断字符是否为结尾标点。
+     *
+     * @param c 待判断字符
+     * @return 是结尾标点时返回 {@code true}
+     */
     private static boolean isClosingPunctuation(char c) {
         return ")]}>\"'”’》」』】,，。.!?！？;；:：".indexOf(c) >= 0;
     }
 
     /**
      * 判断字符是否为常见全角字符。
-     * 全角字符在简单测量策略下按字号近似处理。
+     * 全角字符在简化测量策略下按字号近似处理。
+     *
+     * @param c 待判断字符
+     * @return 是全角字符时返回 {@code true}
      */
     private static boolean isFullWidthChar(char c) {
         return (c >= '\u4E00' && c <= '\u9FFF')
@@ -237,6 +317,7 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
                 || (c >= '\uFF01' && c <= '\uFF5E');
     }
 
+    /** token 类型。 */
     private enum TokenType {
         TEXT,
         WORD,
@@ -246,6 +327,9 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         CLOSING_PUNCTUATION
     }
 
+    /**
+     * 文本拆分过程中的最小语义单元。
+     */
     private static class Token {
         /** token 原始文本。 */
         private final String text;
@@ -289,6 +373,9 @@ public class TextSplitterSimpleImpl implements ITextSplitter {
         }
     }
 
+    /**
+     * 当前行的 token 缓冲区。
+     */
     private static class LineBuffer {
         /** 当前行暂存的 token。 */
         private final List<Token> tokens = new ArrayList<Token>();

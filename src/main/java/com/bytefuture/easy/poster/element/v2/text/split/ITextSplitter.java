@@ -1,11 +1,11 @@
 package com.bytefuture.easy.poster.element.v2.text.split;
 
-import java.awt.FontMetrics;
+import java.awt.*;
 import java.util.List;
 
 /**
  * 文本拆分器接口。
- * 负责把一段文本按给定宽度切成多行。
+ * 负责将一段文本按给定宽度拆分成多行。
  */
 public interface ITextSplitter {
 
