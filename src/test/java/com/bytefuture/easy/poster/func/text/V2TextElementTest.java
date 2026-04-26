@@ -149,6 +149,29 @@ public class V2TextElementTest {
     }
 
     @Test
+    public void shouldMergeUnderlineAndStrikeThroughFromBlockAndSpanStyles() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("underlined"),
+                        TextSpan.of(" plain").setUnderline(false),
+                        TextSpan.of(" deleted").setStrikeThrough(true))
+                .setFontName("Dialog")
+                .setFontSize(20)
+                .setUnderline(true)
+                .setStrikeThrough(false)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 120);
+        TextLine line = element.getLastLayout().getLines().get(0);
+
+        Assert.assertTrue(line.getRuns().get(0).getStyle().isUnderline());
+        Assert.assertFalse(line.getRuns().get(0).getStyle().isStrikeThrough());
+        Assert.assertFalse(line.getRuns().get(1).getStyle().isUnderline());
+        Assert.assertFalse(line.getRuns().get(1).getStyle().isStrikeThrough());
+        Assert.assertTrue(line.getRuns().get(2).getStyle().isUnderline());
+        Assert.assertTrue(line.getRuns().get(2).getStyle().isStrikeThrough());
+    }
+
+    @Test
     public void shouldRenderBasicRichTextColors() {
         TextElement element = TextElement.of(
                         TextSpan.of("RED").setColor(Color.RED),
@@ -158,6 +181,20 @@ public class V2TextElementTest {
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         BufferedImage image = render(element, 240, 80);
+        Assert.assertTrue(countColorLikePixels(image, Color.RED, 80) > 0);
+        Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 80) > 0);
+    }
+
+    @Test
+    public void shouldRenderUnderlineAndStrikeThroughText() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("UNDER").setUnderline(true).setColor(Color.RED),
+                        TextSpan.of(" STRIKE").setStrikeThrough(true).setColor(Color.BLUE))
+                .setFontName("Dialog")
+                .setFontSize(24)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        BufferedImage image = render(element, 280, 100);
         Assert.assertTrue(countColorLikePixels(image, Color.RED, 80) > 0);
         Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 80) > 0);
     }

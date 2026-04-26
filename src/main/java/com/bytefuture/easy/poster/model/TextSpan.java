@@ -8,8 +8,15 @@ import java.awt.*;
 
 @Getter
 public class TextSpan {
+
+    /**
+     * 绘制的文本
+     */
     private String text;
 
+    /**
+     * 当前文本样式
+     */
     private BaseTextStyle spanStyle;
 
     public static TextSpan of(String text) {
@@ -30,16 +37,8 @@ public class TextSpan {
         return this.spanStyle.getColor();
     }
 
-    public Integer getFontStyle() {
-        return this.spanStyle.getFontStyle();
-    }
-
     public Integer getFontSize() {
         return this.spanStyle.getFontSize();
-    }
-
-    public String getFontName() {
-        return this.spanStyle.getFontName();
     }
 
     public TextSpan setColor(Color color) {
@@ -68,6 +67,28 @@ public class TextSpan {
             throw new PosterException("span fontName can not be null");
         }
         this.spanStyle.setFontName(fontName);
+        return this;
+    }
+
+    /**
+     * 设置是否绘制下划线。
+     *
+     * @param underline 是否绘制下划线
+     * @return 当前文本片段
+     */
+    public TextSpan setUnderline(boolean underline) {
+        this.spanStyle.setUnderline(underline);
+        return this;
+    }
+
+    /**
+     * 设置是否绘制删除线。
+     *
+     * @param strikeThrough 是否绘制删除线
+     * @return 当前文本片段
+     */
+    public TextSpan setStrikeThrough(boolean strikeThrough) {
+        this.spanStyle.setStrikeThrough(strikeThrough);
         return this;
     }
 }

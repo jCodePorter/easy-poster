@@ -47,7 +47,7 @@ public final class TextBlockStyle extends BaseTextStyle {
     }
 
     public TextBlockStyle setFontSize(Integer fontSize) {
-        if (fontSize == null || fontSize.intValue() <= 0) {
+        if (fontSize == null || fontSize <= 0) {
             throw new PosterException("fontSize must be greater than 0");
         }
         super.setFontSize(fontSize);
@@ -56,8 +56,8 @@ public final class TextBlockStyle extends BaseTextStyle {
 
     public TextBlockStyle setFont(String fontName, int fontStyle, int fontSize) {
         setFontName(fontName);
-        setFontStyle(Integer.valueOf(fontStyle));
-        setFontSize(Integer.valueOf(fontSize));
+        setFontStyle(fontStyle);
+        setFontSize(fontSize);
         this.font = null;
         return this;
     }
@@ -112,6 +112,28 @@ public final class TextBlockStyle extends BaseTextStyle {
             throw new PosterException("lineHeight must be greater than 0");
         }
         this.lineHeight = lineHeight;
+        return this;
+    }
+
+    /**
+     * 设置块级文本是否绘制下划线。
+     *
+     * @param underline 是否绘制下划线
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setUnderline(Boolean underline) {
+        super.setUnderline(underline);
+        return this;
+    }
+
+    /**
+     * 设置块级文本是否绘制删除线。
+     *
+     * @param strikeThrough 是否绘制删除线
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setStrikeThrough(Boolean strikeThrough) {
+        super.setStrikeThrough(strikeThrough);
         return this;
     }
 }

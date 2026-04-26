@@ -22,13 +22,25 @@ public final class ResolvedTextStyle {
     private final Color color;
 
     /**
+     * 是否绘制下划线
+     */
+    private final boolean underline;
+
+    /**
+     * 是否绘制删除线
+     */
+    private final boolean strikeThrough;
+
+    /**
      * 创建最终样式对象。
      *
      * @param font  最终字体
      * @param color 最终颜色
      */
-    public ResolvedTextStyle(Font font, Color color) {
+    public ResolvedTextStyle(Font font, Color color, boolean underline, boolean strikeThrough) {
         this.font = Objects.requireNonNull(font, "font");
         this.color = Objects.requireNonNull(color, "color");
+        this.underline = underline;
+        this.strikeThrough = strikeThrough;
     }
 }

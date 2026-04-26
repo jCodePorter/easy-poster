@@ -45,7 +45,10 @@ public final class TextStyleResolver {
         int fontSize = firstNonNull(spanStyle.getFontSize(), blockStyle.getFontSize(), baseFont.getSize());
         // 颜色：片段 > 块级 > 默认颜色
         Color color = firstNonNull(spanStyle.getColor(), blockStyle.getColor(), defaultColor);
-        return new ResolvedTextRun(span.getText(), new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color));
+        boolean underline = firstNonNull(spanStyle.getUnderline(), blockStyle.getUnderline(), Boolean.FALSE);
+        boolean strikeThrough = firstNonNull(spanStyle.getStrikeThrough(), blockStyle.getStrikeThrough(), Boolean.FALSE);
+        return new ResolvedTextRun(span.getText(),
+                new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, underline, strikeThrough));
     }
 
     /**

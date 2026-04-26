@@ -1,7 +1,9 @@
 package com.bytefuture.easy.poster.element.v2;
 
 import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
+import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutEngine;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.element.v2.text.render.TextRenderer;
 import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
@@ -19,6 +21,11 @@ import java.util.List;
 /**
  * V2 版本文本元素。
  * 文本内容由元素本身持有，块级样式由 {@link TextBlockStyle} 管理。
+ * <p>
+ * 整体流程分为三大阶段
+ * 1. 样式解析
+ * 2. 布局计算
+ * 3. 渲染绘制
  */
 @Getter
 public class TextElement extends AbstractRepeatableElement<TextElement> {
@@ -243,6 +250,28 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      */
     public TextElement setLineHeight(int lineHeight) {
         this.blockStyle.setLineHeight(Integer.valueOf(lineHeight));
+        return this;
+    }
+
+    /**
+     * 设置块级文本是否绘制下划线。
+     *
+     * @param underline 是否绘制下划线
+     * @return 当前元素
+     */
+    public TextElement setUnderline(boolean underline) {
+        this.blockStyle.setUnderline(Boolean.valueOf(underline));
+        return this;
+    }
+
+    /**
+     * 设置块级文本是否绘制删除线。
+     *
+     * @param strikeThrough 是否绘制删除线
+     * @return 当前元素
+     */
+    public TextElement setStrikeThrough(boolean strikeThrough) {
+        this.blockStyle.setStrikeThrough(Boolean.valueOf(strikeThrough));
         return this;
     }
 }

@@ -1,7 +1,6 @@
-package com.bytefuture.easy.poster.element.v2;
+package com.bytefuture.easy.poster.element.v2.text.layout;
 
-import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
-import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
+import com.bytefuture.easy.poster.element.v2.TextElement;
 import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedTextRun;
 import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextStyle;
 import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
@@ -331,7 +330,10 @@ public class TextLayoutEngine {
      * @return true 表示可以合并
      */
     private boolean hasSameStyle(ResolvedTextStyle left, ResolvedTextStyle right) {
-        return left.getFont().equals(right.getFont()) && left.getColor().equals(right.getColor());
+        return left.getFont().equals(right.getFont())
+                && left.getColor().equals(right.getColor())
+                && left.isUnderline() == right.isUnderline()
+                && left.isStrikeThrough() == right.isStrikeThrough();
     }
 
     /**

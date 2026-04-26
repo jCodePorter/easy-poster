@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.v2;
+package com.bytefuture.easy.poster.element.v2.text.render;
 
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
@@ -8,7 +8,9 @@ import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.PosterContext;
 
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
+import java.text.AttributedString;
 
 /**
  * 文本渲染器。
@@ -43,7 +45,7 @@ public final class TextRenderer {
                 // 每个运行段独立设置字体和颜色，以支持富文本混排。
                 graphics.setFont(run.getStyle().getFont());
                 graphics.setColor(run.getStyle().getColor());
-                graphics.drawString(run.getText(), currentX, baselineY);
+                drawRun(graphics, run, currentX, baselineY);
                 FontMetrics metrics = graphics.getFontMetrics(run.getStyle().getFont());
                 currentX += metrics.stringWidth(run.getText());
             }
@@ -54,5 +56,29 @@ public final class TextRenderer {
             graphics.setTransform(original);
         }
         return dimension.getPoint();
+    }
+
+    /**
+     * 按最终样式绘制单个文本运行段。
+     *
+     * @param graphics  图形上下文
+     * @param run       文本运行段
+     * @param currentX  当前绘制起点 X 坐标
+     * @param baselineY 当前绘制基线 Y 坐标
+     */
+    private void drawRun(Graphics2D graphics, ResolvedTextRun run, int currentX, int baselineY) {
+        if (run.getStyle().isUnderline() || run.getStyle().isStrikeThrough()) {
+            AttributedString attributedString = new AttributedString(run.getText());
+            attributedString.addAttribute(TextAttribute.FONT, run.getStyle().getFont());
+            if (run.getStyle().isUnderline()) {
+                attributedString.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, run.getText().length());
+            }
+            if (run.getStyle().isStrikeThrough()) {
+                attributedString.addAttribute(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON, 0, run.getText().length());
+            }
+            graphics.drawString(attributedString.getIterator(), currentX, baselineY);
+            return;
+        }
+        graphics.drawString(run.getText(), currentX, baselineY);
     }
 }

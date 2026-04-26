@@ -31,6 +31,16 @@ public class BaseTextStyle {
     private Integer fontSize;
 
     /**
+     * 是否绘制下划线。
+     */
+    private Boolean underline;
+
+    /**
+     * 是否绘制删除线。
+     */
+    private Boolean strikeThrough;
+
+    /**
      * 设置文本颜色
      *
      * @param color 颜色值
@@ -71,6 +81,28 @@ public class BaseTextStyle {
      */
     public BaseTextStyle setFontSize(Integer fontSize) {
         this.fontSize = fontSize;
+        return this;
+    }
+
+    /**
+     * 设置是否绘制下划线。
+     *
+     * @param underline 是否绘制下划线
+     * @return 当前样式
+     */
+    public BaseTextStyle setUnderline(Boolean underline) {
+        this.underline = underline;
+        return this;
+    }
+
+    /**
+     * 设置是否绘制删除线。
+     *
+     * @param strikeThrough 是否绘制删除线
+     * @return 当前样式
+     */
+    public BaseTextStyle setStrikeThrough(Boolean strikeThrough) {
+        this.strikeThrough = strikeThrough;
         return this;
     }
 }

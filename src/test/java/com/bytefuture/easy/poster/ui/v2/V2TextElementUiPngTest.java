@@ -129,6 +129,22 @@ public class V2TextElementUiPngTest {
         poster.asFile("png", "out_v2_text_line_height.png");
     }
 
+    @Test
+    public void shouldOutputTextDecorationPreviewPng() {
+        EasyPoster poster = createPoster(560, 220);
+
+        poster.addElement(
+                TextElement.of(
+                                TextSpan.of("Underline ").setUnderline(true).setColor(new Color(220, 40, 40)),
+                                TextSpan.of("Strike ").setStrikeThrough(true).setColor(new Color(30, 120, 255)),
+                                TextSpan.of("Both").setUnderline(true).setStrikeThrough(true).setColor(new Color(20, 160, 90)))
+                        .setFontSize(30)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_decoration.png");
+    }
+
     private EasyPoster createPoster(int width, int height) {
         EasyPoster poster = new EasyPoster(width, height);
         poster.getConfig().setFontName("Dialog");
