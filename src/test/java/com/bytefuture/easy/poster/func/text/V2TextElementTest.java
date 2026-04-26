@@ -32,16 +32,16 @@ public class V2TextElementTest {
         TextLayoutResult layout = element.getLastLayout();
         TextLine line = layout.getLines().get(0);
 
-        Assert.assertEquals(2, line.getRuns().size());
-        Assert.assertEquals(Color.BLUE, line.getRuns().get(0).getStyle().getColor());
-        Assert.assertEquals(Font.BOLD, line.getRuns().get(0).getStyle().getFont().getStyle());
-        Assert.assertEquals(20, line.getRuns().get(0).getStyle().getFont().getSize());
-        Assert.assertEquals("Dialog", line.getRuns().get(0).getStyle().getFont().getFamily());
+        Assert.assertEquals(2, line.getSegments().size());
+        Assert.assertEquals(Color.BLUE, line.getSegments().get(0).getStyle().getColor());
+        Assert.assertEquals(Font.BOLD, line.getSegments().get(0).getStyle().getFont().getStyle());
+        Assert.assertEquals(20, line.getSegments().get(0).getStyle().getFont().getSize());
+        Assert.assertEquals("Dialog", line.getSegments().get(0).getStyle().getFont().getFamily());
 
-        Assert.assertEquals(Color.RED, line.getRuns().get(1).getStyle().getColor());
-        Assert.assertEquals(Font.BOLD, line.getRuns().get(1).getStyle().getFont().getStyle());
-        Assert.assertEquals(24, line.getRuns().get(1).getStyle().getFont().getSize());
-        Assert.assertEquals("Dialog", line.getRuns().get(1).getStyle().getFont().getFamily());
+        Assert.assertEquals(Color.RED, line.getSegments().get(1).getStyle().getColor());
+        Assert.assertEquals(Font.BOLD, line.getSegments().get(1).getStyle().getFont().getStyle());
+        Assert.assertEquals(24, line.getSegments().get(1).getStyle().getFont().getSize());
+        Assert.assertEquals("Dialog", line.getSegments().get(1).getStyle().getFont().getFamily());
     }
 
     @Test
@@ -69,12 +69,12 @@ public class V2TextElementTest {
         Assert.assertEquals(plainLayout.getLines().size(), richLayout.getLines().size());
         Assert.assertEquals(plainLayout.getLines().get(0).getText(), richLayout.getLines().get(0).getText());
         Assert.assertEquals(
-                plainLayout.getLines().get(0).getRuns().get(0).getStyle().getFont(),
-                richLayout.getLines().get(0).getRuns().get(0).getStyle().getFont()
+                plainLayout.getLines().get(0).getSegments().get(0).getStyle().getFont(),
+                richLayout.getLines().get(0).getSegments().get(0).getStyle().getFont()
         );
         Assert.assertEquals(
-                plainLayout.getLines().get(0).getRuns().get(0).getStyle().getColor(),
-                richLayout.getLines().get(0).getRuns().get(0).getStyle().getColor()
+                plainLayout.getLines().get(0).getSegments().get(0).getStyle().getColor(),
+                richLayout.getLines().get(0).getSegments().get(0).getStyle().getColor()
         );
     }
 
@@ -163,12 +163,56 @@ public class V2TextElementTest {
         measure(element, 320, 120);
         TextLine line = element.getLastLayout().getLines().get(0);
 
-        Assert.assertTrue(line.getRuns().get(0).getStyle().isUnderline());
-        Assert.assertFalse(line.getRuns().get(0).getStyle().isStrikeThrough());
-        Assert.assertFalse(line.getRuns().get(1).getStyle().isUnderline());
-        Assert.assertFalse(line.getRuns().get(1).getStyle().isStrikeThrough());
-        Assert.assertTrue(line.getRuns().get(2).getStyle().isUnderline());
-        Assert.assertTrue(line.getRuns().get(2).getStyle().isStrikeThrough());
+        TextLine.Segment underlined = findSegmentContaining(line, "underlined");
+        TextLine.Segment plain = findSegmentContaining(line, "plain");
+        TextLine.Segment deleted = findSegmentContaining(line, "deleted");
+
+        Assert.assertTrue(underlined.getStyle().isUnderline());
+        Assert.assertFalse(underlined.getStyle().isStrikeThrough());
+        Assert.assertFalse(plain.getStyle().isUnderline());
+        Assert.assertFalse(plain.getStyle().isStrikeThrough());
+        Assert.assertTrue(deleted.getStyle().isUnderline());
+        Assert.assertTrue(deleted.getStyle().isStrikeThrough());
+    }
+
+    @Test
+    public void shouldJustifyAutoWrappedLinesWithinLayoutWidth() {
+        TextElement element = TextElement.of("alpha beta gamma delta epsilon")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setAutoWordWrap(120)
+                .setTextAlign(TextAlign.JUSTIFY)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 200);
+        TextLayoutResult layout = element.getLastLayout();
+
+        Assert.assertTrue(layout.getLines().size() > 1);
+        for (TextLine line : layout.getLines()) {
+            if (containsStretchableSpace(line)) {
+                int occupiedWidth = resolveOccupiedWidth(line);
+                Assert.assertEquals(layout.getWidth(), occupiedWidth);
+            }
+        }
+    }
+
+    @Test
+    public void shouldJustifyExplicitBreakLinesWithinLayoutWidth() {
+        TextElement element = TextElement.of("alpha beta\ngamma delta")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .setLayoutWidth(180)
+                .setTextAlign(TextAlign.JUSTIFY)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 200);
+        TextLayoutResult layout = element.getLastLayout();
+
+        Assert.assertEquals(2, layout.getLines().size());
+        for (TextLine line : layout.getLines()) {
+            int occupiedWidth = resolveOccupiedWidth(line);
+            Assert.assertEquals(layout.getWidth(), occupiedWidth);
+        }
     }
 
     @Test
@@ -241,6 +285,33 @@ public class V2TextElementTest {
             }
         }
         return count;
+    }
+
+    private boolean containsStretchableSpace(TextLine line) {
+        for (TextLine.Segment segment : line.getSegments()) {
+            if (segment.isStretchableSpace()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int resolveOccupiedWidth(TextLine line) {
+        int maxRight = 0;
+        for (TextLine.Segment segment : line.getSegments()) {
+            maxRight = Math.max(maxRight, segment.getOffsetX() + segment.getWidth());
+        }
+        return line.getOffsetX() + maxRight;
+    }
+
+    private TextLine.Segment findSegmentContaining(TextLine line, String expectedText) {
+        for (TextLine.Segment segment : line.getSegments()) {
+            if (segment.getText().contains(expectedText)) {
+                return segment;
+            }
+        }
+        Assert.fail("segment not found: " + expectedText);
+        return null;
     }
 
     private static final class ContextHolder {

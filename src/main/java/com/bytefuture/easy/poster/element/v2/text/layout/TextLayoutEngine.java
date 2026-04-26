@@ -140,7 +140,7 @@ public class TextLayoutEngine {
                 // 先把已有内容落成一行，避免超宽 token 与前一段文本错误拼接。
                 if (!current.isEmpty()) {
                     lines.add(buildLine(current, currentWidth));
-                    current = new ArrayList<Token>();
+                    current = new ArrayList<>();
                     currentWidth = 0;
                 }
                 List<Token> pieces = splitOversizedToken(token, widthLimit, graphics);
@@ -170,7 +170,7 @@ public class TextLayoutEngine {
             // 这样既能保留单词边界，又不会让新行以空白字符开头。
             if (token.type == TokenType.SPACE) {
                 lines.add(buildLine(current, currentWidth));
-                current = new ArrayList<Token>();
+                current = new ArrayList<>();
                 currentWidth = 0;
                 continue;
             }
@@ -178,7 +178,7 @@ public class TextLayoutEngine {
             // 走到这里说明是普通单词导致超宽。
             // 处理策略是：先提交当前行，再把该单词作为下一行的起点。
             lines.add(buildLine(current, currentWidth));
-            current = new ArrayList<Token>();
+            current = new ArrayList<>();
             current.add(token);
             currentWidth = token.width;
         }
@@ -200,7 +200,7 @@ public class TextLayoutEngine {
      * @return token 列表
      */
     private List<Token> tokenizeRuns(List<ResolvedTextRun> runs, Graphics2D graphics) {
-        List<Token> tokens = new ArrayList<Token>();
+        List<Token> tokens = new ArrayList<>();
         for (ResolvedTextRun run : runs) {
             String text = run.getText();
             if (text.isEmpty()) {
@@ -270,7 +270,7 @@ public class TextLayoutEngine {
      * @return 拆分后的 token 列表
      */
     private List<Token> splitOversizedToken(Token token, int widthLimit, Graphics2D graphics) {
-        List<Token> pieces = new ArrayList<Token>();
+        List<Token> pieces = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
         int width = 0;
         for (int i = 0; i < token.text.length(); ) {
@@ -306,20 +306,22 @@ public class TextLayoutEngine {
         if (tokens.isEmpty()) {
             return TextLine.empty();
         }
-        List<ResolvedTextRun> runs = new ArrayList<>(tokens.size());
+        List<TextLine.Segment> segments = new ArrayList<>(tokens.size());
         StringBuilder builder = new StringBuilder();
         for (Token token : tokens) {
             builder.append(token.text);
             // 相邻 token 如果样式完全一致，则在这里合并回一个 run，
             // 避免后续绘制阶段出现过度切片，降低遍历成本。
-            if (!runs.isEmpty() && hasSameStyle(runs.get(runs.size() - 1).getStyle(), token.style)) {
-                ResolvedTextRun previous = runs.remove(runs.size() - 1);
-                runs.add(new ResolvedTextRun(previous.getText() + token.text, previous.getStyle()));
+            boolean stretchableSpace = token.type == TokenType.SPACE;
+            if (!segments.isEmpty() && canMergeSegment(segments.get(segments.size() - 1), token)) {
+                TextLine.Segment previous = segments.remove(segments.size() - 1);
+                segments.add(new TextLine.Segment(previous.getText() + token.text, previous.getStyle(),
+                        0, previous.getWidth() + token.width, previous.isStretchableSpace()));
             } else {
-                runs.add(new ResolvedTextRun(token.text, token.style));
+                segments.add(new TextLine.Segment(token.text, token.style, 0, token.width, stretchableSpace));
             }
         }
-        return new TextLine(builder.toString(), width, 0, runs);
+        return new TextLine(builder.toString(), width, 0, segments);
     }
 
     /**
@@ -345,11 +347,74 @@ public class TextLayoutEngine {
      * @return 带偏移量的文本行
      */
     private List<TextLine> alignLines(List<TextLine> lines, int layoutWidth, TextAlign align) {
-        List<TextLine> aligned = new ArrayList<TextLine>(lines.size());
+        List<TextLine> aligned = new ArrayList<>(lines.size());
         for (TextLine line : lines) {
-            aligned.add(line.withOffsetX(align.offset(layoutWidth, line.getWidth())));
+            if (align == TextAlign.JUSTIFY && layoutWidth > line.getWidth()) {
+                List<TextLine.Segment> justifiedSegments = justifySegments(line, layoutWidth);
+                if (!justifiedSegments.isEmpty()) {
+                    aligned.add(line.withLayout(0, justifiedSegments));
+                    continue;
+                }
+            }
+            aligned.add(line.withLayout(align.offset(layoutWidth, line.getWidth()), sequenceSegments(line.getSegments())));
         }
         return aligned;
+    }
+
+    private boolean canMergeSegment(TextLine.Segment previous, Token token) {
+        return hasSameStyle(previous.getStyle(), token.style)
+                && previous.isStretchableSpace() == (token.type == TokenType.SPACE);
+    }
+
+    private List<TextLine.Segment> sequenceSegments(List<TextLine.Segment> segments) {
+        List<TextLine.Segment> sequenced = new ArrayList<>(segments.size());
+        int offsetX = 0;
+        for (TextLine.Segment segment : segments) {
+            sequenced.add(segment.withOffsetX(offsetX));
+            offsetX += segment.getWidth();
+        }
+        return sequenced;
+    }
+
+    private List<TextLine.Segment> justifySegments(TextLine line, int layoutWidth) {
+        int stretchableCount = countStretchableSpaces(line.getSegments());
+        if (stretchableCount <= 0) {
+            return Collections.emptyList();
+        }
+        int extraWidth = layoutWidth - line.getWidth();
+        int baseExtra = extraWidth / stretchableCount;
+        int remainder = extraWidth % stretchableCount;
+        List<TextLine.Segment> justified = new ArrayList<>(line.getSegments().size());
+        int offsetX = 0;
+        for (int i = 0; i < line.getSegments().size(); i++) {
+            TextLine.Segment segment = line.getSegments().get(i);
+            justified.add(segment.withOffsetX(offsetX));
+            offsetX += segment.getWidth();
+            if (isJustifiableSpace(line.getSegments(), i)) {
+                offsetX += baseExtra;
+                if (remainder > 0) {
+                    offsetX++;
+                    remainder--;
+                }
+            }
+        }
+        return justified;
+    }
+
+    private int countStretchableSpaces(List<TextLine.Segment> segments) {
+        int count = 0;
+        for (int i = 0; i < segments.size(); i++) {
+            if (isJustifiableSpace(segments, i)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean isJustifiableSpace(List<TextLine.Segment> segments, int index) {
+        return index > 0
+                && index < segments.size() - 1
+                && segments.get(index).isStretchableSpace();
     }
 
     /**
@@ -397,7 +462,7 @@ public class TextLayoutEngine {
         // 块级样式显式指定行高时，直接采用该值作为统一行距。
         // 这样调用方可以主动控制多行文本的疏密，而不是被字体度量结果绑定。
         if (blockStyle.getLineHeight() != null) {
-            return blockStyle.getLineHeight().intValue();
+            return blockStyle.getLineHeight();
         }
         int maxHeight = graphics.getFontMetrics(baseFont).getHeight();
         for (ResolvedTextRun run : runs) {

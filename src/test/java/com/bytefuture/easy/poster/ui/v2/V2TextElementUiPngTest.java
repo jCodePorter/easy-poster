@@ -145,6 +145,103 @@ public class V2TextElementUiPngTest {
         poster.asFile("png", "out_v2_text_decoration.png");
     }
 
+    @Test
+    public void shouldOutputJustifyPreviewPng() {
+        EasyPoster poster = createPoster(560, 320);
+
+        poster.addElement(
+                TextElement.of("alpha beta gamma delta epsilon zeta eta theta")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setAutoWordWrap(260)
+                        .setTextAlign(TextAlign.JUSTIFY)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 24, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("alpha beta\ngamma delta")
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setLayoutWidth(260)
+                        .setTextAlign(TextAlign.JUSTIFY)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 180, 0, 0)))
+        );
+
+        poster.asFile("png", "out_v2_text_justify.png");
+    }
+
+    @Test
+    public void shouldOutputAlignmentComparisonPreviewPng() {
+        EasyPoster poster = createPoster(720, 760);
+        String sample = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu";
+
+        poster.addElement(
+                TextElement.of("LEFT")
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(24)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 24, 0, 0)))
+        );
+        poster.addElement(
+                TextElement.of(sample)
+                        .setFontName("Dialog")
+                        .setFontSize(26)
+                        .setAutoWordWrap(320)
+                        .setTextAlign(TextAlign.LEFT)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 64, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("RIGHT")
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(24)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 210, 0, 0)))
+        );
+        poster.addElement(
+                TextElement.of(sample)
+                        .setFontName("Dialog")
+                        .setFontSize(26)
+                        .setAutoWordWrap(320)
+                        .setTextAlign(TextAlign.RIGHT)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 250, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("JUSTIFY")
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(24)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 396, 0, 0)))
+        );
+        poster.addElement(
+                TextElement.of(sample)
+                        .setFontName("Dialog")
+                        .setFontSize(26)
+                        .setAutoWordWrap(320)
+                        .setTextAlign(TextAlign.JUSTIFY)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 436, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("CENTER")
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(24)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 582, 0, 0)))
+        );
+        poster.addElement(
+                TextElement.of(sample)
+                        .setFontName("Dialog")
+                        .setFontSize(26)
+                        .setAutoWordWrap(320)
+                        .setTextAlign(TextAlign.CENTER)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 622, 0, 0)))
+        );
+
+        poster.asFile("png", "out_v2_text_alignment_comparison.png");
+    }
+
     private EasyPoster createPoster(int width, int height) {
         EasyPoster poster = new EasyPoster(width, height);
         poster.getConfig().setFontName("Dialog");

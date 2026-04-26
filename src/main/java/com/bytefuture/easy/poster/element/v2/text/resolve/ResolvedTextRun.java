@@ -6,11 +6,10 @@ import lombok.Getter;
 import java.util.Objects;
 
 /**
- * 已解析的文本运行段。
- * 每个运行段包含一段连续文本以及它的最终绘制样式。
+ * 某段文本的最终样式结果
  */
 @Getter
-public final class ResolvedTextRun {
+public class ResolvedTextRun {
 
     /**
      * 运行段文本
