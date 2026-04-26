@@ -35,13 +35,12 @@ public final class TextLayoutEngine {
      * @param config 文本配置
      * @param position 元素位置
      * @param rotate 旋转角度
-     * @param overrideColor 元素级覆盖颜色
      * @param context 海报上下文
      * @param posterWidth 海报宽度
      * @param posterHeight 海报高度
      * @return 布局结果
      */
-    public TextLayoutResult layout(TextElementConfig config, Position position, int rotate, Color overrideColor,
+    public TextLayoutResult layout(TextElementConfig config, Position position, int rotate,
                                    PosterContext context, int posterWidth, int posterHeight) {
         if (config.isEmpty()) {
             return TextLayoutResult.empty(position);
@@ -49,7 +48,7 @@ public final class TextLayoutEngine {
 
         Graphics2D graphics = context.getGraphics();
         Font baseFont = resolveBaseFont(config, context.getConfig());
-        Color defaultColor = resolveDefaultColor(config, overrideColor, context.getConfig());
+        Color defaultColor = resolveDefaultColor(config, context.getConfig());
         TextBlockStyle blockStyle = config.toBlockStyle();
         List<ResolvedTextRun> runs = resolveRuns(config.toRichSpans(), blockStyle, baseFont, defaultColor);
         int lineHeight = resolveLineHeight(graphics, runs, baseFont);
@@ -412,23 +411,22 @@ public final class TextLayoutEngine {
     }
 
     /**
-     * 解析默认颜色，优先级依次为元素覆盖色、配置色、全局色。
+     * 解析默认颜色，优先级依次为配置色、全局色、系统默认色。
      *
      * @param config 文本配置
-     * @param overrideColor 元素覆盖颜色
      * @param globalConfig 全局配置
      * @return 默认颜色
      */
-    private Color resolveDefaultColor(TextElementConfig config, Color overrideColor, Config globalConfig) {
-        if (overrideColor != null) {
-            return overrideColor;
-        }
+    private Color resolveDefaultColor(TextElementConfig config, Config globalConfig) {
+        // 第一优先级：TextElementConfig 中配置的默认颜色
         if (config.getColor() != null) {
             return config.getColor();
         }
+        // 第二优先级：全局配置中的颜色
         if (globalConfig != null && globalConfig.getColor() != null) {
             return globalConfig.getColor();
         }
+        // 第三优先级：系统默认黑色
         return Color.BLACK;
     }
 

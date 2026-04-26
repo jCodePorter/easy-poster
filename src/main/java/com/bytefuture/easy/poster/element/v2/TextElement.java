@@ -9,6 +9,7 @@ import com.bytefuture.easy.poster.model.BaseLine;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextAlign;
 import com.bytefuture.easy.poster.model.TextSpan;
+import lombok.Getter;
 
 import java.awt.*;
 import java.util.List;
@@ -22,12 +23,20 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
     /**
      * 文本元素的静态配置。
      */
+    @Getter
     private final TextElementConfig config;
-    /** 文本布局计算器。 */
+    /**
+     * 文本布局计算器。
+     */
     private final TextLayoutEngine layoutEngine;
-    /** 文本绘制器。 */
+    /**
+     * 文本绘制器。
+     */
     private final TextRenderer renderer;
-    /** 最近一次布局结果，供渲染阶段复用。 */
+    /**
+     * 最近一次布局结果，供渲染阶段复用。
+     */
+    @Getter
     private transient TextLayoutResult lastLayout;
 
     /**
@@ -35,7 +44,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      *
      * @param text 文本内容
      */
-    public TextElement(String text) {
+    private TextElement(String text) {
         this(TextElementConfig.builder(text).build());
     }
 
@@ -44,10 +53,11 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      *
      * @param config 文本配置
      */
-    public TextElement(TextElementConfig config) {
+    private TextElement(TextElementConfig config) {
         this.config = config;
         this.layoutEngine = new TextLayoutEngine();
         this.renderer = new TextRenderer();
+        // 文本元素的样式由 TextElementConfig 统一管理，禁用父类 color 字段
         this.color = null;
     }
 
@@ -67,7 +77,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @param spans 文本片段列表
      * @return 文本元素实例
      */
-    public static TextElement rich(TextSpan... spans) {
+    public static TextElement of(TextSpan... spans) {
         return new TextElement(TextElementConfig.builder(spans).build());
     }
 
@@ -94,14 +104,15 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
     /**
      * 计算文本最终占用尺寸，并缓存布局结果。
      *
-     * @param context 海报上下文
-     * @param posterWidth 海报宽度
+     * @param context      海报上下文
+     * @param posterWidth  海报宽度
      * @param posterHeight 海报高度
      * @return 文本布局尺寸
      */
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
-        TextLayoutResult layout = layoutEngine.layout(config, position, rotate, color, context, posterWidth, posterHeight);
+        // 文本样式完全由 config 管理，不再传递 overrideColor
+        TextLayoutResult layout = layoutEngine.layout(config, position, rotate, context, posterWidth, posterHeight);
         this.lastLayout = layout;
         return layout.toDimension(rotate);
     }
@@ -109,9 +120,9 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
     /**
      * 按最近一次布局结果渲染文本；若无缓存则即时重新布局。
      *
-     * @param context 海报上下文
-     * @param dimension 元素尺寸
-     * @param posterWidth 海报宽度
+     * @param context      海报上下文
+     * @param dimension    元素尺寸
+     * @param posterWidth  海报宽度
      * @param posterHeight 海报高度
      * @return 文本渲染起点
      */
@@ -120,41 +131,31 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         TextLayoutResult layout = lastLayout;
         if (layout == null) {
             // 渲染阶段兜底重新布局，避免跳过 calculateDimension 时无法输出文本。
-            layout = layoutEngine.layout(config, position, rotate, color, context, posterWidth, posterHeight);
+            layout = layoutEngine.layout(config, position, rotate, context, posterWidth, posterHeight);
             this.lastLayout = layout;
         }
         return renderer.render(context, dimension, layout, rotate);
     }
 
     /**
-     * 返回文本配置。
-     *
-     * @return 文本配置
-     */
-    public TextElementConfig getConfig() {
-        return config;
-    }
-
-    /**
-     * 返回最近一次布局结果。
-     *
-     * @return 布局结果
-     */
-    public TextLayoutResult getLastLayout() {
-        return lastLayout;
-    }
-
-    /**
      * 文本元素构建器。
      */
     public static final class Builder {
-        /** 内部文本配置构建器。 */
+        /**
+         * 内部文本配置构建器。
+         */
         private final TextElementConfig.Builder configBuilder;
-        /** 元素定位方式。 */
+        /**
+         * 元素定位方式。
+         */
         private Position position;
-        /** 绘制透明度。 */
+        /**
+         * 绘制透明度。
+         */
         private float alpha = 1F;
-        /** 旋转角度。 */
+        /**
+         * 旋转角度。
+         */
         private int rotate = 0;
 
         private Builder(String text) {
@@ -167,6 +168,8 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
 
         /**
          * 设置默认文本颜色。
+         * <p>
+         * 注意：此方法设置的是块级默认颜色，会被 TextSpan 的片段级颜色覆盖。
          *
          * @param color 颜色值
          * @return 当前构建器
@@ -178,6 +181,8 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
 
         /**
          * 设置默认文本颜色。
+         * <p>
+         * 注意：此方法设置的是块级默认颜色，会被 TextSpan 的片段级颜色覆盖。
          *
          * @param hexColor 十六进制颜色值
          * @return 当前构建器
@@ -223,9 +228,9 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         /**
          * 同时设置字体名称、样式和大小。
          *
-         * @param fontName 字体名称
+         * @param fontName  字体名称
          * @param fontStyle 字体样式
-         * @param fontSize 字体大小
+         * @param fontSize  字体大小
          * @return 当前构建器
          */
         public Builder font(String fontName, int fontStyle, int fontSize) {

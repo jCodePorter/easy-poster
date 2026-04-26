@@ -15,6 +15,28 @@ import java.util.List;
 /**
  * 文本元素静态配置。
  * 封装纯文本、富文本、字体、颜色和换行策略等布局输入参数。
+ *
+ * <h3>样式优先级（从高到低）：</h3>
+ * <ol>
+ *   <li>{@link TextSpan} 片段级样式 - 每个文本片段可独立设置颜色、字体</li>
+ *   <li>块级默认样式（本类配置） - 通过 Builder 的 color()、font() 等方法设置</li>
+ *   <li>全局配置 - 来自 {@link com.bytefuture.easy.poster.model.Config}</li>
+ *   <li>系统默认值 - Color.BLACK、Font.PLAIN、16px</li>
+ * </ol>
+ *
+ * <h3>使用示例：</h3>
+ * <pre>{@code
+ * // 纯文本：所有文字使用统一样式
+ * TextElement.of("Hello World")
+ *     .color(Color.RED)
+ *     .fontSize(24);
+ *
+ * // 富文本：不同片段使用不同样式
+ * TextElement.rich(
+ *     TextSpan.of("Hello").setColor(Color.RED),
+ *     TextSpan.of(" World").setColor(Color.BLUE).setFontSize(32)
+ * );
+ * }</pre>
  */
 @Getter
 public final class TextElementConfig {
@@ -83,6 +105,9 @@ public final class TextElementConfig {
 
     /**
      * 转换为块级默认样式，用于与片段样式合并。
+     * <p>
+     * 注意：此方法返回的样式仅包含当前配置中显式设置的属性，
+     * 未设置的属性为 null，由样式解析器进行级联填充。
      *
      * @return 块级样式
      */
@@ -90,8 +115,8 @@ public final class TextElementConfig {
         TextBlockStyle style = new TextBlockStyle();
         style.setColor(this.color);
         style.setFontName(this.fontName);
-        style.setFontStyle(Integer.valueOf(this.fontStyle));
-        style.setFontSize(Integer.valueOf(this.fontSize));
+        style.setFontStyle(this.fontStyle);
+        style.setFontSize(this.fontSize);
         return style;
     }
 
@@ -122,7 +147,7 @@ public final class TextElementConfig {
         /** 纯文本内容。 */
         private String text;
         /** 富文本片段列表。 */
-        private final List<TextSpan> textSpans = new ArrayList<TextSpan>();
+        private final List<TextSpan> textSpans = new ArrayList<>();
         /** 默认颜色。 */
         private Color color;
         /** 默认字体名称。 */

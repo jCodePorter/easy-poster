@@ -13,13 +13,19 @@ import java.awt.*;
 @Setter
 public class BaseTextStyle {
     /**
-     * 文本颜色。
+     * 文本颜色
      */
     private Color color;
-    /** 字体名称。 */
+    /**
+     * 字体名称
+     */
     private String fontName;
-    /** 字体样式。 */
+    /**
+     * 字体样式
+     */
     private Integer fontStyle;
-    /** 字体大小。 */
+    /**
+     * 字体大小
+     */
     private Integer fontSize;
 }
