@@ -12,15 +12,15 @@ import java.awt.geom.AffineTransform;
 import java.text.AttributedString;
 
 /**
- * 文本渲染器。
+ * 文本渲染器
  *
- * @author Codex
+ * @author biaoy
  * @since 2026/04/26
  */
-public final class TextRenderer {
+public class TextRenderer {
 
     /**
-     * 将布局结果绘制到当前画布。
+     * 将布局结果绘制到当前画布
      *
      * @param context   海报上下文
      * @param dimension 元素尺寸
@@ -54,7 +54,7 @@ public final class TextRenderer {
     }
 
     /**
-     * 按最终样式绘制单个文本片段。
+     * 按最终样式绘制单个文本片段
      *
      * @param graphics  图形上下文
      * @param segment   文本片段

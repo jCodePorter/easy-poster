@@ -13,7 +13,7 @@ import java.awt.*;
  * 除了基础字体颜色属性外，还负责承载基线、对齐与换行等布局参数。
  */
 @Getter
-public final class TextBlockStyle extends BaseTextStyle {
+public class TextBlockStyle extends BaseTextStyle {
     private Font font;
     private BaseLine baseLine = BaseLine.BASE_LINE;
     private TextAlign textAlign = TextAlign.LEFT;
@@ -108,7 +108,7 @@ public final class TextBlockStyle extends BaseTextStyle {
      * @return 当前文本块样式
      */
     public TextBlockStyle setLineHeight(Integer lineHeight) {
-        if (lineHeight == null || lineHeight.intValue() <= 0) {
+        if (lineHeight == null || lineHeight <= 0) {
             throw new PosterException("lineHeight must be greater than 0");
         }
         this.lineHeight = lineHeight;

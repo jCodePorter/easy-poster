@@ -1,13 +1,20 @@
 package com.bytefuture.easy.poster.element.v2.text.style;
 
+import com.bytefuture.easy.poster.element.v2.TextElement;
+import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedStyleContext;
 import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedTextRun;
+import com.bytefuture.easy.poster.model.Config;
+import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextSpan;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * 文本样式解析器。
- * 按片段样式、块级样式、基础字体和默认颜色的优先级生成最终样式。
+ * 文本样式解析器
+ * 承担样式解析流程的全部职责，包括基础字体、默认颜色和文本运行单元的解析
  *
  * <h3>样式合并规则：</h3>
  * <pre>
@@ -16,11 +23,86 @@ import java.awt.*;
  * 字体大小: span.fontSize > block.fontSize > baseFont.size
  * 颜色:     span.color > block.color > defaultColor
  * </pre>
+ *
+ * @author biaoy
+ * @since 2026/04/26
  */
-public final class TextStyleResolver {
+public class TextStyleResolver {
 
     /**
-     * 解析单个文本片段的最终样式。
+     * 执行完整的样式解析流程
+     *
+     * @param element 文本元素
+     * @param context 海报上下文
+     * @return 样式解析结果
+     */
+    public ResolvedStyleContext resolve(TextElement element, PosterContext context) {
+        TextBlockStyle blockStyle = element.getBlockStyle();
+        Font baseFont = resolveBaseFont(blockStyle, context.getConfig());
+        Color defaultColor = resolveDefaultColor(blockStyle, context.getConfig());
+        List<ResolvedTextRun> runs = resolveRuns(element.getTextSpans(), blockStyle, baseFont, defaultColor);
+        return new ResolvedStyleContext(baseFont, defaultColor, runs, blockStyle);
+    }
+
+    /**
+     * 解析文本块默认字体
+     *
+     * @param blockStyle   文本块样式
+     * @param globalConfig 全局配置
+     * @return 默认字体
+     */
+    public Font resolveBaseFont(TextBlockStyle blockStyle, Config globalConfig) {
+        // 块级样式直接给出 Font 实例时优先级最高，避免再次从名称、字号、样式重建
+        if (blockStyle.getFont() != null) {
+            return blockStyle.getFont();
+        }
+        String fontName = blockStyle.getFontName() != null ? blockStyle.getFontName() : globalConfig.getFontName();
+        int fontStyle = blockStyle.getFontStyle() != null ? blockStyle.getFontStyle() : Font.PLAIN;
+        int fontSize = blockStyle.getFontSize() != null ? blockStyle.getFontSize() : globalConfig.getFontSize();
+        return new Font(fontName, fontStyle, fontSize);
+    }
+
+    /**
+     * 解析文本块默认颜色
+     *
+     * @param blockStyle   文本块样式
+     * @param globalConfig 全局配置
+     * @return 默认颜色
+     */
+    public Color resolveDefaultColor(TextBlockStyle blockStyle, Config globalConfig) {
+        // 块级配置优先，其次回落到全局配置，最后兜底黑色，保证渲染阶段一定有可用颜色
+        if (blockStyle.getColor() != null) {
+            return blockStyle.getColor();
+        }
+        if (globalConfig != null && globalConfig.getColor() != null) {
+            return globalConfig.getColor();
+        }
+        return Color.BLACK;
+    }
+
+    /**
+     * 批量解析文本片段为运行单元
+     *
+     * @param spans        原始文本片段集合
+     * @param blockStyle   文本块样式
+     * @param baseFont     解析得到的基础字体
+     * @param defaultColor 解析得到的默认颜色
+     * @return 样式已收敛的文本运行单元列表
+     */
+    public List<ResolvedTextRun> resolveRuns(List<TextSpan> spans, TextBlockStyle blockStyle,
+                                             Font baseFont, Color defaultColor) {
+        if (spans.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<ResolvedTextRun> runs = new ArrayList<>(spans.size());
+        for (TextSpan span : spans) {
+            runs.add(resolve(span, blockStyle, baseFont, defaultColor));
+        }
+        return runs;
+    }
+
+    /**
+     * 解析单个文本片段的最终样式
      * <p>
      * 样式合并遵循以下优先级（从高到低）：
      * <ol>
@@ -52,7 +134,7 @@ public final class TextStyleResolver {
     }
 
     /**
-     * 返回三个值中第一个非空项。
+     * 返回三个值中第一个非空项
      *
      * @param first  第一优先级值
      * @param second 第二优先级值

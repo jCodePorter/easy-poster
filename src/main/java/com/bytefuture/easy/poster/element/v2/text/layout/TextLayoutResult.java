@@ -15,34 +15,52 @@ import java.util.List;
  * 包含文本在画布中的位置、尺寸、基线信息以及逐行布局数据。
  */
 @Getter
-public final class TextLayoutResult {
+public class TextLayoutResult {
     /**
-     * 文本布局起点。
+     * 文本布局起点
      */
     private final Point point;
-    /** 布局宽度。 */
+
+    /**
+     * 布局宽度
+     */
     private final int width;
-    /** 布局高度。 */
+
+    /**
+     * 布局高度。
+     */
     private final int height;
-    /** 统一行高。 */
+
+    /**
+     * 统一行高
+     */
     private final int lineHeight;
-    /** 基线偏移。 */
+
+    /**
+     * 基线偏移
+     */
     private final int baselineOffset;
-    /** 绘制时的 Y 轴偏移。 */
+
+    /**
+     * 绘制时的 Y 轴偏移
+     */
     private final int yOffset;
-    /** 布局后的文本行列表。 */
+
+    /**
+     * 布局后的文本行列表
+     */
     private final List<TextLine> lines;
 
     /**
      * 创建文本布局结果。
      *
-     * @param point 布局起点
-     * @param width 布局宽度
-     * @param height 布局高度
-     * @param lineHeight 行高
+     * @param point          布局起点
+     * @param width          布局宽度
+     * @param height         布局高度
+     * @param lineHeight     行高
      * @param baselineOffset 基线偏移
-     * @param yOffset 绘制 Y 偏移
-     * @param lines 文本行列表
+     * @param yOffset        绘制 Y 偏移
+     * @param lines          文本行列表
      */
     public TextLayoutResult(Point point, int width, int height, int lineHeight,
                             int baselineOffset, int yOffset, List<TextLine> lines) {
@@ -53,6 +71,17 @@ public final class TextLayoutResult {
         this.baselineOffset = baselineOffset;
         this.yOffset = yOffset;
         this.lines = Collections.unmodifiableList(new ArrayList<TextLine>(lines));
+    }
+
+    /**
+     * 创建空布局结果。
+     *
+     * @param position 位置定义
+     * @return 空布局结果
+     */
+    public static TextLayoutResult empty(Position position) {
+        Point point = position == null ? Point.ORIGIN_COORDINATE : position.calculate(0, 0, 0, 0);
+        return new TextLayoutResult(point, 0, 0, 0, 0, 0, Collections.emptyList());
     }
 
     /**
@@ -73,16 +102,5 @@ public final class TextLayoutResult {
             builder.rotateWidth(bounds[0]).rotateHeight(bounds[1]);
         }
         return builder.build();
-    }
-
-    /**
-     * 创建空布局结果。
-     *
-     * @param position 位置定义
-     * @return 空布局结果
-     */
-    public static TextLayoutResult empty(Position position) {
-        Point point = position == null ? Point.ORIGIN_COORDINATE : position.calculate(0, 0, 0, 0);
-        return new TextLayoutResult(point, 0, 0, 0, 0, 0, Collections.<TextLine>emptyList());
     }
 }

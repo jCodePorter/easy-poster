@@ -10,7 +10,7 @@ import java.util.Objects;
  * 用于渲染阶段直接绘制，不再依赖级联合并。
  */
 @Getter
-public final class ResolvedTextStyle {
+public class ResolvedTextStyle {
     /**
      * 最终字体
      */

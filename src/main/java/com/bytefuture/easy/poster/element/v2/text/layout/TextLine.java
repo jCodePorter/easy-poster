@@ -10,28 +10,28 @@ import java.util.List;
 /**
  * 单行文本布局结果。
  *
- * @author Codex
+ * @author biaoy
  * @since 2026/04/26
  */
 @Getter
-public final class TextLine {
+public class TextLine {
     /**
-     * 行文本内容。
+     * 行文本内容
      */
     private final String text;
 
     /**
-     * 行宽度。
+     * 行宽度
      */
     private final int width;
 
     /**
-     * 相对布局起点的 X 轴偏移。
+     * 相对布局起点的 X 轴偏移
      */
     private final int offsetX;
 
     /**
-     * 行内已定位文本片段。
+     * 行内已定位文本片段
      */
     private final List<Segment> segments;
 
@@ -71,35 +71,35 @@ public final class TextLine {
     }
 
     /**
-     * 行内已定位文本片段。
+     * 行内已定位文本片段
      *
-     * @author Codex
+     * @author biaoy
      * @since 2026/04/26
      */
     @Getter
     public static final class Segment {
         /**
-         * 片段文本。
+         * 片段文本
          */
         private final String text;
 
         /**
-         * 片段最终样式。
+         * 片段最终样式
          */
         private final ResolvedTextStyle style;
 
         /**
-         * 相对当前行起点的 X 轴偏移。
+         * 相对当前行起点的 X 轴偏移
          */
         private final int offsetX;
 
         /**
-         * 片段宽度。
+         * 片段宽度
          */
         private final int width;
 
         /**
-         * 是否可作为分散对齐的拉伸空隙。
+         * 是否可作为分散对齐的拉伸空隙
          */
         private final boolean stretchableSpace;
 
@@ -121,7 +121,7 @@ public final class TextLine {
         }
 
         /**
-         * 返回一个仅修改偏移量的新片段。
+         * 返回一个仅修改偏移量的新片段
          *
          * @param offsetX 新偏移
          * @return 新片段
