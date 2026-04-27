@@ -129,8 +129,10 @@ public class TextStyleResolver {
         Color color = firstNonNull(spanStyle.getColor(), blockStyle.getColor(), defaultColor);
         boolean underline = firstNonNull(spanStyle.getUnderline(), blockStyle.getUnderline(), Boolean.FALSE);
         boolean strikeThrough = firstNonNull(spanStyle.getStrikeThrough(), blockStyle.getStrikeThrough(), Boolean.FALSE);
+        // 字间距：片段 > 块级 > 默认 0
+        int letterSpacing = firstNonNull(spanStyle.getLetterSpacing(), blockStyle.getLetterSpacing(), 0);
         return new ResolvedTextRun(span.getText(),
-                new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, underline, strikeThrough));
+                new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, underline, strikeThrough, letterSpacing));
     }
 
     /**
@@ -143,6 +145,24 @@ public class TextStyleResolver {
      * @return 第一个非空值
      */
     private <T> T firstNonNull(T first, T second, T third) {
+        if (first != null) {
+            return first;
+        }
+        if (second != null) {
+            return second;
+        }
+        return third;
+    }
+
+    /**
+     * 返回三个值中第一个非空项（Integer 转 int）
+     *
+     * @param first  第一优先级值
+     * @param second 第二优先级值
+     * @param third  第三优先级值（默认值）
+     * @return 第一个非空值或默认值
+     */
+    private int firstNonNull(Integer first, Integer second, int third) {
         if (first != null) {
             return first;
         }

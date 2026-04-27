@@ -62,18 +62,60 @@ public class TextRenderer {
      * @param baselineY 当前绘制基线 Y 坐标
      */
     private void drawRun(Graphics2D graphics, TextLine.Segment segment, int currentX, int baselineY) {
-        if (segment.getStyle().isUnderline() || segment.getStyle().isStrikeThrough()) {
-            AttributedString attributedString = new AttributedString(segment.getText());
-            attributedString.addAttribute(TextAttribute.FONT, segment.getStyle().getFont());
-            if (segment.getStyle().isUnderline()) {
-                attributedString.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, segment.getText().length());
-            }
-            if (segment.getStyle().isStrikeThrough()) {
-                attributedString.addAttribute(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON, 0, segment.getText().length());
-            }
-            graphics.drawString(attributedString.getIterator(), currentX, baselineY);
+        graphics.setFont(segment.getStyle().getFont());
+        graphics.setColor(segment.getStyle().getColor());
+
+        int letterSpacing = segment.getLetterSpacing();
+
+        // 字间距为 0 或文本为空/单字符时，使用整串绘制（性能优化）
+        if (letterSpacing <= 0 || segment.getText().codePointCount(0, segment.getText().length()) <= 1) {
+            drawTextWithDecorations(graphics, segment.getText(), currentX, baselineY,
+                    segment.getStyle().isUnderline(), segment.getStyle().isStrikeThrough());
             return;
         }
-        graphics.drawString(segment.getText(), currentX, baselineY);
+
+        // 逐字符绘制
+        int x = currentX;
+        String text = segment.getText();
+        FontMetrics fm = graphics.getFontMetrics();
+
+        for (int i = 0; i < text.length(); ) {
+            int codePoint = text.codePointAt(i);
+            String ch = new String(Character.toChars(codePoint));
+            int charWidth = fm.stringWidth(ch);
+
+            drawTextWithDecorations(graphics, ch, x, baselineY,
+                    segment.getStyle().isUnderline(), segment.getStyle().isStrikeThrough());
+
+            x += charWidth + letterSpacing;
+            i += Character.charCount(codePoint);
+        }
+    }
+
+    /**
+     * 绘制文本并可选添加装饰线
+     *
+     * @param graphics      图形上下文
+     * @param text          文本内容
+     * @param x             X 坐标
+     * @param baselineY     基线 Y 坐标
+     * @param underline     是否绘制下划线
+     * @param strikeThrough 是否绘制删除线
+     */
+    private void drawTextWithDecorations(Graphics2D graphics, String text, int x, int baselineY,
+                                         boolean underline, boolean strikeThrough) {
+        if (underline || strikeThrough) {
+            AttributedString attributedString = new AttributedString(text);
+            attributedString.addAttribute(TextAttribute.FONT, graphics.getFont());
+            if (underline) {
+                attributedString.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, text.length());
+            }
+            if (strikeThrough) {
+                attributedString.addAttribute(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON, 0, text.length());
+            }
+            graphics.drawString(attributedString.getIterator(), x, baselineY);
+            return;
+        }
+        graphics.drawString(text, x, baselineY);
     }
 }

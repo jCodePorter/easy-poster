@@ -25,6 +25,28 @@ public class TextMeasurer {
     }
 
     /**
+     * 计算文本宽度（含字间距）
+     *
+     * @param graphics       图形上下文
+     * @param text           文本内容
+     * @param font           字体
+     * @param letterSpacing  字间距
+     * @return 文本宽度
+     */
+    public int measureWidthWithSpacing(Graphics2D graphics, String text, Font font, int letterSpacing) {
+        if (text.isEmpty()) {
+            return 0;
+        }
+        int baseWidth = measureWidth(graphics, text, font);
+        if (letterSpacing <= 0) {
+            return baseWidth;
+        }
+        // 计算字符数（正确处理 Unicode）
+        int charCount = text.codePointCount(0, text.length());
+        return baseWidth + (charCount - 1) * letterSpacing;
+    }
+
+    /**
      * 获取字体整体高度
      *
      * @param graphics 图形上下文

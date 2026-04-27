@@ -104,6 +104,11 @@ public class TextLine {
         private final boolean stretchableSpace;
 
         /**
+         * 字间距
+         */
+        private final int letterSpacing;
+
+        /**
          * 创建行内片段。
          *
          * @param text             片段文本
@@ -111,13 +116,15 @@ public class TextLine {
          * @param offsetX          片段相对 X 偏移
          * @param width            片段宽度
          * @param stretchableSpace 是否可拉伸
+         * @param letterSpacing    字间距
          */
-        public Segment(String text, ResolvedTextStyle style, int offsetX, int width, boolean stretchableSpace) {
+        public Segment(String text, ResolvedTextStyle style, int offsetX, int width, boolean stretchableSpace, int letterSpacing) {
             this.text = text;
             this.style = style;
             this.offsetX = offsetX;
             this.width = width;
             this.stretchableSpace = stretchableSpace;
+            this.letterSpacing = letterSpacing;
         }
 
         /**
@@ -127,7 +134,7 @@ public class TextLine {
          * @return 新片段
          */
         public Segment withOffsetX(int offsetX) {
-            return new Segment(this.text, this.style, offsetX, this.width, this.stretchableSpace);
+            return new Segment(this.text, this.style, offsetX, this.width, this.stretchableSpace, this.letterSpacing);
         }
     }
 }

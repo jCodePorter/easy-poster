@@ -136,4 +136,18 @@ public class TextBlockStyle extends BaseTextStyle {
         super.setStrikeThrough(strikeThrough);
         return this;
     }
+
+    /**
+     * 设置字间距
+     *
+     * @param letterSpacing 字间距，单位为像素，必须大于等于 0
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setLetterSpacing(Integer letterSpacing) {
+        if (letterSpacing != null && letterSpacing < 0) {
+            throw new PosterException("letterSpacing must be greater than or equal to 0");
+        }
+        super.setLetterSpacing(letterSpacing);
+        return this;
+    }
 }

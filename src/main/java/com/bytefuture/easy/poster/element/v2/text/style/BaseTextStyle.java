@@ -41,6 +41,11 @@ public class BaseTextStyle {
     private Boolean strikeThrough;
 
     /**
+     * 字间距，单位为像素
+     */
+    private Integer letterSpacing;
+
+    /**
      * 设置文本颜色
      *
      * @param color 颜色值
@@ -103,6 +108,17 @@ public class BaseTextStyle {
      */
     public BaseTextStyle setStrikeThrough(Boolean strikeThrough) {
         this.strikeThrough = strikeThrough;
+        return this;
+    }
+
+    /**
+     * 设置字间距
+     *
+     * @param letterSpacing 字间距，单位为像素
+     * @return 当前样式
+     */
+    public BaseTextStyle setLetterSpacing(Integer letterSpacing) {
+        this.letterSpacing = letterSpacing;
         return this;
     }
 }

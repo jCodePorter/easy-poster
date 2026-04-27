@@ -91,4 +91,15 @@ public class TextSpan {
         this.spanStyle.setStrikeThrough(strikeThrough);
         return this;
     }
+
+    /**
+     * 设置字间距
+     *
+     * @param letterSpacing 字间距，单位为像素
+     * @return 当前文本片段
+     */
+    public TextSpan setLetterSpacing(int letterSpacing) {
+        this.spanStyle.setLetterSpacing(letterSpacing);
+        return this;
+    }
 }

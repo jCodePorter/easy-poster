@@ -274,4 +274,15 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         this.blockStyle.setStrikeThrough(strikeThrough);
         return this;
     }
+
+    /**
+     * 设置字间距
+     *
+     * @param letterSpacing 字间距，单位为像素
+     * @return 当前元素
+     */
+    public TextElement setLetterSpacing(Integer letterSpacing) {
+        this.blockStyle.setLetterSpacing(letterSpacing);
+        return this;
+    }
 }

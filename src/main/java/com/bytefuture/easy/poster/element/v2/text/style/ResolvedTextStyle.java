@@ -6,8 +6,11 @@ import java.awt.*;
 import java.util.Objects;
 
 /**
- * 已解析的最终文本样式。
- * 用于渲染阶段直接绘制，不再依赖级联合并。
+ * 已解析的最终文本样式
+ * 用于渲染阶段直接绘制，不再依赖级联合并
+ *
+ * @author biaoy
+ * @since 2026/04/26
  */
 @Getter
 public class ResolvedTextStyle {
@@ -32,15 +35,24 @@ public class ResolvedTextStyle {
     private final boolean strikeThrough;
 
     /**
-     * 创建最终样式对象。
-     *
-     * @param font  最终字体
-     * @param color 最终颜色
+     * 字间距
      */
-    public ResolvedTextStyle(Font font, Color color, boolean underline, boolean strikeThrough) {
+    private final int letterSpacing;
+
+    /**
+     * 创建最终样式对象
+     *
+     * @param font          最终字体
+     * @param color         最终颜色
+     * @param underline     是否绘制下划线
+     * @param strikeThrough 是否绘制删除线
+     * @param letterSpacing 字间距
+     */
+    public ResolvedTextStyle(Font font, Color color, boolean underline, boolean strikeThrough, int letterSpacing) {
         this.font = Objects.requireNonNull(font, "font");
         this.color = Objects.requireNonNull(color, "color");
         this.underline = underline;
         this.strikeThrough = strikeThrough;
+        this.letterSpacing = letterSpacing;
     }
 }

@@ -201,7 +201,7 @@ public class TextLayoutEngine {
                 if ("\n".equals(ch)) {
                     flushBufferedToken(tokens, buffer, currentType, run, graphics, measurer);
                     currentType = null;
-                    tokens.add(new Token(TokenType.NEWLINE, "\n", run.getStyle(), 0));
+                    tokens.add(new Token(TokenType.NEWLINE, "\n", run.getStyle(), 0, run.getStyle().getLetterSpacing()));
                     continue;
                 }
 
@@ -226,8 +226,9 @@ public class TextLayoutEngine {
             return;
         }
         String text = buffer.toString();
-        int width = measurer.measureWidth(graphics, text, run.getStyle().getFont());
-        tokens.add(new Token(type, text, run.getStyle(), width));
+        int letterSpacing = run.getStyle().getLetterSpacing();
+        int width = measurer.measureWidthWithSpacing(graphics, text, run.getStyle().getFont(), letterSpacing);
+        tokens.add(new Token(type, text, run.getStyle(), width, letterSpacing));
         buffer.setLength(0);
     }
 
@@ -238,13 +239,14 @@ public class TextLayoutEngine {
         List<Token> pieces = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
         int width = 0;
+        int letterSpacing = token.letterSpacing;
         for (int i = 0; i < token.text.length(); ) {
             int codePoint = token.text.codePointAt(i);
             String ch = new String(Character.toChars(codePoint));
             i += Character.charCount(codePoint);
-            int charWidth = measurer.measureWidth(graphics, ch, token.style.getFont());
+            int charWidth = measurer.measureWidthWithSpacing(graphics, ch, token.style.getFont(), letterSpacing);
             if (builder.length() > 0 && width + charWidth > widthLimit) {
-                pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width));
+                pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width, letterSpacing));
                 builder.setLength(0);
                 width = 0;
             }
@@ -252,7 +254,7 @@ public class TextLayoutEngine {
             width += charWidth;
         }
         if (builder.length() > 0) {
-            pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width));
+            pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width, letterSpacing));
         }
         return pieces;
     }
@@ -272,9 +274,9 @@ public class TextLayoutEngine {
             if (!segments.isEmpty() && canMergeSegment(segments.get(segments.size() - 1), token)) {
                 TextLine.Segment previous = segments.remove(segments.size() - 1);
                 segments.add(new TextLine.Segment(previous.getText() + token.text, previous.getStyle(),
-                        0, previous.getWidth() + token.width, previous.isStretchableSpace()));
+                        0, previous.getWidth() + token.width, previous.isStretchableSpace(), token.letterSpacing));
             } else {
-                segments.add(new TextLine.Segment(token.text, token.style, 0, token.width, stretchableSpace));
+                segments.add(new TextLine.Segment(token.text, token.style, 0, token.width, stretchableSpace, token.letterSpacing));
             }
         }
         return new TextLine(builder.toString(), width, 0, segments);
@@ -287,7 +289,8 @@ public class TextLayoutEngine {
         return left.getFont().equals(right.getFont())
                 && left.getColor().equals(right.getColor())
                 && left.isUnderline() == right.isUnderline()
-                && left.isStrikeThrough() == right.isStrikeThrough();
+                && left.isStrikeThrough() == right.isStrikeThrough()
+                && left.getLetterSpacing() == right.getLetterSpacing();
     }
 
     private boolean canMergeSegment(TextLine.Segment previous, Token token) {
@@ -451,12 +454,14 @@ public class TextLayoutEngine {
         private final String text;
         private final ResolvedTextStyle style;
         private final int width;
+        private final int letterSpacing;
 
-        private Token(TokenType type, String text, ResolvedTextStyle style, int width) {
+        private Token(TokenType type, String text, ResolvedTextStyle style, int width, int letterSpacing) {
             this.type = type;
             this.text = text;
             this.style = style;
             this.width = width;
+            this.letterSpacing = letterSpacing;
         }
     }
 }
