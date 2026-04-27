@@ -100,7 +100,8 @@ public class TextLayoutEngine {
         for (Token token : tokens) {
             // 显式换行符优先级最高
             if (token.type == TokenType.NEWLINE) {
-                lines.add(buildLine(current, currentWidth));
+                List<Token> trimmed = trimTrailingSpaces(current);
+                lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
                 current = new ArrayList<>();
                 currentWidth = 0;
                 continue;
@@ -121,7 +122,8 @@ public class TextLayoutEngine {
             // 单个 token 自身已经超过整行宽度时，必须进一步拆分
             if (token.width > widthLimit) {
                 if (!current.isEmpty()) {
-                    lines.add(buildLine(current, currentWidth));
+                    List<Token> trimmed = trimTrailingSpaces(current);
+                    lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
                     current = new ArrayList<>();
                     currentWidth = 0;
                 }
@@ -147,14 +149,16 @@ public class TextLayoutEngine {
 
             // 超宽的是空格时，直接在空格处分行
             if (token.type == TokenType.SPACE) {
-                lines.add(buildLine(current, currentWidth));
+                List<Token> trimmed = trimTrailingSpaces(current);
+                lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
                 current = new ArrayList<>();
                 currentWidth = 0;
                 continue;
             }
 
             // 普通单词导致超宽：先提交当前行，再把该单词作为下一行的起点
-            lines.add(buildLine(current, currentWidth));
+            List<Token> trimmed = trimTrailingSpaces(current);
+            lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
             current = new ArrayList<>();
             current.add(token);
             currentWidth = token.width;
@@ -162,7 +166,8 @@ public class TextLayoutEngine {
 
         // 循环结束后仍然可能有尚未提交的尾行
         if (!current.isEmpty() || lines.isEmpty()) {
-            lines.add(buildLine(current, currentWidth));
+            List<Token> trimmed = trimTrailingSpaces(current);
+            lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
         }
         return lines;
     }
@@ -368,6 +373,34 @@ public class TextLayoutEngine {
             maxWidth = Math.max(maxWidth, line.getWidth());
         }
         return maxWidth;
+    }
+
+    /**
+     * 去除行尾空白 token
+     *
+     * @param tokens token 列表
+     * @return 去除末尾空白后的 token 列表
+     */
+    private List<Token> trimTrailingSpaces(List<Token> tokens) {
+        List<Token> result = new ArrayList<>(tokens);
+        while (!result.isEmpty() && result.get(result.size() - 1).type == TokenType.SPACE) {
+            result.remove(result.size() - 1);
+        }
+        return result;
+    }
+
+    /**
+     * 计算 token 列表的总宽度
+     *
+     * @param tokens token 列表
+     * @return 总宽度
+     */
+    private int calculateTokensWidth(List<Token> tokens) {
+        int width = 0;
+        for (Token token : tokens) {
+            width += token.width;
+        }
+        return width;
     }
 
     /**
