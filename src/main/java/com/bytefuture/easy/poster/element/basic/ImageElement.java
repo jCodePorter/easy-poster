@@ -2,8 +2,8 @@ package com.bytefuture.easy.poster.element.basic;
 
 import com.bytefuture.easy.poster.element.AbstractDimensionElement;
 import com.bytefuture.easy.poster.element.IElement;
-import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Dimension;
+import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.Scale;
 import com.bytefuture.easy.poster.utils.ImageUtils;
@@ -27,7 +27,12 @@ public class ImageElement extends AbstractDimensionElement<ImageElement> impleme
 
     public ImageElement(BufferedImage image) {
         this.image = image;
-        handleDimension();
+    }
+
+    public ImageElement(BufferedImage image, int width, int height) {
+        this.image = image;
+        this.width = width;
+        this.height = height;
     }
 
     /**

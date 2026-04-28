@@ -1,7 +1,7 @@
 package com.bytefuture.easy.poster.element;
 
-import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Dimension;
+import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.PosterContext;
 
 /**
@@ -26,12 +26,15 @@ public abstract class AbstractDimensionElement<T extends AbstractDimensionElemen
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
         Point point = Point.ORIGIN_COORDINATE;
+
+        int realWidth = width == 0 ? posterWidth : width;
+        int realHeight = height == 0 ? posterHeight : height;
         if (position != null) {
-            point = position.calculate(posterWidth, posterHeight, width, height);
+            point = position.calculate(posterWidth, posterHeight, realWidth, realHeight);
         }
         return Dimension.builder()
-                .width(width)
-                .height(height)
+                .width(realWidth)
+                .height(realHeight)
                 .point(point)
                 .build();
     }

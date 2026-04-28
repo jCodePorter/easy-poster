@@ -1,8 +1,9 @@
 package com.bytefuture.easy.poster.ui.basic.image;
 
 import com.bytefuture.easy.poster.EasyPoster;
-import com.bytefuture.easy.poster.geometry.Margin;
+import com.bytefuture.easy.poster.element.basic.ImageElement;
 import com.bytefuture.easy.poster.geometry.Direction;
+import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
 import com.bytefuture.easy.poster.utils.ImageUtils;
 import org.junit.Test;
@@ -38,8 +39,9 @@ public class ImageBasicTest {
         BufferedImage read = ImageIO.read(inputStream);
 
         for (Direction position : Direction.values()) {
-            poster.addImageElement(read)
-                    .setPosition(RelativePosition.of(position, Margin.of(10)));
+            ImageElement imageElement = new ImageElement(read, 100, 100);
+            imageElement.setPosition(RelativePosition.of(position, Margin.of(10)));
+            poster.addElement(imageElement);
         }
         poster.asFile("png", "out_img_position.png");
     }
