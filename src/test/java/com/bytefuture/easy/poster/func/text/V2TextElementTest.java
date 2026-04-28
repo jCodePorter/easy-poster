@@ -3,6 +3,7 @@ package com.bytefuture.easy.poster.func.text;
 import com.bytefuture.easy.poster.element.v2.TextElement;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
+import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
 import com.bytefuture.easy.poster.model.Config;
@@ -243,6 +244,130 @@ public class V2TextElementTest {
         Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 80) > 0);
     }
 
+    @Test
+    public void shouldResolveSpanBackgroundStyle() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("plain"),
+                        TextSpan.of(" mark")
+                                .setBackgroundColor(Color.YELLOW)
+                                .setBackgroundPadding(6)
+                                .setBackgroundRadius(8))
+                .setFontName("Dialog")
+                .setFontSize(20)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 120);
+        TextLine line = element.getLastLayout().getLines().get(0);
+        TextLine.Segment plain = findSegmentContaining(line, "plain");
+        TextLine.Segment mark = findSegmentContaining(line, "mark");
+
+        Assert.assertNull(plain.getStyle().getBackgroundColor());
+        Assert.assertEquals(Color.YELLOW, mark.getStyle().getBackgroundColor());
+        Assert.assertEquals(6, mark.getStyle().getBackgroundPadding());
+        Assert.assertEquals(8, mark.getStyle().getBackgroundRadius());
+    }
+
+    @Test
+    public void shouldApplyDefaultSpanBackgroundBoxValues() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("mark").setBackgroundColor(Color.YELLOW))
+                .setFontName("Dialog")
+                .setFontSize(20)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 240, 120);
+        TextLine.Segment mark = element.getLastLayout().getLines().get(0).getSegments().get(0);
+
+        Assert.assertEquals(2, mark.getStyle().getBackgroundPadding());
+        Assert.assertEquals(0, mark.getStyle().getBackgroundRadius());
+    }
+
+    @Test
+    public void shouldRejectNegativeSpanBackgroundPadding() {
+        try {
+            TextSpan.of("bad").setBackgroundPadding(-1);
+            Assert.fail("expected PosterException");
+        } catch (PosterException ex) {
+            Assert.assertEquals("backgroundPadding must be greater than or equal to 0", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldRejectNegativeSpanBackgroundRadius() {
+        try {
+            TextSpan.of("bad").setBackgroundRadius(-1);
+            Assert.fail("expected PosterException");
+        } catch (PosterException ex) {
+            Assert.assertEquals("backgroundRadius must be greater than or equal to 0", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldRenderSpanBackgroundPixels() {
+        TextElement element = TextElement.of(
+                        TextSpan.of(" highlight ")
+                                .setBackgroundColor(Color.YELLOW)
+                                .setBackgroundPadding(4))
+                .setFontName("Dialog")
+                .setFontSize(24)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        BufferedImage image = render(element, 260, 100);
+        Assert.assertTrue(countColorLikePixels(image, Color.YELLOW, 40) > 80);
+    }
+
+    @Test
+    public void shouldRenderWrappedSpanBackgroundAcrossLines() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("alpha beta gamma delta epsilon")
+                                .setBackgroundColor(Color.CYAN)
+                                .setBackgroundPadding(3)
+                                .setBackgroundRadius(6))
+                .setFontName("Dialog")
+                .setFontSize(22)
+                .setAutoWordWrap(110)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        BufferedImage image = render(element, 220, 180);
+        Assert.assertTrue(element.getLastLayout().getLines().size() > 1);
+        Assert.assertTrue(countColorLikePixels(image, Color.CYAN, 40) > 120);
+    }
+
+    @Test
+    public void shouldMergeAdjacentSpanBackgroundsOnSameLine() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("AB")
+                                .setColor(Color.BLACK)
+                                .setBackgroundColor(Color.ORANGE)
+                                .setBackgroundPadding(6)
+                                .setBackgroundRadius(12),
+                        TextSpan.of("CD")
+                                .setColor(Color.BLUE)
+                                .setBackgroundColor(Color.ORANGE)
+                                .setBackgroundPadding(6)
+                                .setBackgroundRadius(12))
+                .setFontName("Dialog")
+                .setFontSize(32)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        BufferedImage image = render(element, 260, 120);
+        TextLine line = element.getLastLayout().getLines().get(0);
+        TextLine.Segment first = line.getSegments().get(0);
+        TextLine.Segment second = line.getSegments().get(1);
+
+        int padding = first.getStyle().getBackgroundPadding();
+        int seamX = first.getOffsetX() + first.getWidth();
+        int baselineY = element.getLastLayout().toDimension(0).getPoint().getY()
+                + element.getLastLayout().toDimension(0).getYOffset();
+        int backgroundTopY = resolveBackgroundTopY(first, baselineY, element.getLastLayout().getLineHeight());
+        Color seamPixel = new Color(image.getRGB(seamX, backgroundTopY + 1), true);
+
+        Assert.assertEquals(Color.ORANGE.getRed(), seamPixel.getRed());
+        Assert.assertEquals(Color.ORANGE.getGreen(), seamPixel.getGreen());
+        Assert.assertEquals(Color.ORANGE.getBlue(), seamPixel.getBlue());
+        Assert.assertTrue(second.getOffsetX() - seamX <= padding);
+    }
+
     private TextLayoutResult measure(TextElement element, int width, int height) {
         PosterContext context = createContext(width, height).context;
         element.calculateDimension(context, width, height);
@@ -285,6 +410,22 @@ public class V2TextElementTest {
             }
         }
         return count;
+    }
+
+    private int resolveBackgroundTopY(TextLine.Segment segment, int baselineY, int lineHeight) {
+        BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setFont(segment.getStyle().getFont());
+        FontMetrics fontMetrics = graphics.getFontMetrics();
+        int padding = segment.getStyle().getBackgroundPadding();
+        int desiredHeight = fontMetrics.getHeight() + padding * 2;
+        int backgroundHeight = Math.min(desiredHeight, lineHeight);
+        int backgroundY = baselineY - fontMetrics.getAscent() - padding;
+        if (backgroundHeight < desiredHeight) {
+            backgroundY += (desiredHeight - backgroundHeight) / 2;
+        }
+        graphics.dispose();
+        return backgroundY;
     }
 
     private boolean containsStretchableSpace(TextLine line) {

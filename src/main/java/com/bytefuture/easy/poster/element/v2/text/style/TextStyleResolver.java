@@ -131,8 +131,12 @@ public class TextStyleResolver {
         boolean strikeThrough = firstNonNull(spanStyle.getStrikeThrough(), blockStyle.getStrikeThrough(), Boolean.FALSE);
         // 字间距：片段 > 块级 > 默认 0
         int letterSpacing = firstNonNull(spanStyle.getLetterSpacing(), blockStyle.getLetterSpacing(), 0);
+        Color backgroundColor = spanStyle.getBackgroundColor();
+        int backgroundPadding = firstNonNull(spanStyle.getBackgroundPadding(), 2);
+        int backgroundRadius = firstNonNull(spanStyle.getBackgroundRadius(), 0);
         return new ResolvedTextRun(span.getText(),
-                new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, underline, strikeThrough, letterSpacing));
+                new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, underline, strikeThrough,
+                        letterSpacing, backgroundColor, backgroundPadding, backgroundRadius));
     }
 
     /**
@@ -170,5 +174,19 @@ public class TextStyleResolver {
             return second;
         }
         return third;
+    }
+
+    /**
+     * 返回两个值中第一个非空项
+     *
+     * @param first 第一优先级值
+     * @param second 第二优先级值
+     * @return 第一个非空值或默认值
+     */
+    private int firstNonNull(Integer first, int second) {
+        if (first != null) {
+            return first;
+        }
+        return second;
     }
 }

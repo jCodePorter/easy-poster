@@ -1,5 +1,6 @@
 package com.bytefuture.easy.poster.element.v2.text.style;
 
+import cn.augrain.easy.tool.support.ColorUtils;
 import lombok.Getter;
 
 import java.awt.*;
@@ -44,6 +45,21 @@ public class BaseTextStyle {
      * 字间距，单位为像素
      */
     private Integer letterSpacing;
+
+    /**
+     * 文本背景色
+     */
+    private Color backgroundColor;
+
+    /**
+     * 文本背景内边距
+     */
+    private Integer backgroundPadding;
+
+    /**
+     * 文本背景圆角半径
+     */
+    private Integer backgroundRadius;
 
     /**
      * 设置文本颜色
@@ -119,6 +135,50 @@ public class BaseTextStyle {
      */
     public BaseTextStyle setLetterSpacing(Integer letterSpacing) {
         this.letterSpacing = letterSpacing;
+        return this;
+    }
+
+    /**
+     * 设置文本背景色
+     *
+     * @param backgroundColor 背景色
+     * @return 当前样式
+     */
+    public BaseTextStyle setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+        return this;
+    }
+
+    /**
+     * 设置文本背景色
+     *
+     * @param backgroundColor 十六进制背景色
+     * @return 当前样式
+     */
+    public BaseTextStyle setBackgroundColor(String backgroundColor) {
+        this.backgroundColor = ColorUtils.hexToColor(backgroundColor);
+        return this;
+    }
+
+    /**
+     * 设置文本背景内边距
+     *
+     * @param backgroundPadding 文本背景内边距
+     * @return 当前样式
+     */
+    public BaseTextStyle setBackgroundPadding(Integer backgroundPadding) {
+        this.backgroundPadding = backgroundPadding;
+        return this;
+    }
+
+    /**
+     * 设置文本背景圆角半径
+     *
+     * @param backgroundRadius 文本背景圆角半径
+     * @return 当前样式
+     */
+    public BaseTextStyle setBackgroundRadius(Integer backgroundRadius) {
+        this.backgroundRadius = backgroundRadius;
         return this;
     }
 }

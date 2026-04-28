@@ -102,4 +102,54 @@ public class TextSpan {
         this.spanStyle.setLetterSpacing(letterSpacing);
         return this;
     }
+
+    /**
+     * 设置文本片段背景色
+     *
+     * @param backgroundColor 背景色
+     * @return 当前文本片段
+     */
+    public TextSpan setBackgroundColor(Color backgroundColor) {
+        this.spanStyle.setBackgroundColor(backgroundColor);
+        return this;
+    }
+
+    /**
+     * 设置文本片段背景色
+     *
+     * @param backgroundColor 十六进制背景色
+     * @return 当前文本片段
+     */
+    public TextSpan setBackgroundColor(String backgroundColor) {
+        this.spanStyle.setBackgroundColor(backgroundColor);
+        return this;
+    }
+
+    /**
+     * 设置文本片段背景内边距
+     *
+     * @param backgroundPadding 背景内边距
+     * @return 当前文本片段
+     */
+    public TextSpan setBackgroundPadding(int backgroundPadding) {
+        if (backgroundPadding < 0) {
+            throw new PosterException("backgroundPadding must be greater than or equal to 0");
+        }
+        this.spanStyle.setBackgroundPadding(backgroundPadding);
+        return this;
+    }
+
+    /**
+     * 设置文本片段背景圆角半径
+     *
+     * @param backgroundRadius 背景圆角半径
+     * @return 当前文本片段
+     */
+    public TextSpan setBackgroundRadius(int backgroundRadius) {
+        if (backgroundRadius < 0) {
+            throw new PosterException("backgroundRadius must be greater than or equal to 0");
+        }
+        this.spanStyle.setBackgroundRadius(backgroundRadius);
+        return this;
+    }
 }

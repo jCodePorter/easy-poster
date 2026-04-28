@@ -242,6 +242,79 @@ public class V2TextElementUiPngTest {
         poster.asFile("png", "out_v2_text_alignment_comparison.png");
     }
 
+    @Test
+    public void shouldOutputSpanBackgroundPreviewPng() {
+        EasyPoster poster = createPoster(560, 220);
+
+        poster.addElement(
+                TextElement.of(
+                                TextSpan.of("Normal "),
+                                TextSpan.of("Highlight")
+                                        .setBackgroundColor(new Color(255, 220, 120))
+                                        .setBackgroundPadding(6),
+                                TextSpan.of(" Text"))
+                        .setFontName("Dialog")
+                        .setFontSize(30)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_span_background.png");
+    }
+
+    @Test
+    public void shouldOutputRoundedSpanBackgroundPreviewPng() {
+        EasyPoster poster = createPoster(560, 220);
+
+        poster.addElement(
+                TextElement.of(
+                                TextSpan.of("Rounded Label")
+                                        .setBackgroundColor(new Color(255, 190, 190))
+                                        .setBackgroundPadding(8)
+                                        .setBackgroundRadius(12))
+                        .setFontName("Dialog")
+                        .setFontSize(30)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_span_background_rounded.png");
+    }
+
+    @Test
+    public void shouldOutputMixedSpanBackgroundPreviewPng() {
+        EasyPoster poster = createPoster(560, 220);
+
+        poster.addElement(
+                TextElement.of(
+                                TextSpan.of("Gold").setBackgroundColor(new Color(255, 220, 120)).setBackgroundPadding(5),
+                                TextSpan.of(" Plain "),
+                                TextSpan.of("Blue").setBackgroundColor(new Color(160, 210, 255)).setBackgroundPadding(5).setBackgroundRadius(10))
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_span_background_mixed.png");
+    }
+
+    @Test
+    public void shouldOutputWrappedSpanBackgroundPreviewPng() {
+        EasyPoster poster = createPoster(560, 280);
+
+        poster.addElement(
+                TextElement.of(
+                                TextSpan.of("alpha beta gamma delta epsilon zeta eta theta")
+                                        .setBackgroundColor(new Color(180, 235, 255))
+                                        .setBackgroundPadding(4)
+                                        .setBackgroundRadius(6))
+                        .setFontName("Dialog")
+                        .setFontSize(28)
+                        .setAutoWordWrap(220)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_span_background_wrap.png");
+    }
+
     private EasyPoster createPoster(int width, int height) {
         EasyPoster poster = new EasyPoster(width, height);
         poster.getConfig().setFontName("Dialog");

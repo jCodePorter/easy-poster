@@ -40,6 +40,21 @@ public class ResolvedTextStyle {
     private final int letterSpacing;
 
     /**
+     * 文本背景色
+     */
+    private final Color backgroundColor;
+
+    /**
+     * 文本背景内边距
+     */
+    private final int backgroundPadding;
+
+    /**
+     * 文本背景圆角半径
+     */
+    private final int backgroundRadius;
+
+    /**
      * 创建最终样式对象
      *
      * @param font          最终字体
@@ -48,11 +63,15 @@ public class ResolvedTextStyle {
      * @param strikeThrough 是否绘制删除线
      * @param letterSpacing 字间距
      */
-    public ResolvedTextStyle(Font font, Color color, boolean underline, boolean strikeThrough, int letterSpacing) {
+    public ResolvedTextStyle(Font font, Color color, boolean underline, boolean strikeThrough, int letterSpacing,
+                             Color backgroundColor, int backgroundPadding, int backgroundRadius) {
         this.font = Objects.requireNonNull(font, "font");
         this.color = Objects.requireNonNull(color, "color");
         this.underline = underline;
         this.strikeThrough = strikeThrough;
         this.letterSpacing = letterSpacing;
+        this.backgroundColor = backgroundColor;
+        this.backgroundPadding = backgroundPadding;
+        this.backgroundRadius = backgroundRadius;
     }
 }
