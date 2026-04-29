@@ -7,7 +7,6 @@ import com.bytefuture.easy.poster.element.basic.CircleElement;
 import com.bytefuture.easy.poster.element.basic.LineElement;
 import com.bytefuture.easy.poster.element.basic.RectangleElement;
 import com.bytefuture.easy.poster.element.chart.FunnelChartElement;
-import com.bytefuture.easy.poster.element.chart.LineChartElement;
 import com.bytefuture.easy.poster.element.special.QrCodeElement;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.Margin;
@@ -130,7 +129,7 @@ public final class ComplexShowcaseFixtures {
                 .setColor(new Color(31, 38, 57))
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT)));
 
-        poster.addElement(new RectangleElement(1240, 1440)
+        poster.addElement(new RectangleElement(1240, 1540)
                 .setColor(new Color(255, 252, 246))
                 .setArc(44)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(80, 280, 0, 0))));
@@ -189,14 +188,14 @@ public final class ComplexShowcaseFixtures {
                 .setColor(new Color(45, 46, 55))
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(780, 980, 0, 0))));
         poster.addElement(new RepeatElement(buildAgendaCard())
-                .setLayout(2, 2, Margin.of(780, 1040, 80, 650)));
+                .setLayout(2, 2, Margin.of(780, 1040, 80, 650))
+                .setInterval(20, 20));
 
-        poster.addElement(buildQrPanel().setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(960, 1520, 0, 0))));
+        poster.addElement(buildQrPanel().setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(860, 1520, 0, 0))));
 
         poster.addElement(new LineElement(Point.of(96, 1490), Point.of(1304, 1490))
                 .setColor(new Color(227, 216, 201))
                 .setBorderSize(2));
-
 
         poster.addElement(com.bytefuture.easy.poster.element.v2.TextElement.of(
                         TextSpan.of("Presented by "),
@@ -213,7 +212,7 @@ public final class ComplexShowcaseFixtures {
                 .setFontSize(24)
                 .setColor(new Color(114, 100, 86))
                 .setLetterSpacing(2)
-                .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(96, 1780, 0, 0))));
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(96, 1750, 0, 0))));
         return poster;
     }
 
@@ -345,11 +344,9 @@ public final class ComplexShowcaseFixtures {
                                 TextSpan.of("POSTER")
                                         .setColor(EVENT_ACCENT)
                                         .setFontStyle(Font.BOLD))
-                        .setFontName("Dialog")
                         .setFontSize(34)
                         .setPosition(RelativePosition.of(Direction.LEFT_CENTER, Margin.of(20, 0, 0, 0))))
                 .bottom(com.bytefuture.easy.poster.element.v2.TextElement.of("Product Launch Session 2026")
-                        .setFontName("Dialog")
                         .setFontSize(18)
                         .setColor(new Color(214, 221, 236))
                         .setLetterSpacing(3)
@@ -370,6 +367,9 @@ public final class ComplexShowcaseFixtures {
                         .setColor(EVENT_ACCENT)
                         .setArc(10)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(72, 36, 0, 0))))
+                .in(new CircleElement(150)
+                        .setColor(new Color(255, 236, 206))
+                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 42, 82, 0))))
                 .in(com.bytefuture.easy.poster.element.v2.TextElement.of(
                                 TextSpan.of("NEXT "),
                                 TextSpan.of("WORKFLOWS")
@@ -377,7 +377,6 @@ public final class ComplexShowcaseFixtures {
                                         .setBackgroundColor(EVENT_ACCENT)
                                         .setBackgroundPadding(12)
                                         .setBackgroundRadius(20))
-                        .setFontName("Dialog")
                         .setFontSize(92)
                         .setFontStyle(Font.BOLD)
                         .setColor(new Color(36, 37, 43))
@@ -427,21 +426,18 @@ public final class ComplexShowcaseFixtures {
                         .setAutoWordWrap(640)
                         .setLineHeight(46)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(76, 410, 0, 0))))
-                .in(new CircleElement(150)
-                        .setColor(new Color(255, 236, 206))
-                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 42, 82, 0))))
                 .in(new CircleElement(88)
                         .setColor(EVENT_SECONDARY)
                         .setAlpha(0.18F)
-                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 256, 190, 0))))
+                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 226, 190, 0))))
                 .in(new RectangleElement(356, 392)
                         .setColor(new Color(255, 244, 233))
                         .setArc(36)
-                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 282, 72, 0))))
+                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 252, 72, 0))))
                 .in(new RectangleElement(92, 12)
                         .setColor(EVENT_SECONDARY)
                         .setArc(12)
-                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 312, 300, 0))))
+                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 282, 300, 0))))
                 .in(com.bytefuture.easy.poster.element.v2.TextElement.of(
                                 TextSpan.of("Seats left")
                                         .setColor(new Color(115, 95, 74)),
@@ -452,13 +448,13 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(28)
                         .setLineHeight(84)
-                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 332, 176, 0))))
+                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 302, 176, 0))))
                 .in(com.bytefuture.easy.poster.element.v2.TextElement.of("Open workshop,\nlive build session\nand operator review")
                         .setFontName("Dialog")
                         .setFontSize(24)
                         .setColor(new Color(102, 94, 88))
                         .setLineHeight(36)
-                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 514, 112, 0))));
+                        .setPosition(RelativePosition.of(Direction.TOP_RIGHT, Margin.of(0, 484, 112, 0))));
     }
 
     /**
@@ -478,12 +474,6 @@ public final class ComplexShowcaseFixtures {
                 .in(new CircleElement(82)
                         .setColor(EVENT_ACCENT)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(40, 52, 0, 0))))
-                .in(com.bytefuture.easy.poster.element.v2.TextElement.of("HOST")
-                        .setFontName("Dialog")
-                        .setFontStyle(Font.BOLD)
-                        .setFontSize(22)
-                        .setColor(new Color(31, 38, 57))
-                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(73, 105, 0, 0))))
                 .in(com.bytefuture.easy.poster.element.v2.TextElement.of(
                                 TextSpan.of("Annie Xu")
                                         .setFontStyle(Font.BOLD)
@@ -493,7 +483,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(36)
                         .setLineHeight(44)
-                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(168, 78, 0, 0))))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(68, 78, 0, 0))))
                 .in(com.bytefuture.easy.poster.element.v2.TextElement.of("Shapes launch systems for product stories, campaign rhythm and editorial conversion across launch assets")
                         .setFontName("Dialog")
                         .setFontSize(22)
@@ -562,7 +552,7 @@ public final class ComplexShowcaseFixtures {
      * @return 组合元素
      */
     private static ComposeElement buildQrPanel() {
-        return ComposeElement.of(new RectangleElement(344, 240)
+        return ComposeElement.of(new RectangleElement(444, 240)
                         .setColor(new Color(31, 38, 57))
                         .setArc(32)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT)))
@@ -596,7 +586,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(16)
                         .setColor(new Color(217, 223, 236))
-                        .setAutoWordWrap(136)
+                        .setAutoWordWrap(236)
                         .setLineHeight(24)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(180, 166, 0, 0))));
     }
