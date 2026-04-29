@@ -108,6 +108,9 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
 
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
+        dimensionMap.clear();
+        pointOffsetMap.clear();
+
         // 基准元素的尺寸
         Dimension basicDimension = basicElement.calculateDimension(context, posterWidth, posterHeight);
         dimensionMap.put(basicElement, basicDimension);
@@ -128,7 +131,11 @@ public class ComposeElement extends AbstractRepeatableElement<ComposeElement> im
         });
 
         // 根据各元素尺寸大小和位置信息，计算外接矩形，即待渲染组合元素的大小，基准点
-        return calculateBoundingBox(dimensionMap);
+        Dimension dimension = calculateBoundingBox(dimensionMap);
+        if (position != null) {
+            dimension.setPoint(position.calculate(posterWidth, posterHeight, dimension.getWidth(), dimension.getHeight()));
+        }
+        return dimension;
     }
 
     private void doIn(PosterContext context, List<ElementWrapper> elementWrapperList, Dimension basicDimension) {
