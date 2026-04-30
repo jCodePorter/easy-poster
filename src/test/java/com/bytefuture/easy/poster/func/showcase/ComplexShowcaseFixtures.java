@@ -188,7 +188,7 @@ public final class ComplexShowcaseFixtures {
                 .setColor(new Color(45, 46, 55))
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(780, 980, 0, 0))));
         poster.addElement(new RepeatElement(buildAgendaCard())
-                .setLayout(2, 2, Margin.of(780, 1040, 80, 650))
+                .setLayout(2, 2, Margin.of(780, 1040, 80, 420))
                 .setInterval(20, 20));
 
         poster.addElement(buildQrPanel().setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(860, 1520, 0, 0))));
