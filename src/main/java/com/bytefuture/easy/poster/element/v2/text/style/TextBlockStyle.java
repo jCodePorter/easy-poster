@@ -31,12 +31,7 @@ public class TextBlockStyle extends BaseTextStyle {
     private TextAlign textAlign = TextAlign.LEFT;
 
     /**
-     * 是否自动换行
-     */
-    private boolean autoWordWrap = false;
-
-    /**
-     * 文本最大宽度
+     * 是否自动换行，设置文本最大宽度
      */
     private int maxTextWidth = 0;
 
@@ -44,6 +39,16 @@ public class TextBlockStyle extends BaseTextStyle {
      * 行高
      */
     private Integer lineHeight;
+
+    /**
+     * 最大行数
+     */
+    private Integer maxLines;
+
+    /**
+     * 文本超出最大行数后的处理方式
+     */
+    private TextOverflow textOverflow = TextOverflow.CLIP;
 
     public TextBlockStyle setColor(Color color) {
         if (color == null) {
@@ -110,18 +115,11 @@ public class TextBlockStyle extends BaseTextStyle {
         return this;
     }
 
-    public TextBlockStyle setAutoWordWrap(int maxWidth) {
+    public TextBlockStyle maxTextWidth(int maxWidth) {
         if (maxWidth <= 0) {
             throw new PosterException("maxWidth must be greater than 0");
         }
-        this.autoWordWrap = true;
         this.maxTextWidth = maxWidth;
-        return this;
-    }
-
-    public TextBlockStyle setLayoutWidth(int layoutWidth) {
-        this.autoWordWrap = layoutWidth > 0;
-        this.maxTextWidth = layoutWidth;
         return this;
     }
 
@@ -136,6 +134,34 @@ public class TextBlockStyle extends BaseTextStyle {
             throw new PosterException("lineHeight must be greater than 0");
         }
         this.lineHeight = lineHeight;
+        return this;
+    }
+
+    /**
+     * 设置最大行数
+     *
+     * @param maxLines 最大行数，必须大于 0
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setMaxLines(Integer maxLines) {
+        if (maxLines == null || maxLines <= 0) {
+            throw new PosterException("maxLines must be greater than 0");
+        }
+        this.maxLines = maxLines;
+        return this;
+    }
+
+    /**
+     * 设置超出最大行数后的文本缩略方式
+     *
+     * @param textOverflow 文本缩略方式
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setTextOverflow(TextOverflow textOverflow) {
+        if (textOverflow == null) {
+            throw new PosterException("textOverflow can not be null");
+        }
+        this.textOverflow = textOverflow;
         return this;
     }
 

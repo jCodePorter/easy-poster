@@ -125,6 +125,9 @@ public void testRelativePosition() throws Exception {
 - 增加容器元素
 - 文本元素
   - 纵向绘制
+  - 渐变色
+  - 最大行数以及文本缩略
+- 移除全局配置的debug参数
 
 ### 0.0.7
 

@@ -17,11 +17,6 @@ import java.awt.*;
 public class Config {
 
     /**
-     * 调试模式，目前仅用于绘制各元素的外边框
-     */
-    private boolean debug = false;
-
-    /**
      * 文本对齐方式，默认居中对齐
      */
     private BaseLine baseLine = BaseLine.BASE_LINE;

@@ -4,6 +4,7 @@ import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.element.v2.text.pipeline.TextPipeline;
 import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
+import com.bytefuture.easy.poster.element.v2.text.style.TextOverflow;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.BaseLine;
@@ -226,19 +227,8 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @param maxWidth 最大布局宽度
      * @return 当前元素
      */
-    public TextElement setAutoWordWrap(int maxWidth) {
-        this.blockStyle.setAutoWordWrap(maxWidth);
-        return this;
-    }
-
-    /**
-     * 设置布局宽度
-     *
-     * @param layoutWidth 布局宽度
-     * @return 当前元素
-     */
-    public TextElement setLayoutWidth(int layoutWidth) {
-        this.blockStyle.setLayoutWidth(layoutWidth);
+    public TextElement maxTextWidth(int maxWidth) {
+        this.blockStyle.maxTextWidth(maxWidth);
         return this;
     }
 
@@ -250,6 +240,28 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      */
     public TextElement setLineHeight(int lineHeight) {
         this.blockStyle.setLineHeight(lineHeight);
+        return this;
+    }
+
+    /**
+     * 设置自动换行后的最大行数
+     *
+     * @param maxLines 最大行数
+     * @return 当前元素
+     */
+    public TextElement setMaxLines(int maxLines) {
+        this.blockStyle.setMaxLines(maxLines);
+        return this;
+    }
+
+    /**
+     * 设置超出最大行数后的文本缩略方式
+     *
+     * @param textOverflow 文本缩略方式
+     * @return 当前元素
+     */
+    public TextElement setTextOverflow(TextOverflow textOverflow) {
+        this.blockStyle.setTextOverflow(textOverflow);
         return this;
     }
 

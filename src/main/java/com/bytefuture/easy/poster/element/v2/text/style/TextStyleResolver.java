@@ -6,8 +6,11 @@ import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextSpan;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 文本样式解析器
@@ -35,9 +38,12 @@ public class TextStyleResolver {
      */
     public ResolvedStyleContext resolve(TextElement element, PosterContext context) {
         TextBlockStyle blockStyle = element.getBlockStyle();
+        // 解析基础字体样式
         Font baseFont = resolveBaseFont(blockStyle, context.getConfig());
+        // 解析默认颜色
         Color defaultColor = resolveDefaultColor(blockStyle, context.getConfig());
-        List<ResolvedTextRun> runs = resolveRuns(element.getTextSpans(), blockStyle, baseFont, defaultColor);
+        // 解析运行时文本样式
+        List<ResolvedTextSpan> runs = resolveTextSpan(element.getTextSpans(), blockStyle, baseFont, defaultColor);
         return new ResolvedStyleContext(baseFont, defaultColor, runs, blockStyle);
     }
 
@@ -54,7 +60,7 @@ public class TextStyleResolver {
             return blockStyle.getFont();
         }
         String fontName = blockStyle.getFontName() != null ? blockStyle.getFontName() : globalConfig.getFontName();
-        int fontStyle = blockStyle.getFontStyle() != null ? blockStyle.getFontStyle() : Font.PLAIN;
+        int fontStyle = blockStyle.getFontStyle() != null ? blockStyle.getFontStyle() : globalConfig.getFontStyle();
         int fontSize = blockStyle.getFontSize() != null ? blockStyle.getFontSize() : globalConfig.getFontSize();
         return new Font(fontName, fontStyle, fontSize);
     }
@@ -84,18 +90,17 @@ public class TextStyleResolver {
      * @param blockStyle   文本块样式
      * @param baseFont     解析得到的基础字体
      * @param defaultColor 解析得到的默认颜色
-     * @return 样式已收敛的文本运行单元列表
+     * @return 解析后的文本呈现最终的样式
      */
-    public List<ResolvedTextRun> resolveRuns(List<TextSpan> spans, TextBlockStyle blockStyle,
-                                             Font baseFont, Color defaultColor) {
+    public List<ResolvedTextSpan> resolveTextSpan(List<TextSpan> spans, TextBlockStyle blockStyle,
+                                                  Font baseFont, Color defaultColor) {
         if (spans.isEmpty()) {
             return Collections.emptyList();
         }
-        List<ResolvedTextRun> runs = new ArrayList<>(spans.size());
-        for (TextSpan span : spans) {
-            runs.add(resolve(span, blockStyle, baseFont, defaultColor));
-        }
-        return runs;
+
+        return spans.stream()
+                .map(span -> resolve(span, blockStyle, baseFont, defaultColor))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -114,15 +119,11 @@ public class TextStyleResolver {
      * @param defaultColor 默认颜色
      * @return 已解析的文本运行段
      */
-    public ResolvedTextRun resolve(TextSpan span, TextBlockStyle blockStyle, Font baseFont, Color defaultColor) {
+    private ResolvedTextSpan resolve(TextSpan span, TextBlockStyle blockStyle, Font baseFont, Color defaultColor) {
         BaseTextStyle spanStyle = span.getSpanStyle();
-        // 字体名称：片段 > 块级 > 基础字体族名
         String fontName = firstNonNull(spanStyle.getFontName(), blockStyle.getFontName(), baseFont.getFamily());
-        // 字体样式：片段 > 块级 > 基础字体样式
         int fontStyle = firstNonNull(spanStyle.getFontStyle(), blockStyle.getFontStyle(), baseFont.getStyle());
-        // 字体大小：片段 > 块级 > 基础字体大小
         int fontSize = firstNonNull(spanStyle.getFontSize(), blockStyle.getFontSize(), baseFont.getSize());
-        // 颜色：片段 > 块级 > 默认颜色
         Color color = firstNonNull(spanStyle.getColor(), blockStyle.getColor(), defaultColor);
         boolean spanColorOverride = spanStyle.getColor() != null;
         boolean underline = firstNonNull(spanStyle.getUnderline(), blockStyle.getUnderline(), Boolean.FALSE);
@@ -132,14 +133,14 @@ public class TextStyleResolver {
         Color backgroundColor = spanStyle.getBackgroundColor();
         int backgroundPadding = firstNonNull(spanStyle.getBackgroundPadding(), 2);
         int backgroundRadius = firstNonNull(spanStyle.getBackgroundRadius(), 0);
-        return new ResolvedTextRun(span.getText(),
+        return new ResolvedTextSpan(span.getText(),
                 new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, spanColorOverride,
                         underline, strikeThrough,
                         letterSpacing, backgroundColor, backgroundPadding, backgroundRadius));
     }
 
     /**
-     * 返回三个值中第一个非空项
+     * 返回第一个非空项
      *
      * @param values 传入数值
      * @param <T>    值类型

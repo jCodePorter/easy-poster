@@ -27,9 +27,9 @@ public class ResolvedStyleContext {
     private final Color defaultColor;
 
     /**
-     * 已解析的文本运行单元
+     * 已解析的文本
      */
-    private final List<ResolvedTextRun> runs;
+    private final List<ResolvedTextSpan> resolvedTextSpans;
 
     /**
      * 块级样式引用
@@ -45,10 +45,10 @@ public class ResolvedStyleContext {
      * @param blockStyle   块级样式
      */
     public ResolvedStyleContext(Font baseFont, Color defaultColor,
-                                List<ResolvedTextRun> runs, TextBlockStyle blockStyle) {
+                                List<ResolvedTextSpan> runs, TextBlockStyle blockStyle) {
         this.baseFont = baseFont;
         this.defaultColor = defaultColor;
-        this.runs = Collections.unmodifiableList(new ArrayList<>(runs));
+        this.resolvedTextSpans = Collections.unmodifiableList(new ArrayList<>(runs));
         this.blockStyle = blockStyle;
     }
 }

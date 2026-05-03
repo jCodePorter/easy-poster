@@ -423,7 +423,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(29)
                         .setColor(new Color(88, 79, 72))
-                        .setAutoWordWrap(640)
+                        .maxTextWidth(640)
                         .setLineHeight(46)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(76, 410, 0, 0))))
                 .in(new CircleElement(88)
@@ -488,7 +488,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(22)
                         .setColor(new Color(226, 230, 240))
-                        .setAutoWordWrap(420)
+                        .maxTextWidth(420)
                         .setLineHeight(34)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(40, 206, 0, 0))))
                 .in(com.bytefuture.easy.poster.element.v2.TextElement.of(
@@ -502,7 +502,7 @@ public final class ComplexShowcaseFixtures {
                                         .setColor(Color.WHITE))
                         .setFontName("Dialog")
                         .setFontSize(20)
-                        .setAutoWordWrap(420)
+                        .maxTextWidth(420)
                         .setLineHeight(30)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(40, 334, 0, 0))));
     }
@@ -541,7 +541,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(18)
                         .setColor(new Color(108, 95, 84))
-                        .setAutoWordWrap(176)
+                        .maxTextWidth(176)
                         .setLineHeight(26)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(18, 116, 0, 0))));
     }
@@ -586,7 +586,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(16)
                         .setColor(new Color(217, 223, 236))
-                        .setAutoWordWrap(236)
+                        .maxTextWidth(236)
                         .setLineHeight(24)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(180, 166, 0, 0))));
     }
@@ -658,7 +658,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(24)
                         .setColor(new Color(92, 104, 128))
-                        .setAutoWordWrap(1320)
+                        .maxTextWidth(1320)
                         .setLineHeight(36)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(30, 62, 0, 0))));
     }
@@ -703,7 +703,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(18)
                         .setColor(new Color(103, 115, 136))
-                        .setAutoWordWrap(252)
+                        .maxTextWidth(252)
                         .setLineHeight(26)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 148, 0, 0))));
     }
@@ -734,7 +734,7 @@ public final class ComplexShowcaseFixtures {
                         .setFontName("Dialog")
                         .setFontSize(24)
                         .setColor(new Color(88, 102, 126))
-                        .setAutoWordWrap(1340)
+                        .maxTextWidth(1340)
                         .setLineHeight(38)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 84, 0, 0))))
                 .in(com.bytefuture.easy.poster.element.v2.TextElement.of("summary / charts / repeated cards / refined hierarchy")

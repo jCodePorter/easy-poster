@@ -8,7 +8,7 @@ import java.util.Objects;
  * 某段文本的最终样式结果
  */
 @Getter
-public class ResolvedTextRun {
+public class ResolvedTextSpan {
 
     /**
      * 运行段文本
@@ -26,7 +26,7 @@ public class ResolvedTextRun {
      * @param text  运行段文本
      * @param style 运行段样式
      */
-    public ResolvedTextRun(String text, ResolvedTextStyle style) {
+    public ResolvedTextSpan(String text, ResolvedTextStyle style) {
         this.text = text == null ? "" : text;
         this.style = Objects.requireNonNull(style, "style");
     }

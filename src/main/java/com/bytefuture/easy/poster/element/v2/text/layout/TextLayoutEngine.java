@@ -1,9 +1,6 @@
 package com.bytefuture.easy.poster.element.v2.text.layout;
 
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedStyleContext;
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextRun;
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextStyle;
-import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
+import com.bytefuture.easy.poster.element.v2.text.style.*;
 import com.bytefuture.easy.poster.geometry.AbsolutePosition;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
@@ -23,48 +20,48 @@ import java.util.List;
  */
 public class TextLayoutEngine {
 
-    /**
-     * 文本测量器
-     */
     private final TextMeasurer measurer = new TextMeasurer();
+
+    private final TextSplitter splitter = new TextSplitter();
 
     /**
      * 计算文本布局结果
      *
-     * @param styleContext  样式解析结果
-     * @param position      元素位置
-     * @param graphics      图形上下文
-     * @param posterWidth   海报宽度
-     * @param posterHeight  海报高度
+     * @param styleContext 样式解析结果
+     * @param position     元素位置
+     * @param graphics     图形上下文
+     * @param posterWidth  海报宽度
+     * @param posterHeight 海报高度
      * @return 布局结果
      */
     public TextLayoutResult layout(ResolvedStyleContext styleContext, Position position,
                                    Graphics2D graphics, int posterWidth, int posterHeight) {
         // 空文本直接返回空布局结果
-        if (styleContext.getRuns().isEmpty()) {
+        if (styleContext.getResolvedTextSpans().isEmpty()) {
             return TextLayoutResult.empty(position);
         }
 
-        List<ResolvedTextRun> runs = styleContext.getRuns();
+        List<ResolvedTextSpan> resolvedTextSpans = styleContext.getResolvedTextSpans();
         Font baseFont = styleContext.getBaseFont();
 
         // 计算行高和基线偏移
-        int lineHeight = resolveLineHeight(graphics, runs, baseFont, styleContext.getBlockStyle(), measurer);
-        int baselineOffset = resolveBaselineOffset(graphics, runs, baseFont, measurer);
+        int lineHeight = resolveLineHeight(graphics, resolvedTextSpans, baseFont, styleContext.getBlockStyle());
+        int baselineOffset = resolveBaselineOffset(graphics, resolvedTextSpans, baseFont);
 
         // 只有开启自动换行时才启用宽度约束
-        int widthLimit = styleContext.getBlockStyle().isAutoWordWrap()
-                ? Math.max(0, styleContext.getBlockStyle().getMaxTextWidth())
-                : 0;
+        int widthLimit = styleContext.getBlockStyle().getMaxTextWidth();
 
-        // wrapRuns 负责把按样式拆分后的 runs 进一步整理成"行"
-        List<TextLine> lines = wrapRuns(graphics, runs, widthLimit, measurer);
+        // wrapRuns 负责把按样式拆分后的 resolvedTextSpans 进一步整理成"行"
+        List<TextLine> wrappedLines = splitter.splitLines(graphics, resolvedTextSpans, widthLimit);
+        ClampResult clampResult = clampLines(graphics, wrappedLines, widthLimit, styleContext.getBlockStyle());
+        List<TextLine> lines = clampResult.lines;
 
         // 自动换行场景下，布局宽度应当服从外部给定的最大宽度；不换行时则取真实内容最宽的一行
         int layoutWidth = widthLimit > 0 ? widthLimit : resolveMaxLineWidth(lines);
 
         // 文本对齐本质上是为每一行计算相对于布局区域左上角的 X 方向偏移
-        List<TextLine> alignedLines = alignLines(lines, layoutWidth, styleContext.getBlockStyle().getTextAlign());
+        List<TextLine> alignedLines = alignLines(lines, layoutWidth, styleContext.getBlockStyle().getTextAlign(),
+                clampResult.lastLineTruncated);
         int totalHeight = alignedLines.size() * lineHeight;
 
         // 点位计算依赖最终布局宽高
@@ -78,233 +75,233 @@ public class TextLayoutEngine {
         return new TextLayoutResult(point, layoutWidth, totalHeight, lineHeight, baselineOffset, drawOffsetY, alignedLines);
     }
 
+
     /**
-     * 根据宽度限制将文本运行单元切分为多行
+     * 按最大行数约束文本行数
      *
      * @param graphics   图形上下文
-     * @param runs       已解析样式的文本运行单元
-     * @param widthLimit 单行最大宽度；小于等于 0 表示不限制
-     * @param measurer   文本测量器
-     * @return 按顺序生成的文本行
+     * @param lines      已完成自动换行的文本行
+     * @param widthLimit 自动换行宽度限制
+     * @param blockStyle 块级样式
+     * @return 处理后的文本行
      */
-    private List<TextLine> wrapRuns(Graphics2D graphics, List<ResolvedTextRun> runs, int widthLimit, TextMeasurer measurer) {
-        List<Token> tokens = tokenizeRuns(runs, graphics, measurer);
-        if (tokens.isEmpty()) {
-            return Collections.singletonList(TextLine.empty());
+    private ClampResult clampLines(Graphics2D graphics, List<TextLine> lines, int widthLimit,
+                                   TextBlockStyle blockStyle) {
+        if (blockStyle.getMaxTextWidth() == 0 || blockStyle.getMaxLines() == null || widthLimit <= 0) {
+            return new ClampResult(lines, false);
         }
-
-        List<TextLine> lines = new ArrayList<>();
-        List<Token> current = new ArrayList<>();
-        int currentWidth = 0;
-
-        for (Token token : tokens) {
-            // 显式换行符优先级最高
-            if (token.type == TokenType.NEWLINE) {
-                List<Token> trimmed = trimTrailingSpaces(current);
-                lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
-                current = new ArrayList<>();
-                currentWidth = 0;
-                continue;
-            }
-
-            // 不限制宽度时，所有 token 顺序累加
-            if (widthLimit <= 0) {
-                current.add(token);
-                currentWidth += token.width;
-                continue;
-            }
-
-            // 新行起始位置出现空白直接丢弃
-            if (token.type == TokenType.SPACE && current.isEmpty()) {
-                continue;
-            }
-
-            // 单个 token 自身已经超过整行宽度时，必须进一步拆分
-            if (token.width > widthLimit) {
-                if (!current.isEmpty()) {
-                    List<Token> trimmed = trimTrailingSpaces(current);
-                    lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
-                    current = new ArrayList<>();
-                    currentWidth = 0;
-                }
-                List<Token> pieces = splitOversizedToken(token, widthLimit, graphics, measurer);
-                for (int i = 0; i < pieces.size(); i++) {
-                    Token piece = pieces.get(i);
-                    if (i == pieces.size() - 1) {
-                        current.add(piece);
-                        currentWidth = piece.width;
-                    } else {
-                        lines.add(buildLine(Collections.singletonList(piece), piece.width));
-                    }
-                }
-                continue;
-            }
-
-            // 当前 token 加入后仍未超宽，或者当前行还是空行时，直接吸收
-            if (currentWidth + token.width <= widthLimit || current.isEmpty()) {
-                current.add(token);
-                currentWidth += token.width;
-                continue;
-            }
-
-            // 超宽的是空格时，直接在空格处分行
-            if (token.type == TokenType.SPACE) {
-                List<Token> trimmed = trimTrailingSpaces(current);
-                lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
-                current = new ArrayList<>();
-                currentWidth = 0;
-                continue;
-            }
-
-            // 普通单词导致超宽：先提交当前行，再把该单词作为下一行的起点
-            List<Token> trimmed = trimTrailingSpaces(current);
-            lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
-            current = new ArrayList<>();
-            current.add(token);
-            currentWidth = token.width;
+        int maxLines = blockStyle.getMaxLines();
+        if (lines.size() <= maxLines) {
+            return new ClampResult(lines, false);
         }
-
-        // 循环结束后仍然可能有尚未提交的尾行
-        if (!current.isEmpty() || lines.isEmpty()) {
-            List<Token> trimmed = trimTrailingSpaces(current);
-            lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
+        List<TextLine> clamped = new ArrayList<>(maxLines);
+        for (int i = 0; i < maxLines - 1; i++) {
+            clamped.add(lines.get(i));
         }
-        return lines;
+        clamped.add(truncateLine(graphics, lines.get(maxLines - 1), widthLimit, blockStyle.getTextOverflow(), measurer, true));
+        return new ClampResult(clamped, true);
     }
 
     /**
-     * 将运行单元拆分为可参与换行判断的 token
+     * 将最后保留的一行裁剪到给定宽度内
      *
-     * @param runs     文本运行单元
-     * @param graphics 图形上下文
-     * @param measurer 文本测量器
-     * @return token 列表
+     * @param graphics     图形上下文
+     * @param line         原始文本行
+     * @param widthLimit   可用宽度
+     * @param textOverflow 超出策略
+     * @param measurer     文本测量器
+     * @return 裁剪后的文本行
      */
-    private List<Token> tokenizeRuns(List<ResolvedTextRun> runs, Graphics2D graphics, TextMeasurer measurer) {
-        List<Token> tokens = new ArrayList<>();
-        for (ResolvedTextRun run : runs) {
-            String text = run.getText();
-            if (text.isEmpty()) {
-                continue;
-            }
-            StringBuilder buffer = new StringBuilder();
-            TokenType currentType = null;
-            for (int i = 0; i < text.length(); ) {
-                int codePoint = text.codePointAt(i);
-                String ch = new String(Character.toChars(codePoint));
-                i += Character.charCount(codePoint);
-
-                // CRLF 场景下忽略 \r，只保留 \n
-                if ("\r".equals(ch)) {
-                    continue;
-                }
-                if ("\n".equals(ch)) {
-                    flushBufferedToken(tokens, buffer, currentType, run, graphics, measurer);
-                    currentType = null;
-                    tokens.add(new Token(TokenType.NEWLINE, "\n", run.getStyle(), 0, run.getStyle().getLetterSpacing()));
-                    continue;
-                }
-
-                TokenType tokenType = Character.isWhitespace(codePoint) ? TokenType.SPACE : TokenType.WORD;
-                if (currentType != null && currentType != tokenType) {
-                    flushBufferedToken(tokens, buffer, currentType, run, graphics, measurer);
-                }
-                currentType = tokenType;
-                buffer.append(ch);
-            }
-            flushBufferedToken(tokens, buffer, currentType, run, graphics, measurer);
+    private TextLine truncateLine(Graphics2D graphics, TextLine line, int widthLimit,
+                                  TextOverflow textOverflow, TextMeasurer measurer, boolean forceOverflowHandling) {
+        if (!forceOverflowHandling && line.getWidth() <= widthLimit) {
+            return line;
         }
-        return tokens;
+        int suffixWidth = 0;
+        String suffix = "";
+        if (textOverflow == TextOverflow.ELLIPSIS) {
+            suffix = resolveEllipsis(graphics, line, widthLimit, measurer);
+            suffixWidth = measureSuffixWidth(graphics, line, suffix, measurer);
+        }
+        List<TextLine.Segment> segments = new ArrayList<>();
+        int occupiedWidth = 0;
+        for (TextLine.Segment segment : line.getSegments()) {
+            if (occupiedWidth >= widthLimit - suffixWidth) {
+                break;
+            }
+            int remainingWidth = widthLimit - suffixWidth - occupiedWidth;
+            TextLine.Segment truncatedSegment = truncateSegment(graphics, segment, remainingWidth, measurer);
+            if (truncatedSegment == null) {
+                break;
+            }
+            segments.add(truncatedSegment);
+            occupiedWidth += truncatedSegment.getWidth();
+            if (truncatedSegment.getText().length() < segment.getText().length()) {
+                break;
+            }
+        }
+        segments = trimTrailingSpaceSegments(graphics, segments, measurer);
+        if (textOverflow == TextOverflow.ELLIPSIS && !suffix.isEmpty()) {
+            segments = appendSuffix(graphics, segments, line, suffix, measurer);
+        }
+        return rebuildLine(segments);
     }
 
     /**
-     * 将缓冲中的连续字符输出为一个 token
+     * 生成省略符文本
      */
-    private void flushBufferedToken(List<Token> tokens, StringBuilder buffer, TokenType type,
-                                    ResolvedTextRun run, Graphics2D graphics, TextMeasurer measurer) {
-        if (type == null || buffer.length() == 0) {
-            return;
+    private String resolveEllipsis(Graphics2D graphics, TextLine line, int widthLimit, TextMeasurer measurer) {
+        String[] candidates = new String[]{"...", "..", "."};
+        for (String candidate : candidates) {
+            int width = measureSuffixWidth(graphics, line, candidate, measurer);
+            if (width <= widthLimit) {
+                return candidate;
+            }
         }
-        String text = buffer.toString();
-        int letterSpacing = run.getStyle().getLetterSpacing();
-        int width = measurer.measureWidthWithSpacing(graphics, text, run.getStyle().getFont(), letterSpacing);
-        tokens.add(new Token(type, text, run.getStyle(), width, letterSpacing));
-        buffer.setLength(0);
+        return "";
     }
 
     /**
-     * 将单个超宽 token 按字符级别拆分为多个可容纳片段
+     * 计算省略符宽度
      */
-    private List<Token> splitOversizedToken(Token token, int widthLimit, Graphics2D graphics, TextMeasurer measurer) {
-        List<Token> pieces = new ArrayList<>();
+    private int measureSuffixWidth(Graphics2D graphics, TextLine line, String suffix, TextMeasurer measurer) {
+        if (suffix.isEmpty()) {
+            return 0;
+        }
+        ResolvedTextStyle style = resolveSuffixStyle(line);
+        return measurer.measureWidthWithSpacing(graphics, suffix, style.getFont(), style.getLetterSpacing());
+    }
+
+    /**
+     * 裁剪单个文本片段
+     */
+    private TextLine.Segment truncateSegment(Graphics2D graphics, TextLine.Segment segment, int widthLimit, TextMeasurer measurer) {
+        if (widthLimit <= 0) {
+            return null;
+        }
+        if (segment.getWidth() <= widthLimit) {
+            return segment;
+        }
         StringBuilder builder = new StringBuilder();
         int width = 0;
-        int letterSpacing = token.letterSpacing;
-        for (int i = 0; i < token.text.length(); ) {
-            int codePoint = token.text.codePointAt(i);
+        String text = segment.getText();
+        for (int i = 0; i < text.length(); ) {
+            int codePoint = text.codePointAt(i);
             String ch = new String(Character.toChars(codePoint));
-            i += Character.charCount(codePoint);
-            int charWidth = measurer.measureWidthWithSpacing(graphics, ch, token.style.getFont(), letterSpacing);
+            int charWidth = measurer.measureWidthWithSpacing(graphics, ch, segment.getStyle().getFont(), segment.getLetterSpacing());
             if (builder.length() > 0 && width + charWidth > widthLimit) {
-                pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width, letterSpacing));
-                builder.setLength(0);
-                width = 0;
+                break;
+            }
+            if (builder.length() == 0 && charWidth > widthLimit) {
+                return null;
             }
             builder.append(ch);
             width += charWidth;
+            i += Character.charCount(codePoint);
         }
-        if (builder.length() > 0) {
-            pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width, letterSpacing));
+        if (builder.length() == 0) {
+            return null;
         }
-        return pieces;
+        return new TextLine.Segment(builder.toString(), segment.getStyle(), 0, width,
+                segment.isStretchableSpace(), segment.getLetterSpacing());
     }
 
     /**
-     * 将一行 token 重新组装为 TextLine
+     * 移除末尾空白片段及片段末尾空白字符
      */
-    private TextLine buildLine(List<Token> tokens, int width) {
-        if (tokens.isEmpty()) {
+    private List<TextLine.Segment> trimTrailingSpaceSegments(Graphics2D graphics, List<TextLine.Segment> segments, TextMeasurer measurer) {
+        List<TextLine.Segment> trimmed = new ArrayList<>(segments);
+        while (!trimmed.isEmpty()) {
+            TextLine.Segment last = trimmed.get(trimmed.size() - 1);
+            String text = trimTrailingWhitespace(last.getText());
+            if (text.isEmpty()) {
+                trimmed.remove(trimmed.size() - 1);
+                continue;
+            }
+            if (!text.equals(last.getText())) {
+                int width = measurer.measureWidthWithSpacing(graphics, text, last.getStyle().getFont(), last.getLetterSpacing());
+                trimmed.set(trimmed.size() - 1, new TextLine.Segment(text, last.getStyle(), 0, width,
+                        false, last.getLetterSpacing()));
+            }
+            break;
+        }
+        return trimmed;
+    }
+
+    /**
+     * 追加省略符
+     */
+    private List<TextLine.Segment> appendSuffix(Graphics2D graphics, List<TextLine.Segment> segments,
+                                                TextLine line, String suffix, TextMeasurer measurer) {
+        List<TextLine.Segment> result = new ArrayList<>(segments);
+        ResolvedTextStyle style = !result.isEmpty()
+                ? result.get(result.size() - 1).getStyle()
+                : resolveSuffixStyle(line);
+        int width = measurer.measureWidthWithSpacing(graphics, suffix, style.getFont(), style.getLetterSpacing());
+        // if (!result.isEmpty() && hasSameStyle(result.get(result.size() - 1).getStyle(), style)) {
+        //     TextLine.Segment last = result.remove(result.size() - 1);
+        //     result.add(new TextLine.Segment(last.getText() + suffix, style, 0, last.getWidth() + width,
+        //             false, style.getLetterSpacing()));
+        //     return result;
+        // }
+        result.add(new TextLine.Segment(suffix, style, 0, width, false, style.getLetterSpacing()));
+        return result;
+    }
+
+    /**
+     * 选择省略符样式
+     */
+    private ResolvedTextStyle resolveSuffixStyle(TextLine line) {
+        List<TextLine.Segment> segments = line.getSegments();
+        if (segments.isEmpty()) {
+            throw new IllegalStateException("line must contain at least one segment");
+        }
+        return segments.get(segments.size() - 1).getStyle();
+    }
+
+    /**
+     * 重建文本行宽度与片段
+     */
+    private TextLine rebuildLine(List<TextLine.Segment> segments) {
+        if (segments.isEmpty()) {
             return TextLine.empty();
         }
-        List<TextLine.Segment> segments = new ArrayList<>(tokens.size());
+        List<TextLine.Segment> sequenced = sequenceSegments(segments);
         StringBuilder builder = new StringBuilder();
-        for (Token token : tokens) {
-            builder.append(token.text);
-            boolean stretchableSpace = token.type == TokenType.SPACE;
-            if (!segments.isEmpty() && canMergeSegment(segments.get(segments.size() - 1), token)) {
-                TextLine.Segment previous = segments.remove(segments.size() - 1);
-                segments.add(new TextLine.Segment(previous.getText() + token.text, previous.getStyle(),
-                        0, previous.getWidth() + token.width, previous.isStretchableSpace(), token.letterSpacing));
-            } else {
-                segments.add(new TextLine.Segment(token.text, token.style, 0, token.width, stretchableSpace, token.letterSpacing));
-            }
+        int width = 0;
+        for (TextLine.Segment segment : sequenced) {
+            builder.append(segment.getText());
+            width += segment.getWidth();
         }
-        return new TextLine(builder.toString(), width, 0, segments);
+        return new TextLine(builder.toString(), width, 0, sequenced);
     }
 
     /**
-     * 判断两个解析后样式是否可视为同一绘制样式
+     * 删除末尾空白字符
      */
-    private boolean hasSameStyle(ResolvedTextStyle left, ResolvedTextStyle right) {
-        return left.getFont().equals(right.getFont())
-                && left.getColor().equals(right.getColor())
-                && left.isUnderline() == right.isUnderline()
-                && left.isStrikeThrough() == right.isStrikeThrough()
-                && left.getLetterSpacing() == right.getLetterSpacing();
-    }
-
-    private boolean canMergeSegment(TextLine.Segment previous, Token token) {
-        return hasSameStyle(previous.getStyle(), token.style)
-                && previous.isStretchableSpace() == (token.type == TokenType.SPACE);
+    private String trimTrailingWhitespace(String text) {
+        int end = text.length();
+        while (end > 0) {
+            int codePoint = text.codePointBefore(end);
+            if (!Character.isWhitespace(codePoint)) {
+                break;
+            }
+            end -= Character.charCount(codePoint);
+        }
+        return text.substring(0, end);
     }
 
     /**
      * 根据对齐方式为每一行计算横向偏移量
      */
-    private List<TextLine> alignLines(List<TextLine> lines, int layoutWidth, TextAlign align) {
+    private List<TextLine> alignLines(List<TextLine> lines, int layoutWidth, TextAlign align, boolean lastLineTruncated) {
         List<TextLine> aligned = new ArrayList<>(lines.size());
-        for (TextLine line : lines) {
-            if (align == TextAlign.JUSTIFY && layoutWidth > line.getWidth()) {
+        for (int i = 0; i < lines.size(); i++) {
+            TextLine line = lines.get(i);
+            boolean justify = align == TextAlign.JUSTIFY
+                    && layoutWidth > line.getWidth()
+                    && (i < lines.size() - 1 || !lastLineTruncated);
+            if (justify) {
                 List<TextLine.Segment> justifiedSegments = justifySegments(line, layoutWidth);
                 if (!justifiedSegments.isEmpty()) {
                     aligned.add(line.withLayout(0, justifiedSegments));
@@ -362,9 +359,7 @@ public class TextLayoutEngine {
     }
 
     private boolean isJustifiableSpace(List<TextLine.Segment> segments, int index) {
-        return index > 0
-                && index < segments.size() - 1
-                && segments.get(index).isStretchableSpace();
+        return index > 0 && index < segments.size() - 1 && segments.get(index).isStretchableSpace();
     }
 
     /**
@@ -376,34 +371,6 @@ public class TextLayoutEngine {
             maxWidth = Math.max(maxWidth, line.getWidth());
         }
         return maxWidth;
-    }
-
-    /**
-     * 去除行尾空白 token
-     *
-     * @param tokens token 列表
-     * @return 去除末尾空白后的 token 列表
-     */
-    private List<Token> trimTrailingSpaces(List<Token> tokens) {
-        List<Token> result = new ArrayList<>(tokens);
-        while (!result.isEmpty() && result.get(result.size() - 1).type == TokenType.SPACE) {
-            result.remove(result.size() - 1);
-        }
-        return result;
-    }
-
-    /**
-     * 计算 token 列表的总宽度
-     *
-     * @param tokens token 列表
-     * @return 总宽度
-     */
-    private int calculateTokensWidth(List<Token> tokens) {
-        int width = 0;
-        for (Token token : tokens) {
-            width += token.width;
-        }
-        return width;
     }
 
     /**
@@ -419,15 +386,15 @@ public class TextLayoutEngine {
     /**
      * 计算统一行高
      */
-    private int resolveLineHeight(Graphics2D graphics, List<ResolvedTextRun> runs, Font baseFont,
-                                  TextBlockStyle blockStyle, TextMeasurer measurer) {
+    private int resolveLineHeight(Graphics2D graphics, List<ResolvedTextSpan> resolvedTextSpans, Font baseFont,
+                                  TextBlockStyle blockStyle) {
         // 块级样式显式指定行高时，直接采用该值
         if (blockStyle.getLineHeight() != null) {
             return blockStyle.getLineHeight();
         }
         int maxHeight = measurer.getFontHeight(graphics, baseFont);
-        for (ResolvedTextRun run : runs) {
-            maxHeight = Math.max(maxHeight, measurer.getFontHeight(graphics, run.getStyle().getFont()));
+        for (ResolvedTextSpan resolvedTextSpan : resolvedTextSpans) {
+            maxHeight = Math.max(maxHeight, measurer.getFontHeight(graphics, resolvedTextSpan.getStyle().getFont()));
         }
         return maxHeight;
     }
@@ -435,33 +402,21 @@ public class TextLayoutEngine {
     /**
      * 计算统一基线偏移
      */
-    private int resolveBaselineOffset(Graphics2D graphics, List<ResolvedTextRun> runs, Font baseFont, TextMeasurer measurer) {
+    private int resolveBaselineOffset(Graphics2D graphics, List<ResolvedTextSpan> resolvedTextSpans, Font baseFont) {
         int maxAscent = measurer.getAscent(graphics, baseFont);
-        for (ResolvedTextRun run : runs) {
-            maxAscent = Math.max(maxAscent, measurer.getAscent(graphics, run.getStyle().getFont()));
+        for (ResolvedTextSpan resolvedTextSpan : resolvedTextSpans) {
+            maxAscent = Math.max(maxAscent, measurer.getAscent(graphics, resolvedTextSpan.getStyle().getFont()));
         }
         return maxAscent;
     }
 
-    private enum TokenType {
-        WORD,
-        SPACE,
-        NEWLINE
-    }
+    private static final class ClampResult {
+        private final List<TextLine> lines;
+        private final boolean lastLineTruncated;
 
-    private static final class Token {
-        private final TokenType type;
-        private final String text;
-        private final ResolvedTextStyle style;
-        private final int width;
-        private final int letterSpacing;
-
-        private Token(TokenType type, String text, ResolvedTextStyle style, int width, int letterSpacing) {
-            this.type = type;
-            this.text = text;
-            this.style = style;
-            this.width = width;
-            this.letterSpacing = letterSpacing;
+        private ClampResult(List<TextLine> lines, boolean lastLineTruncated) {
+            this.lines = lines;
+            this.lastLineTruncated = lastLineTruncated;
         }
     }
 }

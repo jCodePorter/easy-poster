@@ -32,12 +32,12 @@ public class BaseTextStyle {
     private Integer fontSize;
 
     /**
-     * 是否绘制下划线。
+     * 是否绘制下划线
      */
     private Boolean underline;
 
     /**
-     * 是否绘制删除线。
+     * 是否绘制删除线
      */
     private Boolean strikeThrough;
 

@@ -21,8 +21,6 @@ public class BaseLineTest {
     public void testAbsoluteBaseLine() {
         EasyPoster poster = new EasyPoster(500, 200);
 
-        poster.getConfig().setDebug(true);
-
         Font font = new Font("华文新魏", Font.PLAIN, 25);
         poster.addTextElement("中心对齐")
                 .setFont(font)
@@ -60,8 +58,6 @@ public class BaseLineTest {
     @Test
     public void testBaseLineAutoNewline() {
         EasyPoster poster = new EasyPoster(500, 500);
-
-        poster.getConfig().setDebug(true);
         poster.getConfig().setFont(new Font("华文新魏", Font.PLAIN, 25));
 
         poster.addTextElement("测试顶部对齐并自动换行，这是一个全新的测试")

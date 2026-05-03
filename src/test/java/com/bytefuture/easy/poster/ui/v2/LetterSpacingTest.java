@@ -51,7 +51,7 @@ public class LetterSpacingTest {
                         .setLetterSpacing(5)
                         .setColor(Color.BLACK)
                         .setFontSize(20)
-                        .setAutoWordWrap(300)
+                        .maxTextWidth(300)
                         .setTextAlign(TextAlign.LEFT)
                         .setPosition(AbsolutePosition.of(Point.of(50, 50)))
         );

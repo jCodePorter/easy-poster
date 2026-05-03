@@ -3,6 +3,7 @@ package com.bytefuture.easy.poster.func.text;
 import com.bytefuture.easy.poster.element.v2.TextElement;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
+import com.bytefuture.easy.poster.element.v2.text.style.TextOverflow;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
@@ -81,7 +82,7 @@ public class V2TextElementTest {
         TextElement element = TextElement.of("alpha beta gamma delta epsilon")
                 .setFontName("Dialog")
                 .setFontSize(18)
-                .setAutoWordWrap(80)
+                .maxTextWidth(80)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         measure(element, 300, 200);
@@ -99,19 +100,19 @@ public class V2TextElementTest {
         TextElement left = TextElement.of("align")
                 .setFontName("Dialog")
                 .setFontSize(18)
-                .setAutoWordWrap(200)
+                .maxTextWidth(200)
                 .setTextAlign(TextAlign.LEFT)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
         TextElement center = TextElement.of("align")
                 .setFontName("Dialog")
                 .setFontSize(18)
-                .setAutoWordWrap(200)
+                .maxTextWidth(200)
                 .setTextAlign(TextAlign.CENTER)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
         TextElement right = TextElement.of("align")
                 .setFontName("Dialog")
                 .setFontSize(18)
-                .setAutoWordWrap(200)
+                .maxTextWidth(200)
                 .setTextAlign(TextAlign.RIGHT)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
@@ -133,7 +134,7 @@ public class V2TextElementTest {
         TextElement element = TextElement.of("alpha beta gamma delta epsilon")
                 .setFontName("Dialog")
                 .setFontSize(18)
-                .setAutoWordWrap(80)
+                .maxTextWidth(80)
                 .setLineHeight(40)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
@@ -178,7 +179,7 @@ public class V2TextElementTest {
         TextElement element = TextElement.of("alpha beta gamma delta epsilon")
                 .setFontName("Dialog")
                 .setFontSize(18)
-                .setAutoWordWrap(120)
+                .maxTextWidth(120)
                 .setTextAlign(TextAlign.JUSTIFY)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
@@ -199,7 +200,7 @@ public class V2TextElementTest {
         TextElement element = TextElement.of("alpha beta\ngamma delta")
                 .setFontName("Dialog")
                 .setFontSize(18)
-                .setLayoutWidth(180)
+                .maxTextWidth(180)
                 .setTextAlign(TextAlign.JUSTIFY)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
@@ -322,12 +323,103 @@ public class V2TextElementTest {
                                 .setBackgroundRadius(6))
                 .setFontName("Dialog")
                 .setFontSize(22)
-                .setAutoWordWrap(110)
+                .maxTextWidth(110)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         BufferedImage image = render(element, 220, 180);
         Assert.assertTrue(element.getLastLayout().getLines().size() > 1);
         Assert.assertTrue(countColorLikePixels(image, Color.CYAN, 40) > 120);
+    }
+
+    @Test
+    public void shouldClampWrappedTextToMaxLines() {
+        TextElement element = TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .maxTextWidth(90)
+                .setMaxLines(2)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 200);
+        TextLayoutResult layout = element.getLastLayout();
+
+        Assert.assertEquals(2, layout.getLines().size());
+        Assert.assertEquals(layout.getLineHeight() * 2, layout.getHeight());
+    }
+
+    @Test
+    public void shouldAppendEllipsisWhenOverflowExceedsMaxLines() {
+        TextElement element = TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .maxTextWidth(90)
+                .setMaxLines(2)
+                .setTextOverflow(TextOverflow.ELLIPSIS)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 200);
+        TextLine line = element.getLastLayout().getLines().get(1);
+
+        Assert.assertTrue(line.getText().endsWith("."));
+        Assert.assertTrue(line.getWidth() <= 90);
+    }
+
+    @Test
+    public void shouldClipWithoutEllipsisWhenOverflowModeIsClip() {
+        TextElement element = TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .maxTextWidth(90)
+                .setMaxLines(2)
+                .setTextOverflow(TextOverflow.CLIP)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 200);
+        TextLine line = element.getLastLayout().getLines().get(1);
+
+        Assert.assertFalse(line.getText().endsWith("."));
+        Assert.assertTrue(line.getWidth() <= 90);
+    }
+
+    @Test
+    public void shouldNotJustifyTruncatedLastLine() {
+        TextElement element = TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda")
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .maxTextWidth(120)
+                .setMaxLines(2)
+                .setTextOverflow(TextOverflow.ELLIPSIS)
+                .setTextAlign(TextAlign.JUSTIFY)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 200);
+        TextLayoutResult layout = element.getLastLayout();
+        TextLine lastLine = layout.getLines().get(layout.getLines().size() - 1);
+
+        Assert.assertTrue(resolveOccupiedWidth(lastLine) < layout.getWidth());
+    }
+
+    @Test
+    public void shouldKeepEllipsisStyleConsistentWithLastVisibleSegment() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("alpha beta gamma ").setColor(Color.BLACK),
+                        TextSpan.of("delta epsilon zeta eta theta iota kappa lambda")
+                                .setColor(Color.RED)
+                                .setUnderline(true))
+                .setFontName("Dialog")
+                .setFontSize(18)
+                .maxTextWidth(120)
+                .setMaxLines(2)
+                .setTextOverflow(TextOverflow.ELLIPSIS)
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        measure(element, 320, 200);
+        TextLine lastLine = element.getLastLayout().getLines().get(1);
+        TextLine.Segment lastSegment = lastLine.getSegments().get(lastLine.getSegments().size() - 1);
+
+        Assert.assertTrue(lastSegment.getText().endsWith("."));
+        Assert.assertEquals(Color.RED, lastSegment.getStyle().getColor());
+        Assert.assertTrue(lastSegment.getStyle().isUnderline());
     }
 
     @Test

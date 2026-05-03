@@ -132,7 +132,6 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     public Point render(PosterContext context, int posterWidth, int posterHeight) {
         beforeRender(context);
         Dimension dimension = calculateDimension(context, posterWidth, posterHeight);
-        debug(context, dimension);
         Point coordinatePoint = doRender(context, dimension, posterWidth, posterHeight);
         afterRender(context);
         return coordinatePoint;
@@ -163,20 +162,6 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
     public void gradient(PosterContext context, Dimension dimension) {
         if (gradient != null) {
             context.getGraphics().setPaint(this.gradient.toGradient(dimension));
-        }
-    }
-
-    public void debug(PosterContext context, Dimension dimension) {
-        if (context.getConfig().isDebug()) {
-            // Some elements do not have obvious sizes, for example LineElement
-            if (dimension != null) {
-                Graphics2D graphics = context.getGraphics();
-                Color oldColor = graphics.getColor();
-                graphics.setColor(Color.BLACK);
-                graphics.drawRect(dimension.getPoint().getX(), dimension.getPoint().getY(),
-                        dimension.getWidth(), dimension.getHeight());
-                graphics.setColor(oldColor);
-            }
         }
     }
 }

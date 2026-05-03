@@ -404,22 +404,6 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
 
     private void doDrawText(PosterContext context, String text, int startX, int startY, Dimension dimension, int lineHeight) {
         Graphics2D g = context.getGraphics();
-
-        if (context.getConfig().isDebug()) {
-            FontMetrics fontMetrics = g.getFontMetrics();
-            LineMetrics lineMetrics = fontMetrics.getLineMetrics(text, g);
-            float ascent = lineMetrics.getAscent();
-            int diffHeight = (Optional.ofNullable(this.lineHeight).orElse(fontMetrics.getHeight()) - fontMetrics.getHeight()) / 2;
-
-            int baseY = (int) (startY - ascent - diffHeight);
-            BaseLine baseLineCfg = getBaseLine();
-            if (baseLineCfg == BaseLine.TOP) {
-                baseY += diffHeight;
-            } else if (baseLineCfg == BaseLine.BOTTOM) {
-                baseY -= diffHeight;
-            }
-            g.drawRect(startX, baseY, dimension.getWidth(), lineHeight);
-        }
         if (this.strikeThrough) {
             AttributedString as = new AttributedString(text);
             as.addAttribute(TextAttribute.FONT, g.getFont());
@@ -436,11 +420,6 @@ public class TextElement extends AbstractRepeatableElement<TextElement> implemen
         Graphics2D g = context.getGraphics();
         g.setFont(getFont(context.getConfig()));
         g.setColor(Optional.ofNullable(this.color).orElse(context.getConfig().getColor()));
-    }
-
-    @Override
-    public void debug(PosterContext context, Dimension dimension) {
-        // 文本由于需要换行，覆盖父类方法，啥也不做，具体执行渲染时，再处理
     }
 
     @Data

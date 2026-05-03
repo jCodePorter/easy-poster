@@ -2,6 +2,7 @@ package com.bytefuture.easy.poster.ui.v2;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.v2.TextElement;
+import com.bytefuture.easy.poster.element.v2.text.style.TextOverflow;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
@@ -74,7 +75,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa")
                         .setFontName("Dialog")
                         .setFontSize(28)
-                        .setAutoWordWrap(220)
+                        .maxTextWidth(220)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
@@ -89,7 +90,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of("LEFT")
                         .setFontName("Dialog")
                         .setFontSize(28)
-                        .setAutoWordWrap(260)
+                        .maxTextWidth(260)
                         .setTextAlign(TextAlign.LEFT)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 24, 0, 0)))
         );
@@ -98,7 +99,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of("CENTER")
                         .setFontName("Dialog")
                         .setFontSize(28)
-                        .setAutoWordWrap(260)
+                        .maxTextWidth(260)
                         .setTextAlign(TextAlign.CENTER)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 110, 0, 0)))
         );
@@ -107,7 +108,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of("RIGHT")
                         .setFontName("Dialog")
                         .setFontSize(28)
-                        .setAutoWordWrap(260)
+                        .maxTextWidth(260)
                         .setTextAlign(TextAlign.RIGHT)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 196, 0, 0)))
         );
@@ -123,7 +124,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of("alpha beta gamma delta epsilon zeta eta theta iota kappa")
                         .setFontName("Dialog")
                         .setFontSize(28)
-                        .setAutoWordWrap(220)
+                        .maxTextWidth(220)
                         .setLineHeight(80)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
@@ -166,31 +167,6 @@ public class V2TextElementUiPngTest {
     }
 
     @Test
-    public void shouldOutputJustifyPreviewPng() {
-        EasyPoster poster = createPoster(560, 320);
-
-        poster.addElement(
-                TextElement.of("alpha beta gamma delta epsilon zeta eta theta")
-                        .setFontName("Dialog")
-                        .setFontSize(28)
-                        .setAutoWordWrap(260)
-                        .setTextAlign(TextAlign.JUSTIFY)
-                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 24, 0, 0)))
-        );
-
-        poster.addElement(
-                TextElement.of("alpha beta\ngamma delta")
-                        .setFontName("Dialog")
-                        .setFontSize(28)
-                        .setLayoutWidth(260)
-                        .setTextAlign(TextAlign.JUSTIFY)
-                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24, 180, 0, 0)))
-        );
-
-        poster.asFile("png", "out_v2_text_justify.png");
-    }
-
-    @Test
     public void shouldOutputAlignmentComparisonPreviewPng() {
         EasyPoster poster = createPoster(720, 760);
         String sample = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu";
@@ -206,7 +182,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of(sample)
                         .setFontName("Dialog")
                         .setFontSize(26)
-                        .setAutoWordWrap(320)
+                        .maxTextWidth(320)
                         .setTextAlign(TextAlign.LEFT)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 64, 0, 0)))
         );
@@ -222,7 +198,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of(sample)
                         .setFontName("Dialog")
                         .setFontSize(26)
-                        .setAutoWordWrap(320)
+                        .maxTextWidth(320)
                         .setTextAlign(TextAlign.RIGHT)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 250, 0, 0)))
         );
@@ -238,7 +214,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of(sample)
                         .setFontName("Dialog")
                         .setFontSize(26)
-                        .setAutoWordWrap(320)
+                        .maxTextWidth(320)
                         .setTextAlign(TextAlign.JUSTIFY)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 436, 0, 0)))
         );
@@ -254,7 +230,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of(sample)
                         .setFontName("Dialog")
                         .setFontSize(26)
-                        .setAutoWordWrap(320)
+                        .maxTextWidth(320)
                         .setTextAlign(TextAlign.CENTER)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 622, 0, 0)))
         );
@@ -328,11 +304,44 @@ public class V2TextElementUiPngTest {
                                         .setBackgroundRadius(6))
                         .setFontName("Dialog")
                         .setFontSize(28)
-                        .setAutoWordWrap(220)
+                        .maxTextWidth(220)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
         poster.asFile("png", "out_v2_text_span_background_wrap.png");
+    }
+
+    @Test
+    public void shouldOutputMaxLinesEllipsisPreviewPng() {
+        EasyPoster poster = createPoster(560, 260);
+
+        poster.addElement(
+                TextElement.of("这是一段超长文本的测试，验证自动换行并进行缩略。这是一段超长文本的测试，验证自动换行并进行缩略。这是一段超长文本的测试，验证自动换行并进行缩略。")
+                        .setFontSize(20)
+                        .maxTextWidth(220)
+                        .setMaxLines(2)
+                        .setTextOverflow(TextOverflow.ELLIPSIS)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_max_lines_ellipsis.png");
+    }
+
+    @Test
+    public void shouldOutputMaxLinesClipPreviewPng() {
+        EasyPoster poster = createPoster(560, 260);
+
+        poster.addElement(
+                TextElement.of("这是一段超长文本的测试，验证自动换行并进行缩略。这是一段超长文本的测试，验证自动换行并进行缩略。这是一段超长文本的测试，验证自动换行并进行缩略。")
+                        .setFontName("Dialog")
+                        .setFontSize(20)
+                        .maxTextWidth(220)
+                        .setMaxLines(2)
+                        .setTextOverflow(TextOverflow.CLIP)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_max_lines_clip.png");
     }
 
     /**
@@ -467,7 +476,7 @@ public class V2TextElementUiPngTest {
                         .setFontName("Dialog")
                         .setFontSize(28)
                         .setColor(new Color(52, 52, 52))
-                        .setAutoWordWrap(560)
+                        .maxTextWidth(560)
                         .setLineHeight(54)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(74, 864, 0, 0)))
         );
@@ -520,7 +529,7 @@ public class V2TextElementUiPngTest {
                         .setFontName("Dialog")
                         .setFontStyle(Font.BOLD)
                         .setFontSize(24)
-                        .setAutoWordWrap(520)
+                        .maxTextWidth(520)
                         .setTextAlign(TextAlign.LEFT)
                         .setLineHeight(42)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(760, 320, 0, 0)))
@@ -531,7 +540,7 @@ public class V2TextElementUiPngTest {
                         .setFontName("Dialog")
                         .setFontStyle(Font.BOLD)
                         .setFontSize(24)
-                        .setAutoWordWrap(520)
+                        .maxTextWidth(520)
                         .setTextAlign(TextAlign.CENTER)
                         .setLineHeight(42)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(760, 426, 0, 0)))
@@ -542,7 +551,7 @@ public class V2TextElementUiPngTest {
                         .setFontName("Dialog")
                         .setFontStyle(Font.BOLD)
                         .setFontSize(24)
-                        .setAutoWordWrap(520)
+                        .maxTextWidth(520)
                         .setTextAlign(TextAlign.RIGHT)
                         .setLineHeight(42)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(760, 532, 0, 0)))
@@ -552,7 +561,7 @@ public class V2TextElementUiPngTest {
                 TextElement.of("JUSTIFY\n让多行正文在给定宽度内形成更整齐的版面节奏，适合长段落说明与卡片文案展示")
                         .setFontName("Dialog")
                         .setFontSize(26)
-                        .setAutoWordWrap(520)
+                        .maxTextWidth(520)
                         .setTextAlign(TextAlign.JUSTIFY)
                         .setLineHeight(48)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(760, 648, 0, 0)))
@@ -575,7 +584,7 @@ public class V2TextElementUiPngTest {
                         .setFontName("Dialog")
                         .setFontSize(30)
                         .setColor(new Color(50, 50, 50))
-                        .setAutoWordWrap(520)
+                        .maxTextWidth(520)
                         .setLineHeight(52)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(760, 1012, 0, 0)))
         );
@@ -606,7 +615,7 @@ public class V2TextElementUiPngTest {
                         .setFontName("Dialog")
                         .setFontSize(24)
                         .setColor(new Color(92, 92, 92))
-                        .setAutoWordWrap(1240)
+                        .maxTextWidth(1240)
                         .setLineHeight(40)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(74, 1750, 0, 0)))
         );
