@@ -124,7 +124,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         if (layout == null) {
             layout = pipeline.resolveLayout(this, position, context, posterWidth, posterHeight);
         }
-        return pipeline.render(context, dimension, layout, rotate);
+        return pipeline.render(context, dimension, layout, rotate, this.gradient);
     }
 
     @Override

@@ -6,10 +6,7 @@ import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
-import com.bytefuture.easy.poster.model.Config;
-import com.bytefuture.easy.poster.model.PosterContext;
-import com.bytefuture.easy.poster.model.TextAlign;
-import com.bytefuture.easy.poster.model.TextSpan;
+import com.bytefuture.easy.poster.model.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -331,6 +328,35 @@ public class V2TextElementTest {
         BufferedImage image = render(element, 220, 180);
         Assert.assertTrue(element.getLastLayout().getLines().size() > 1);
         Assert.assertTrue(countColorLikePixels(image, Color.CYAN, 40) > 120);
+    }
+
+    @Test
+    public void shouldRenderBlockGradientForSegmentsWithoutSpanColorOverride() {
+        TextElement element = TextElement.of("Gradient Text")
+                .setFontName("Dialog")
+                .setFontSize(30)
+                .setGradient(Gradient.of(new Color[]{Color.RED, Color.BLUE}, GradientDirection.LEFT_RIGHT))
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        BufferedImage image = render(element, 320, 120);
+        Assert.assertTrue(countColorLikePixels(image, Color.RED, 90) > 20);
+        Assert.assertTrue(countColorLikePixels(image, Color.BLUE, 90) > 20);
+    }
+
+    @Test
+    public void shouldKeepSpanColorOverrideWhenBlockGradientPresent() {
+        TextElement element = TextElement.of(
+                        TextSpan.of("Gradient "),
+                        TextSpan.of("GREEN").setColor(Color.GREEN))
+                .setFontName("Dialog")
+                .setFontSize(30)
+                .setGradient(Gradient.of(new Color[]{Color.RED, Color.BLUE}, GradientDirection.LEFT_RIGHT))
+                .setPosition(RelativePosition.of(Direction.TOP_LEFT));
+
+        BufferedImage image = render(element, 360, 120);
+        int gradientPixels = countColorLikePixels(image, Color.RED, 90) + countColorLikePixels(image, Color.BLUE, 90);
+        Assert.assertTrue(gradientPixels > 20);
+        Assert.assertTrue(countColorLikePixels(image, Color.GREEN, 70) > 20);
     }
 
     @Test

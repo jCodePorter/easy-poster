@@ -3,13 +3,13 @@ package com.bytefuture.easy.poster.element.v2.text.pipeline;
 import com.bytefuture.easy.poster.element.v2.TextElement;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutEngine;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
-import com.bytefuture.easy.poster.element.v2.text.layout.TextMeasurer;
 import com.bytefuture.easy.poster.element.v2.text.render.TextRenderer;
-import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedStyleContext;
+import com.bytefuture.easy.poster.element.v2.text.style.ResolvedStyleContext;
 import com.bytefuture.easy.poster.element.v2.text.style.TextStyleResolver;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
+import com.bytefuture.easy.poster.model.Gradient;
 import com.bytefuture.easy.poster.model.PosterContext;
 
 /**
@@ -61,10 +61,11 @@ public class TextPipeline {
      * @param dimension 元素尺寸
      * @param layout    布局结果
      * @param rotate    旋转角度
+     * @param gradient  渐变色
      * @return 绘制起点
      */
     public Point render(PosterContext context, Dimension dimension,
-                        TextLayoutResult layout, int rotate) {
-        return renderer.render(context, dimension, layout, rotate);
+                        TextLayoutResult layout, int rotate, Gradient gradient) {
+        return renderer.render(context, dimension, layout, rotate, gradient);
     }
 }

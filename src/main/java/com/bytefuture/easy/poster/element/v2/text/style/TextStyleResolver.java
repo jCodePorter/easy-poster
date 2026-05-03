@@ -1,15 +1,12 @@
 package com.bytefuture.easy.poster.element.v2.text.style;
 
 import com.bytefuture.easy.poster.element.v2.TextElement;
-import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedStyleContext;
-import com.bytefuture.easy.poster.element.v2.text.resolve.ResolvedTextRun;
 import com.bytefuture.easy.poster.model.Config;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextSpan;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -127,6 +124,7 @@ public class TextStyleResolver {
         int fontSize = firstNonNull(spanStyle.getFontSize(), blockStyle.getFontSize(), baseFont.getSize());
         // 颜色：片段 > 块级 > 默认颜色
         Color color = firstNonNull(spanStyle.getColor(), blockStyle.getColor(), defaultColor);
+        boolean spanColorOverride = spanStyle.getColor() != null;
         boolean underline = firstNonNull(spanStyle.getUnderline(), blockStyle.getUnderline(), Boolean.FALSE);
         boolean strikeThrough = firstNonNull(spanStyle.getStrikeThrough(), blockStyle.getStrikeThrough(), Boolean.FALSE);
         // 字间距：片段 > 块级 > 默认 0
@@ -135,58 +133,21 @@ public class TextStyleResolver {
         int backgroundPadding = firstNonNull(spanStyle.getBackgroundPadding(), 2);
         int backgroundRadius = firstNonNull(spanStyle.getBackgroundRadius(), 0);
         return new ResolvedTextRun(span.getText(),
-                new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, underline, strikeThrough,
+                new ResolvedTextStyle(new Font(fontName, fontStyle, fontSize), color, spanColorOverride,
+                        underline, strikeThrough,
                         letterSpacing, backgroundColor, backgroundPadding, backgroundRadius));
     }
 
     /**
      * 返回三个值中第一个非空项
      *
-     * @param first  第一优先级值
-     * @param second 第二优先级值
-     * @param third  第三优先级值
+     * @param values 传入数值
      * @param <T>    值类型
      * @return 第一个非空值
      */
-    private <T> T firstNonNull(T first, T second, T third) {
-        if (first != null) {
-            return first;
-        }
-        if (second != null) {
-            return second;
-        }
-        return third;
+    @SafeVarargs
+    private final <T> T firstNonNull(T... values) {
+        return Arrays.stream(values).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
-    /**
-     * 返回三个值中第一个非空项（Integer 转 int）
-     *
-     * @param first  第一优先级值
-     * @param second 第二优先级值
-     * @param third  第三优先级值（默认值）
-     * @return 第一个非空值或默认值
-     */
-    private int firstNonNull(Integer first, Integer second, int third) {
-        if (first != null) {
-            return first;
-        }
-        if (second != null) {
-            return second;
-        }
-        return third;
-    }
-
-    /**
-     * 返回两个值中第一个非空项
-     *
-     * @param first 第一优先级值
-     * @param second 第二优先级值
-     * @return 第一个非空值或默认值
-     */
-    private int firstNonNull(Integer first, int second) {
-        if (first != null) {
-            return first;
-        }
-        return second;
-    }
 }

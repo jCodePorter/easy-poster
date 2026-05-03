@@ -4,6 +4,7 @@ import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
+import com.bytefuture.easy.poster.model.Gradient;
 import com.bytefuture.easy.poster.model.PosterContext;
 
 import java.awt.*;
@@ -26,11 +27,14 @@ public class TextRenderer {
      * @param dimension 元素尺寸
      * @param layout    文本布局结果
      * @param rotate    旋转角度
+     * @param gradient  文本块级渐变
      * @return 文本绘制起点
      */
-    public Point render(PosterContext context, Dimension dimension, TextLayoutResult layout, int rotate) {
+    public Point render(PosterContext context, Dimension dimension, TextLayoutResult layout, int rotate, Gradient gradient) {
         Graphics2D graphics = context.getGraphics();
         AffineTransform original = graphics.getTransform();
+        Paint originalPaint = graphics.getPaint();
+        Color originalColor = graphics.getColor();
         if (rotate != 0) {
             double centerX = dimension.getPoint().getX() + dimension.getWidth() / 2.0d;
             double centerY = dimension.getPoint().getY() + dimension.getHeight() / 2.0d;
@@ -44,7 +48,7 @@ public class TextRenderer {
             drawLineBackgrounds(graphics, line, lineStartX, baselineY, layout.getLineHeight());
             for (TextLine.Segment segment : line.getSegments()) {
                 graphics.setFont(segment.getStyle().getFont());
-                graphics.setColor(segment.getStyle().getColor());
+                applyTextPaint(graphics, segment, dimension, gradient);
                 drawRun(graphics, segment, lineStartX + segment.getOffsetX(),
                         baselineY, layout.getLineHeight());
             }
@@ -53,7 +57,25 @@ public class TextRenderer {
         if (rotate != 0) {
             graphics.setTransform(original);
         }
+        graphics.setPaint(originalPaint);
+        graphics.setColor(originalColor);
         return dimension.getPoint();
+    }
+
+    /**
+     * 设置文本填充画笔
+     *
+     * @param graphics  图形上下文
+     * @param segment   当前文本片段
+     * @param dimension 文本元素尺寸
+     * @param gradient  文本块级渐变
+     */
+    private void applyTextPaint(Graphics2D graphics, TextLine.Segment segment, Dimension dimension, Gradient gradient) {
+        if (gradient != null && !segment.getStyle().isSpanColorOverride()) {
+            graphics.setPaint(gradient.toGradient(dimension));
+            return;
+        }
+        graphics.setColor(segment.getStyle().getColor());
     }
 
     /**
@@ -66,7 +88,6 @@ public class TextRenderer {
      */
     private void drawRun(Graphics2D graphics, TextLine.Segment segment, int currentX, int baselineY, int lineHeight) {
         graphics.setFont(segment.getStyle().getFont());
-        graphics.setColor(segment.getStyle().getColor());
 
         int letterSpacing = segment.getLetterSpacing();
 

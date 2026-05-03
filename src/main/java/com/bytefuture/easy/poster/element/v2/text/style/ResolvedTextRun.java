@@ -1,6 +1,5 @@
-package com.bytefuture.easy.poster.element.v2.text.resolve;
+package com.bytefuture.easy.poster.element.v2.text.style;
 
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextStyle;
 import lombok.Getter;
 
 import java.util.Objects;

@@ -25,6 +25,11 @@ public class ResolvedTextStyle {
     private final Color color;
 
     /**
+     * 是否来自 span 显式颜色配置
+     */
+    private final boolean spanColorOverride;
+
+    /**
      * 是否绘制下划线
      */
     private final boolean underline;
@@ -59,14 +64,17 @@ public class ResolvedTextStyle {
      *
      * @param font          最终字体
      * @param color         最终颜色
-     * @param underline     是否绘制下划线
-     * @param strikeThrough 是否绘制删除线
-     * @param letterSpacing 字间距
+     * @param spanColorOverride 是否来自 span 显式颜色配置
+     * @param underline         是否绘制下划线
+     * @param strikeThrough     是否绘制删除线
+     * @param letterSpacing     字间距
      */
-    public ResolvedTextStyle(Font font, Color color, boolean underline, boolean strikeThrough, int letterSpacing,
+    public ResolvedTextStyle(Font font, Color color, boolean spanColorOverride,
+                             boolean underline, boolean strikeThrough, int letterSpacing,
                              Color backgroundColor, int backgroundPadding, int backgroundRadius) {
         this.font = Objects.requireNonNull(font, "font");
         this.color = Objects.requireNonNull(color, "color");
+        this.spanColorOverride = spanColorOverride;
         this.underline = underline;
         this.strikeThrough = strikeThrough;
         this.letterSpacing = letterSpacing;

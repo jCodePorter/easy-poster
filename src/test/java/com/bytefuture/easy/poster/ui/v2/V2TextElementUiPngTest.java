@@ -5,6 +5,8 @@ import com.bytefuture.easy.poster.element.v2.TextElement;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
+import com.bytefuture.easy.poster.model.Gradient;
+import com.bytefuture.easy.poster.model.GradientDirection;
 import com.bytefuture.easy.poster.model.TextAlign;
 import com.bytefuture.easy.poster.model.TextSpan;
 import org.junit.Test;
@@ -143,6 +145,24 @@ public class V2TextElementUiPngTest {
         );
 
         poster.asFile("png", "out_v2_text_decoration.png");
+    }
+
+    @Test
+    public void shouldOutputGradientPreviewPng() {
+        EasyPoster poster = createPoster(640, 220);
+
+        poster.addElement(
+                TextElement.of(TextSpan.of("Gradient "),
+                                TextSpan.of("Color"))
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(42)
+                        .setGradient(Gradient.of(
+                                new Color[]{new Color(255, 96, 72), new Color(86, 92, 255)},
+                                GradientDirection.LEFT_RIGHT))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
+        );
+
+        poster.asFile("png", "out_v2_text_gradient.png");
     }
 
     @Test
