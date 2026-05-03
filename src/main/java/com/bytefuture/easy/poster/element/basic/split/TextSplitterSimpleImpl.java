@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.v2.text.split;
+package com.bytefuture.easy.poster.element.basic.split;
 
 import java.awt.*;
 import java.util.ArrayList;

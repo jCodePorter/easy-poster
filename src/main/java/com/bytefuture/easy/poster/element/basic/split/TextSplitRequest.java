@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.v2.text.split;
+package com.bytefuture.easy.poster.element.basic.split;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,23 +14,33 @@ import java.awt.*;
 public class TextSplitRequest {
 
     /**
-     * 原始文本。
+     * 原始文本
      */
     private final String text;
 
-    /** 允许的最大宽度。 */
+    /**
+     * 允许的最大宽度
+     */
     private final int maxWidth;
 
-    /** 当前字体度量信息。 */
+    /**
+     * 当前字体度量信息
+     */
     private final FontMetrics fontMetrics;
 
-    /** 是否裁掉新行行首空白。 */
+    /**
+     * 是否裁掉新行行首空白
+     */
     private final boolean trimLeadingWhitespace;
 
-    /** 是否裁掉行尾空白。 */
+    /**
+     * 是否裁掉行尾空白
+     */
     private final boolean trimTrailingWhitespace;
 
-    /** 是否保留显式空行。 */
+    /**
+     * 是否保留显式空行
+     */
     private final boolean preserveEmptyLine;
 
     private TextSplitRequest(String text, int maxWidth, FontMetrics fontMetrics,
@@ -47,8 +57,8 @@ public class TextSplitRequest {
     /**
      * 创建默认拆分请求。
      *
-     * @param text 原始文本
-     * @param maxWidth 最大宽度
+     * @param text        原始文本
+     * @param maxWidth    最大宽度
      * @param fontMetrics 字体度量
      * @return 拆分请求
      */

@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.v2.text.split;
+package com.bytefuture.easy.poster.element.basic.split;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,16 +7,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 文本拆分结果。
+ * 文本拆分结果
  */
 @Getter
 @Setter
 public class TextSplitResult {
 
-    /** 分行结果列表。 */
+    /**
+     * 分行结果列表
+     */
     private final List<SplitTextInfo> lines;
 
-    /** 结果中最宽一行的宽度。 */
+    /**
+     * 结果中最宽一行的宽度
+     */
     private final int maxLineWidth;
 
     private TextSplitResult(List<SplitTextInfo> lines, int maxLineWidth) {

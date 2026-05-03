@@ -14,11 +14,35 @@ import java.awt.*;
  */
 @Getter
 public class TextBlockStyle extends BaseTextStyle {
+
+    /**
+     * 字体
+     */
     private Font font;
+
+    /**
+     * 基线
+     */
     private BaseLine baseLine = BaseLine.BASE_LINE;
+
+    /**
+     * 文本对齐方式
+     */
     private TextAlign textAlign = TextAlign.LEFT;
+
+    /**
+     * 是否自动换行
+     */
     private boolean autoWordWrap = false;
+
+    /**
+     * 文本最大宽度
+     */
     private int maxTextWidth = 0;
+
+    /**
+     * 行高
+     */
     private Integer lineHeight;
 
     public TextBlockStyle setColor(Color color) {
