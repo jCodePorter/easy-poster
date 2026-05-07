@@ -2,15 +2,20 @@ package com.bytefuture.easy.poster.element.v2;
 
 import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
 import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.element.v2.text.layout.VerticalTextLayoutResult;
 import com.bytefuture.easy.poster.element.v2.text.pipeline.TextPipeline;
 import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
 import com.bytefuture.easy.poster.element.v2.text.style.TextOverflow;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.BaseLine;
+import com.bytefuture.easy.poster.model.ColumnDirection;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextAlign;
 import com.bytefuture.easy.poster.model.TextSpan;
+import com.bytefuture.easy.poster.model.VerticalAlign;
+import com.bytefuture.easy.poster.model.WritingMode;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.awt.*;
@@ -51,7 +56,17 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
     /**
      * 最近一次布局结果，供渲染阶段复用
      */
-    private transient TextLayoutResult lastLayout;
+    @Getter(AccessLevel.NONE)
+    private transient Object lastLayout;
+
+    /**
+     * 获取横排布局结果（仅在 HORIZONTAL 模式下有效）
+     *
+     * @return 横排布局结果
+     */
+    public TextLayoutResult getLastLayout() {
+        return (TextLayoutResult) lastLayout;
+    }
 
     /**
      * 使用纯文本内容创建文本元素
@@ -114,18 +129,25 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
 
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
-        TextLayoutResult layout = pipeline.resolveLayout(this, position, context, posterWidth, posterHeight);
+        Object layout = pipeline.resolveLayout(this, position, context, posterWidth, posterHeight);
         this.lastLayout = layout;
-        return layout.toDimension(rotate);
+        if (layout instanceof TextLayoutResult) {
+            return ((TextLayoutResult) layout).toDimension(rotate);
+        }
+        return ((VerticalTextLayoutResult) layout).toDimension(rotate);
     }
 
     @Override
     public Point doRender(PosterContext context, Dimension dimension, int posterWidth, int posterHeight) {
-        TextLayoutResult layout = lastLayout;
+        Object layout = lastLayout;
         if (layout == null) {
             layout = pipeline.resolveLayout(this, position, context, posterWidth, posterHeight);
         }
-        return pipeline.render(context, dimension, layout, rotate, this.gradient);
+        WritingMode writingMode = blockStyle.getWritingMode();
+        if (writingMode == WritingMode.VERTICAL) {
+            return pipeline.renderVertical(context, dimension, (VerticalTextLayoutResult) layout, rotate, this.gradient, blockStyle.getColumnDirection());
+        }
+        return pipeline.render(context, dimension, (TextLayoutResult) layout, rotate, this.gradient);
     }
 
     @Override
@@ -295,6 +317,68 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      */
     public TextElement setLetterSpacing(Integer letterSpacing) {
         this.blockStyle.setLetterSpacing(letterSpacing);
+        return this;
+    }
+
+    /**
+     * 设置书写模式为竖排
+     *
+     * @return 当前元素
+     */
+    public TextElement vertical() {
+        this.blockStyle.setWritingMode(WritingMode.VERTICAL);
+        return this;
+    }
+
+    /**
+     * 设置书写模式为横排
+     *
+     * @return 当前元素
+     */
+    public TextElement horizontal() {
+        this.blockStyle.setWritingMode(WritingMode.HORIZONTAL);
+        return this;
+    }
+
+    /**
+     * 设置竖排列方向为从右到左
+     *
+     * @return 当前元素
+     */
+    public TextElement columnRightToLeft() {
+        this.blockStyle.setColumnDirection(ColumnDirection.RIGHT_TO_LEFT);
+        return this;
+    }
+
+    /**
+     * 设置竖排列方向为从左到右
+     *
+     * @return 当前元素
+     */
+    public TextElement columnLeftToRight() {
+        this.blockStyle.setColumnDirection(ColumnDirection.LEFT_TO_RIGHT);
+        return this;
+    }
+
+    /**
+     * 设置竖排最大列高
+     *
+     * @param maxVerticalWidth 最大列高
+     * @return 当前元素
+     */
+    public TextElement maxVerticalWidth(int maxVerticalWidth) {
+        this.blockStyle.maxVerticalWidth(maxVerticalWidth);
+        return this;
+    }
+
+    /**
+     * 设置竖排列内对齐方式
+     *
+     * @param verticalAlign 列内对齐方式
+     * @return 当前元素
+     */
+    public TextElement verticalAlign(VerticalAlign verticalAlign) {
+        this.blockStyle.setVerticalAlign(verticalAlign);
         return this;
     }
 }

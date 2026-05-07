@@ -3,7 +3,10 @@ package com.bytefuture.easy.poster.element.v2.text.style;
 import cn.augrain.easy.tool.support.ColorUtils;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.model.BaseLine;
+import com.bytefuture.easy.poster.model.ColumnDirection;
 import com.bytefuture.easy.poster.model.TextAlign;
+import com.bytefuture.easy.poster.model.VerticalAlign;
+import com.bytefuture.easy.poster.model.WritingMode;
 import lombok.Getter;
 
 import java.awt.*;
@@ -49,6 +52,26 @@ public class TextBlockStyle extends BaseTextStyle {
      * 文本超出最大行数后的处理方式
      */
     private TextOverflow textOverflow = TextOverflow.CLIP;
+
+    /**
+     * 书写模式
+     */
+    private WritingMode writingMode = WritingMode.HORIZONTAL;
+
+    /**
+     * 竖排列方向（仅在 VERTICAL 模式下生效）
+     */
+    private ColumnDirection columnDirection = ColumnDirection.RIGHT_TO_LEFT;
+
+    /**
+     * 竖排最大列高（null=不限制，仅在 VERTICAL 模式下生效）
+     */
+    private Integer maxVerticalWidth;
+
+    /**
+     * 竖排列内对齐方式（仅在 VERTICAL 模式下生效）
+     */
+    private VerticalAlign verticalAlign = VerticalAlign.TOP;
 
     public TextBlockStyle setColor(Color color) {
         if (color == null) {
@@ -198,6 +221,62 @@ public class TextBlockStyle extends BaseTextStyle {
             throw new PosterException("letterSpacing must be greater than or equal to 0");
         }
         super.setLetterSpacing(letterSpacing);
+        return this;
+    }
+
+    /**
+     * 设置书写模式
+     *
+     * @param writingMode 书写模式
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setWritingMode(WritingMode writingMode) {
+        if (writingMode == null) {
+            throw new PosterException("writingMode can not be null");
+        }
+        this.writingMode = writingMode;
+        return this;
+    }
+
+    /**
+     * 设置竖排列方向
+     *
+     * @param columnDirection 列方向
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setColumnDirection(ColumnDirection columnDirection) {
+        if (columnDirection == null) {
+            throw new PosterException("columnDirection can not be null");
+        }
+        this.columnDirection = columnDirection;
+        return this;
+    }
+
+    /**
+     * 设置竖排最大列高
+     *
+     * @param maxVerticalWidth 最大列高，必须大于 0
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle maxVerticalWidth(Integer maxVerticalWidth) {
+        if (maxVerticalWidth != null && maxVerticalWidth <= 0) {
+            throw new PosterException("maxVerticalWidth must be greater than 0");
+        }
+        this.maxVerticalWidth = maxVerticalWidth;
+        return this;
+    }
+
+    /**
+     * 设置竖排列内对齐方式
+     *
+     * @param verticalAlign 列内对齐方式
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setVerticalAlign(VerticalAlign verticalAlign) {
+        if (verticalAlign == null) {
+            throw new PosterException("verticalAlign can not be null");
+        }
+        this.verticalAlign = verticalAlign;
         return this;
     }
 }
