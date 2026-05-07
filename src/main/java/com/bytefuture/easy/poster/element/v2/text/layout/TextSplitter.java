@@ -6,7 +6,9 @@ import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextStyle;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文本拆分，将输入的TextSpan逐行拆分
@@ -17,6 +19,18 @@ import java.util.List;
 public class TextSplitter {
 
     private static final TextMeasurer textMeasurer = new TextMeasurer();
+
+    /**
+     * 字符基础宽度缓存（不含字间距），减少重复调用 FontMetrics
+     */
+    private static final int CHAR_WIDTH_CACHE_MAX_SIZE = 1024;
+
+    private static final Map<String, Integer> charWidthCache = new LinkedHashMap<String, Integer>(CHAR_WIDTH_CACHE_MAX_SIZE, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Integer> eldest) {
+            return size() > CHAR_WIDTH_CACHE_MAX_SIZE;
+        }
+    };
 
     /**
      * 根据宽度限制将文本运行单元切分为多行
@@ -39,8 +53,8 @@ public class TextSplitter {
         for (Token token : tokens) {
             // 显式换行符优先级最高
             if (token.type == TokenType.NEWLINE) {
-                List<Token> trimmed = trimTrailingSpaces(current);
-                lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
+                TrimResult trim = trimTrailingSpaces(current, currentWidth);
+                lines.add(buildLine(trim.tokens, trim.width));
                 current = new ArrayList<>();
                 currentWidth = 0;
                 continue;
@@ -61,8 +75,8 @@ public class TextSplitter {
             // 单个 token 自身已经超过整行宽度时，必须进一步拆分
             if (token.width > widthLimit) {
                 if (!current.isEmpty()) {
-                    List<Token> trimmed = trimTrailingSpaces(current);
-                    lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
+                    TrimResult trim = trimTrailingSpaces(current, currentWidth);
+                    lines.add(buildLine(trim.tokens, trim.width));
                     current = new ArrayList<>();
                     currentWidth = 0;
                 }
@@ -88,16 +102,16 @@ public class TextSplitter {
 
             // 超宽的是空格时，直接在空格处分行
             if (token.type == TokenType.SPACE) {
-                List<Token> trimmed = trimTrailingSpaces(current);
-                lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
+                TrimResult trim = trimTrailingSpaces(current, currentWidth);
+                lines.add(buildLine(trim.tokens, trim.width));
                 current = new ArrayList<>();
                 currentWidth = 0;
                 continue;
             }
 
             // 普通单词导致超宽：先提交当前行，再把该单词作为下一行的起点
-            List<Token> trimmed = trimTrailingSpaces(current);
-            lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
+            TrimResult trim = trimTrailingSpaces(current, currentWidth);
+            lines.add(buildLine(trim.tokens, trim.width));
             current = new ArrayList<>();
             current.add(token);
             currentWidth = token.width;
@@ -105,8 +119,8 @@ public class TextSplitter {
 
         // 循环结束后仍然可能有尚未提交的尾行
         if (!current.isEmpty() || lines.isEmpty()) {
-            List<Token> trimmed = trimTrailingSpaces(current);
-            lines.add(buildLine(trimmed, calculateTokensWidth(trimmed)));
+            TrimResult trim = trimTrailingSpaces(current, currentWidth);
+            lines.add(buildLine(trim.tokens, trim.width));
         }
         return lines;
     }
@@ -178,11 +192,12 @@ public class TextSplitter {
         StringBuilder builder = new StringBuilder();
         int width = 0;
         int letterSpacing = token.letterSpacing;
+        Font font = token.style.getFont();
         for (int i = 0; i < token.text.length(); ) {
             int codePoint = token.text.codePointAt(i);
             String ch = new String(Character.toChars(codePoint));
             i += Character.charCount(codePoint);
-            int charWidth = textMeasurer.measureWidthWithSpacing(graphics, ch, token.style.getFont(), letterSpacing);
+            int charWidth = getCachedCharBaseWidth(graphics, ch, font);
             if (builder.length() > 0 && width + charWidth > widthLimit) {
                 pieces.add(new Token(TokenType.WORD, builder.toString(), token.style, width, letterSpacing));
                 builder.setLength(0);
@@ -198,33 +213,22 @@ public class TextSplitter {
     }
 
     /**
-     * 去除行尾空白 token
+     * 去除行尾空白 token 并计算去除后的宽度
      *
      * @param tokens token 列表
-     * @return 去除末尾空白后的 token 列表
+     * @param totalWidth 包含空白在内的总宽度
+     * @return trim 结果
      */
-    private List<Token> trimTrailingSpaces(List<Token> tokens) {
+    private TrimResult trimTrailingSpaces(List<Token> tokens, int totalWidth) {
         List<Token> result = new ArrayList<>(tokens);
+        int width = totalWidth;
         while (!result.isEmpty() && result.get(result.size() - 1).type == TokenType.SPACE) {
-            result.remove(result.size() - 1);
+            width -= result.remove(result.size() - 1).width;
         }
-        return result;
+        return new TrimResult(result, width);
     }
 
-    /**
-     * 计算 token 列表的总宽度
-     *
-     * @param tokens token 列表
-     * @return 总宽度
-     */
-    private int calculateTokensWidth(List<Token> tokens) {
-        int width = 0;
-        for (Token token : tokens) {
-            width += token.width;
-        }
-        return width;
-    }
-
+    
     /**
      * 将一行 token 重新组装为 TextLine
      */
@@ -262,6 +266,35 @@ public class TextSplitter {
                 && left.isUnderline() == right.isUnderline()
                 && left.isStrikeThrough() == right.isStrikeThrough()
                 && left.getLetterSpacing() == right.getLetterSpacing();
+    }
+
+    /**
+     * 获取单个字符的基础宽度（不含字间距），优先从缓存读取
+     *
+     * @param graphics 图形上下文
+     * @param ch       单个字符
+     * @param font     测量字体
+     * @return 字符基础宽度
+     */
+    private int getCachedCharBaseWidth(Graphics2D graphics, String ch, Font font) {
+        String cacheKey = font.getName() + "#" + font.getStyle() + "#" + font.getSize() + "#" + ch;
+        Integer cached = charWidthCache.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+        int width = graphics.getFontMetrics(font).stringWidth(ch);
+        charWidthCache.put(cacheKey, width);
+        return width;
+    }
+
+    /** trimTrailingSpaces 的返回结果 */
+    private static class TrimResult {
+        final List<Token> tokens;
+        final int width;
+        TrimResult(List<Token> tokens, int width) {
+            this.tokens = tokens;
+            this.width = width;
+        }
     }
 
     public static final class Token {
