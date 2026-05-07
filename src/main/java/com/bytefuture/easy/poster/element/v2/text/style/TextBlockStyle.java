@@ -64,6 +64,11 @@ public class TextBlockStyle extends BaseTextStyle {
     private ColumnDirection columnDirection = ColumnDirection.RIGHT_TO_LEFT;
 
     /**
+     * 竖排列间距（列与列之间的左右留白，仅在 VERTICAL 模式下生效）
+     */
+    private int columnSpacing = 10;
+
+    /**
      * 竖排最大列高（null=不限制，仅在 VERTICAL 模式下生效）
      */
     private Integer maxVerticalWidth;
@@ -277,6 +282,20 @@ public class TextBlockStyle extends BaseTextStyle {
             throw new PosterException("verticalAlign can not be null");
         }
         this.verticalAlign = verticalAlign;
+        return this;
+    }
+
+    /**
+     * 设置竖排列间距（列与列之间的左右留白）
+     *
+     * @param columnSpacing 列间距，单位为像素，必须大于等于 0
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setColumnSpacing(Integer columnSpacing) {
+        if (columnSpacing != null && columnSpacing < 0) {
+            throw new PosterException("columnSpacing must be greater than or equal to 0");
+        }
+        this.columnSpacing = columnSpacing;
         return this;
     }
 }

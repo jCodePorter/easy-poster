@@ -30,6 +30,9 @@ public class VerticalTextLayoutResult {
     /** 统一列宽/列间距（= lineHeight） */
     private final int lineHeight;
 
+    /** 列间距（列与列之间的左右留白） */
+    private final int columnSpacing;
+
     /** 列内基线偏移 */
     private final int baselineOffset;
 
@@ -40,11 +43,12 @@ public class VerticalTextLayoutResult {
     private final List<TextColumn> columns;
 
     public VerticalTextLayoutResult(Point point, int width, int height, int lineHeight,
-                                    int baselineOffset, int yOffset, List<TextColumn> columns) {
+                                    int columnSpacing, int baselineOffset, int yOffset, List<TextColumn> columns) {
         this.point = point;
         this.width = width;
         this.height = height;
         this.lineHeight = lineHeight;
+        this.columnSpacing = columnSpacing;
         this.baselineOffset = baselineOffset;
         this.yOffset = yOffset;
         this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
@@ -53,7 +57,7 @@ public class VerticalTextLayoutResult {
     /** 创建空布局结果 */
     public static VerticalTextLayoutResult empty(Position position) {
         Point point = position == null ? Point.ORIGIN_COORDINATE : position.calculate(0, 0, 0, 0);
-        return new VerticalTextLayoutResult(point, 0, 0, 0, 0, 0, Collections.emptyList());
+        return new VerticalTextLayoutResult(point, 0, 0, 0, 0, 0, 0, Collections.emptyList());
     }
 
     /** 转换为元素尺寸对象 */

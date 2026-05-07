@@ -1,6 +1,8 @@
 package com.bytefuture.easy.poster.element.v2.text.layout;
 
-import com.bytefuture.easy.poster.element.v2.text.style.*;
+import com.bytefuture.easy.poster.element.v2.text.style.ResolvedStyleContext;
+import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextSpan;
+import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
 import com.bytefuture.easy.poster.geometry.AbsolutePosition;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
@@ -42,8 +44,9 @@ public class VerticalTextLayoutEngine {
         Font baseFont = styleContext.getBaseFont();
         TextBlockStyle blockStyle = styleContext.getBlockStyle();
 
-        // 计算列宽（= lineHeight）
+        // 计算列宽（= lineHeight）和列间距
         int lineHeight = resolveLineHeight(graphics, resolvedTextSpans, baseFont, blockStyle);
+        int columnSpacing = blockStyle.getColumnSpacing();
         int baselineOffset = resolveBaselineOffset(graphics, resolvedTextSpans, baseFont);
 
         // 拆列
@@ -58,7 +61,7 @@ public class VerticalTextLayoutEngine {
         columns = alignColumns(columns, verticalAlign, heightLimit);
 
         // 计算布局宽高
-        int totalWidth = columns.size() * lineHeight;
+        int totalWidth = columns.size() * lineHeight + Math.max(0, columns.size() - 1) * columnSpacing;
         int layoutHeight = heightLimit != null && heightLimit > 0
                 ? heightLimit
                 : resolveMaxColumnHeight(columns);
@@ -71,7 +74,7 @@ public class VerticalTextLayoutEngine {
                 ? blockStyle.getBaseLine().getOffset(graphics.getFontMetrics(baseFont), lineHeight)
                 : baselineOffset;
 
-        return new VerticalTextLayoutResult(point, totalWidth, layoutHeight, lineHeight, baselineOffset, drawOffsetY, columns);
+        return new VerticalTextLayoutResult(point, totalWidth, layoutHeight, lineHeight, columnSpacing, baselineOffset, drawOffsetY, columns);
     }
 
     /** 为每列设置宽度 */

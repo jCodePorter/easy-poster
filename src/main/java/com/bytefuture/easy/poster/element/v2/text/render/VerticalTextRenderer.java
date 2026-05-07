@@ -49,6 +49,8 @@ public class VerticalTextRenderer {
         int startX = dimension.getPoint().getX();
         int startY = dimension.getPoint().getY() + dimension.getYOffset();
         int lineHeight = layout.getLineHeight();
+        int columnSpacing = layout.getColumnSpacing();
+        int columnStep = lineHeight + columnSpacing;
 
         for (int i = 0; i < layout.getColumns().size(); i++) {
             TextColumn column = layout.getColumns().get(i);
@@ -56,10 +58,10 @@ public class VerticalTextRenderer {
             int columnX;
             if (columnDirection == ColumnDirection.RIGHT_TO_LEFT) {
                 // 从右到左：第0列在最右侧
-                columnX = startX + layout.getWidth() - (i + 1) * lineHeight;
+                columnX = startX + layout.getWidth() - lineHeight - i * columnStep;
             } else {
                 // 从左到右：第0列在最左侧
-                columnX = startX + i * lineHeight;
+                columnX = startX + i * columnStep;
             }
 
             for (CharCell cell : column.getCharacters()) {

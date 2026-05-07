@@ -381,4 +381,15 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         this.blockStyle.setVerticalAlign(verticalAlign);
         return this;
     }
+
+    /**
+     * 设置竖排列间距（列与列之间的左右留白）
+     *
+     * @param columnSpacing 列间距，单位为像素
+     * @return 当前元素
+     */
+    public TextElement columnSpacing(int columnSpacing) {
+        this.blockStyle.setColumnSpacing(columnSpacing);
+        return this;
+    }
 }
