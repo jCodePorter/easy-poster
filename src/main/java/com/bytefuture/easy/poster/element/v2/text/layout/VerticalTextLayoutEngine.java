@@ -23,6 +23,7 @@ public class VerticalTextLayoutEngine {
 
     private final TextMeasurer measurer = new TextMeasurer();
     private final VerticalTextSplitter splitter = new VerticalTextSplitter();
+    private final PunctuationAdjuster punctuationAdjuster = new PunctuationAdjuster();
 
     /**
      * 计算竖排文本布局结果
@@ -52,6 +53,9 @@ public class VerticalTextLayoutEngine {
         // 拆列
         Integer heightLimit = blockStyle.getMaxVerticalWidth();
         List<TextColumn> columns = splitter.splitColumns(graphics, resolvedTextSpans, heightLimit);
+
+        // 避头尾调整
+        columns = punctuationAdjuster.adjust(columns);
 
         // 为每列赋宽度
         columns = assignColumnWidths(columns, lineHeight);
