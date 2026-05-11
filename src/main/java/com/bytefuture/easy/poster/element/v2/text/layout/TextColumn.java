@@ -42,6 +42,25 @@ public class TextColumn {
         return new TextColumn(this.text, this.width, this.height, offsetX, characters);
     }
 
+    /**
+     * 根据新的 CharCell 列表重建 TextColumn（重新计算 text、height）
+     * squeezed 字符不计入列高度
+     *
+     * @param newCharacters 新的字符单元列表
+     * @return 重建后的 TextColumn
+     */
+    public TextColumn rebuild(List<CharCell> newCharacters) {
+        StringBuilder textBuilder = new StringBuilder();
+        int totalHeight = 0;
+        for (CharCell cell : newCharacters) {
+            textBuilder.append(cell.getCharacter());
+            if (!cell.isSqueezed()) {
+                totalHeight += cell.getHeight();
+            }
+        }
+        return new TextColumn(textBuilder.toString(), this.width, totalHeight, this.offsetX, newCharacters);
+    }
+
     /** 创建空列 */
     public static TextColumn empty() {
         return new TextColumn("", 0, 0, 0, Collections.emptyList());

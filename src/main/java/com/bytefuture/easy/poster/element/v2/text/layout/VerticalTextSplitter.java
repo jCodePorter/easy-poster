@@ -55,6 +55,24 @@ public class VerticalTextSplitter {
                     continue;
                 }
 
+                // 省略号单元识别：连续两个 U+2026 组合为一个单元
+                if (codePoint == 0x2026 && i < text.length() && text.codePointAt(i) == 0x2026) {
+                    i += Character.charCount(0x2026);
+                    int ellipsisWidth = measurer.measureWidth(graphics, "……", style.getFont());
+                    int singleCharHeight = measurer.getFontHeight(graphics, style.getFont());
+                    int ellipsisHeight = singleCharHeight * 2;
+
+                    if (heightConstraint > 0 && currentHeight + ellipsisHeight > heightConstraint && !currentCells.isEmpty()) {
+                        columns.add(buildColumn(currentCells, currentHeight));
+                        currentCells = new ArrayList<>();
+                        currentHeight = 0;
+                    }
+
+                    currentCells.add(new CharCellBuilder("……", style, currentHeight, ellipsisWidth, ellipsisHeight, true));
+                    currentHeight += ellipsisHeight;
+                    continue;
+                }
+
                 int charWidth = measurer.measureWidth(graphics, ch, style.getFont());
                 int charHeight = measurer.getFontHeight(graphics, style.getFont());
 
@@ -87,7 +105,7 @@ public class VerticalTextSplitter {
         List<CharCell> cells = new ArrayList<>(builders.size());
         for (CharCellBuilder b : builders) {
             textBuilder.append(b.character);
-            cells.add(new CharCell(b.character, b.style, b.offsetY, b.width, b.height));
+            cells.add(new CharCell(b.character, b.style, b.offsetY, b.width, b.height, false, false, b.ellipsisUnit));
         }
         return new TextColumn(textBuilder.toString(), 0, totalHeight, 0, cells);
     }
@@ -99,13 +117,19 @@ public class VerticalTextSplitter {
         final int offsetY;
         final int width;
         final int height;
+        final boolean ellipsisUnit;
 
         CharCellBuilder(String character, ResolvedTextStyle style, int offsetY, int width, int height) {
+            this(character, style, offsetY, width, height, false);
+        }
+
+        CharCellBuilder(String character, ResolvedTextStyle style, int offsetY, int width, int height, boolean ellipsisUnit) {
             this.character = character;
             this.style = style;
             this.offsetY = offsetY;
             this.width = width;
             this.height = height;
+            this.ellipsisUnit = ellipsisUnit;
         }
     }
 }
