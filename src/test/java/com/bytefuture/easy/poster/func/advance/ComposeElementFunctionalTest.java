@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 
 /**
- * @author Codex
+ * @author biaoy
  * @since 2026/04/29
  */
 public class ComposeElementFunctionalTest {

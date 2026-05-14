@@ -9,6 +9,8 @@ import com.bytefuture.easy.poster.geometry.Position;
 import com.bytefuture.easy.poster.model.Gradient;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.RelativeDirection;
+import com.bytefuture.easy.poster.model.FloatType;
+import com.bytefuture.easy.poster.model.ClearType;
 import lombok.Getter;
 
 import java.awt.*;
@@ -40,6 +42,16 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
      * 渐变设置
      */
     protected Gradient gradient;
+
+    /**
+     * 浮动类型
+     */
+    protected FloatType floatType = FloatType.NONE;
+
+    /**
+     * 清除浮动类型
+     */
+    protected ClearType clearType = ClearType.NONE;
 
     /**
      * 颜色
@@ -81,6 +93,28 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
 
     public T setGradient(Gradient gradient) {
         this.gradient = gradient;
+        return (T) this;
+    }
+
+    /**
+     * 设置浮动类型
+     *
+     * @param floatType 浮动类型
+     * @return 当前元素
+     */
+    public T setFloatType(FloatType floatType) {
+        this.floatType = floatType;
+        return (T) this;
+    }
+
+    /**
+     * 设置清除浮动类型
+     *
+     * @param clearType 清除浮动类型
+     * @return 当前元素
+     */
+    public T setClearType(ClearType clearType) {
+        this.clearType = clearType;
         return (T) this;
     }
 

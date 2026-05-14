@@ -3,7 +3,7 @@ package com.bytefuture.easy.poster.model;
 /**
  * 容器对齐方式
  *
- * @author Codex
+ * @author biaoy
  * @since 2026/05/01
  */
 public enum ContainerAlign {

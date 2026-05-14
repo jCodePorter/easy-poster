@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * 容器内部绝对定位
  *
- * @author Codex
+ * @author biaoy
  * @since 2026/05/01
  */
 public class LocalAbsolutePosition implements Position {

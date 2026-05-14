@@ -10,6 +10,8 @@ import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.ContainerAlign;
 import com.bytefuture.easy.poster.model.ContainerLayoutMode;
 import com.bytefuture.easy.poster.model.PosterContext;
+import com.bytefuture.easy.poster.model.FloatType;
+import com.bytefuture.easy.poster.model.ClearType;
 
 import java.awt.*;
 import java.awt.geom.Area;
@@ -22,7 +24,7 @@ import java.util.Map;
 /**
  * 容器元素
  *
- * @author Codex
+ * @author biaoy
  * @since 2026/05/01
  */
 public class ContainerElement extends AbstractRepeatableElement<ContainerElement> implements IElement {
@@ -106,6 +108,23 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
      * 交叉轴对齐方式
      */
     private ContainerAlign alignItems = ContainerAlign.START;
+
+    /**
+     * 浮动布局的行信息
+     */
+    private static class FloatRow {
+        int y;
+        int height;
+        int leftAvailable;
+        int rightAvailable;
+
+        FloatRow(int y, int width) {
+            this.y = y;
+            this.height = 0;
+            this.leftAvailable = 0;
+            this.rightAvailable = width;
+        }
+    }
 
     public ContainerElement(int width, int height) {
         this.width = width;
@@ -302,6 +321,8 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
         childDimensionMap.clear();
         if (layoutMode == ContainerLayoutMode.FREE) {
             return calculateFreeDimension(context, posterWidth, posterHeight);
+        } else if (layoutMode == ContainerLayoutMode.VERTICAL || layoutMode == ContainerLayoutMode.HORIZONTAL) {
+            return calculateFlowDimension(context, posterWidth, posterHeight);
         }
         return calculateFlowDimension(context, posterWidth, posterHeight);
     }
@@ -374,6 +395,12 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
      * @return 容器尺寸
      */
     private Dimension calculateFlowDimension(PosterContext context, int posterWidth, int posterHeight) {
+        boolean hasFloatElements = children.stream().anyMatch(child -> child.getFloatType() != FloatType.NONE);
+        
+        if (hasFloatElements) {
+            return calculateFloatDimension(context, posterWidth, posterHeight);
+        }
+        
         boolean vertical = layoutMode == ContainerLayoutMode.VERTICAL;
         int tentativeWidth = resolveTentativeWidth(vertical, posterWidth);
         int tentativeHeight = resolveTentativeHeight(vertical, posterHeight);
@@ -430,6 +457,156 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
             childDimensionMap.put(children.get(i), measuredChildren.get(i));
         }
         return dimension;
+    }
+
+    /**
+     * 计算浮动布局尺寸
+     *
+     * @param context 上下文
+     * @param posterWidth 可用宽度
+     * @param posterHeight 可用高度
+     * @return 容器尺寸
+     */
+    private Dimension calculateFloatDimension(PosterContext context, int posterWidth, int posterHeight) {
+        int realWidth = width == 0 ? posterWidth : width;
+        int realHeight = height == 0 ? posterHeight : height;
+        int contentWidth = getContentWidth(realWidth);
+        int contentHeight = getContentHeight(realHeight);
+
+        Point point = position == null ? Point.ORIGIN_COORDINATE
+                : position.calculate(posterWidth, posterHeight, realWidth, realHeight);
+        Dimension dimension = Dimension.builder()
+                .width(realWidth)
+                .height(realHeight)
+                .point(Point.of(point.getX(), point.getY()))
+                .build();
+
+        int contentStartX = point.getX() + padding.getMarginLeft();
+        int contentStartY = point.getY() + padding.getMarginTop();
+
+        layoutFloatChildren(context, contentWidth, contentHeight, contentStartX, contentStartY, dimension);
+        return dimension;
+    }
+
+    /**
+     * 布局浮动子元素
+     *
+     * @param context 上下文
+     * @param contentWidth 内容区宽度
+     * @param contentHeight 内容区高度
+     * @param contentStartX 内容区起始 X
+     * @param contentStartY 内容区起始 Y
+     * @param dimension 容器尺寸（用于更新高度）
+     */
+    private void layoutFloatChildren(PosterContext context, int contentWidth, int contentHeight, 
+                                     int contentStartX, int contentStartY, Dimension dimension) {
+        List<FloatRow> rows = new ArrayList<>();
+        rows.add(new FloatRow(contentStartY, contentWidth));
+        
+        int currentY = contentStartY;
+        int maxBottomY = 0;
+
+        for (AbstractElement child : children) {
+            Dimension childDimension = child.calculateDimension(context, contentWidth, contentHeight);
+            Margin childMargin = getChildMargin(child);
+            int childWidth = childDimension.getWidth() + childMargin.getMarginLeft() + childMargin.getMarginRight();
+            int childHeight = childDimension.getHeight() + childMargin.getMarginTop() + childMargin.getMarginBottom();
+
+            FloatType floatType = child.getFloatType();
+            ClearType clearType = child.getClearType();
+
+            FloatRow currentRow = findSuitableRow(rows, child, floatType, clearType, childWidth, currentY);
+
+            int x, y;
+            if (floatType == FloatType.LEFT) {
+                x = contentStartX + childMargin.getMarginLeft() + currentRow.leftAvailable;
+                y = currentRow.y + childMargin.getMarginTop();
+                currentRow.leftAvailable += childWidth + gap;
+            } else if (floatType == FloatType.RIGHT) {
+                currentRow.rightAvailable -= childWidth + gap;
+                x = contentStartX + currentRow.rightAvailable + childMargin.getMarginLeft();
+                y = currentRow.y + childMargin.getMarginTop();
+            } else {
+                x = contentStartX + childMargin.getMarginLeft();
+                y = currentRow.y + childMargin.getMarginTop();
+            }
+
+            childDimension.setPoint(Point.of(x, y));
+            childDimensionMap.put(child, childDimension);
+
+            int bottomY = y + childHeight;
+            if (bottomY > maxBottomY) {
+                maxBottomY = bottomY;
+            }
+
+            currentRow.height = Math.max(currentRow.height, childHeight);
+
+            if (currentRow.leftAvailable + currentRow.rightAvailable < contentWidth - gap) {
+                currentY += currentRow.height + gap;
+                if (currentY < bottomY) {
+                    currentY = bottomY;
+                }
+                rows.add(new FloatRow(currentY, contentWidth));
+            }
+        }
+
+        if (height == 0) {
+            dimension.setHeight(maxBottomY - contentStartY + padding.getMarginBottom());
+        }
+    }
+
+    /**
+     * 查找适合当前元素的行
+     *
+     * @param rows 行列表
+     * @param child 子元素
+     * @param floatType 浮动类型
+     * @param clearType 清除浮动类型
+     * @param childWidth 子元素宽度
+     * @param currentY 当前 Y 坐标
+     * @return 合适的行
+     */
+    private FloatRow findSuitableRow(List<FloatRow> rows, AbstractElement child, 
+                                     FloatType floatType, ClearType clearType, 
+                                     int childWidth, int currentY) {
+        FloatRow lastRow = rows.get(rows.size() - 1);
+
+        if (clearType == ClearType.LEFT || clearType == ClearType.BOTH) {
+            currentY = Math.max(currentY, lastRow.y + lastRow.height + gap);
+            FloatRow newRow = new FloatRow(currentY, lastRow.rightAvailable - lastRow.leftAvailable);
+            newRow.leftAvailable = 0;
+            newRow.rightAvailable = lastRow.rightAvailable;
+            rows.add(newRow);
+            return newRow;
+        }
+
+        if (clearType == ClearType.RIGHT) {
+            currentY = Math.max(currentY, lastRow.y + lastRow.height + gap);
+            FloatRow newRow = new FloatRow(currentY, lastRow.rightAvailable - lastRow.leftAvailable);
+            newRow.leftAvailable = 0;
+            newRow.rightAvailable = lastRow.rightAvailable;
+            rows.add(newRow);
+            return newRow;
+        }
+
+        if (floatType == FloatType.LEFT) {
+            if (lastRow.leftAvailable + childWidth <= lastRow.rightAvailable) {
+                return lastRow;
+            }
+        } else if (floatType == FloatType.RIGHT) {
+            if (lastRow.rightAvailable - childWidth >= lastRow.leftAvailable) {
+                return lastRow;
+            }
+        } else {
+            return lastRow;
+        }
+
+        currentY = Math.max(currentY, lastRow.y + lastRow.height + gap);
+        FloatRow newRow = new FloatRow(currentY, lastRow.rightAvailable - lastRow.leftAvailable);
+        newRow.leftAvailable = 0;
+        newRow.rightAvailable = lastRow.rightAvailable;
+        rows.add(newRow);
+        return newRow;
     }
 
     /**

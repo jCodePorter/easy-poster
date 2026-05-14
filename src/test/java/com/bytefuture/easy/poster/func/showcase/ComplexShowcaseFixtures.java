@@ -25,7 +25,7 @@ import java.util.Arrays;
 /**
  * 复杂示例图测试构建工具
  *
- * @author Codex
+ * @author biaoy
  * @since 2026/04/29
  */
 public final class ComplexShowcaseFixtures {
