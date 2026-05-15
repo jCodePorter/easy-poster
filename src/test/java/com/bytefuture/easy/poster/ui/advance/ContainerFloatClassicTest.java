@@ -37,11 +37,11 @@ public class ContainerFloatClassicTest {
                 .setGap(10);
 
         // 框1 - 不浮动
-        container.addChild(createBox("框1", new Color(245, 245, 220)));
+        container.addChild(createBox("框1", new Color(13, 45, 221)));
         // 框2 - 不浮动
-        container.addChild(createBox("框2", new Color(245, 245, 220)));
+        container.addChild(createBox("框2", new Color(13, 45, 221)));
         // 框3 - 不浮动
-        container.addChild(createBox("框3", new Color(245, 245, 220)));
+        container.addChild(createBox("框3", new Color(13, 45, 221)));
 
         poster.addElement(container);
         poster.asFile("png", "out_float_no_float.png");
@@ -63,11 +63,11 @@ public class ContainerFloatClassicTest {
                 .setGap(10);
 
         // 框1 - 向右浮动
-        container.addChild(createBox("框1", new Color(245, 245, 220)).setFloatType(FloatType.RIGHT));
+        container.addChild(createBox("框1", new Color(13, 45, 221)).setFloatType(FloatType.RIGHT));
         // 框2 - 不浮动
-        container.addChild(createBox("框2", new Color(245, 245, 220)));
+        container.addChild(createBox("框2", new Color(13, 45, 221)));
         // 框3 - 不浮动
-        container.addChild(createBox("框3", new Color(245, 245, 220)));
+        container.addChild(createBox("框3", new Color(13, 45, 221)));
 
         poster.addElement(container);
         poster.asFile("png", "out_float_first_right.png");
@@ -89,11 +89,11 @@ public class ContainerFloatClassicTest {
                 .setGap(10);
 
         // 框1 - 向左浮动
-        container.addChild(createBox("框1", new Color(245, 245, 220)).setFloatType(FloatType.LEFT));
+        container.addChild(createBox("框1", new Color(13, 45, 221)).setFloatType(FloatType.LEFT));
         // 框2 - 不浮动（会尝试填充框1右侧空间）
-        container.addChild(createBox("框2", new Color(245, 245, 220)));
+        container.addChild(createBox("框2", new Color(13, 45, 221)));
         // 框3 - 不浮动
-        container.addChild(createBox("框3", new Color(245, 245, 220)));
+        container.addChild(createBox("框3", new Color(13, 45, 221)));
 
         poster.addElement(container);
         poster.asFile("png", "out_float_first_left.png");
@@ -105,9 +105,9 @@ public class ContainerFloatClassicTest {
      */
     @Test
     public void testAllLeftFloat() {
-        EasyPoster poster = new EasyPoster(200, 280);
+        EasyPoster poster = new EasyPoster(300, 280);
 
-        ContainerElement container = ContainerElement.of(160, 240)
+        ContainerElement container = ContainerElement.of(240, 240)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(20)))
                 .setBackgroundColor(new Color(250, 250, 240))
                 .setBorderColor(new Color(150, 150, 150))
@@ -115,11 +115,11 @@ public class ContainerFloatClassicTest {
                 .setGap(10);
 
         // 框1 - 向左浮动
-        container.addChild(createBox("框1", new Color(245, 245, 220)).setFloatType(FloatType.LEFT));
+        container.addChild(createBox("框1", new Color(13, 45, 221)).setFloatType(FloatType.LEFT));
         // 框2 - 向左浮动
-        container.addChild(createBox("框2", new Color(245, 245, 220)).setFloatType(FloatType.LEFT));
+        container.addChild(createBox("框2", new Color(13, 45, 221)).setFloatType(FloatType.LEFT));
         // 框3 - 向左浮动
-        container.addChild(createBox("框3", new Color(245, 245, 220)).setFloatType(FloatType.LEFT));
+        container.addChild(createBox("框3", new Color(13, 45, 221)).setFloatType(FloatType.LEFT));
 
         poster.addElement(container);
         poster.asFile("png", "out_float_all_left.png");
@@ -131,9 +131,9 @@ public class ContainerFloatClassicTest {
      */
     @Test
     public void testTwoLeftFloatOneClear() {
-        EasyPoster poster = new EasyPoster(200, 280);
+        EasyPoster poster = new EasyPoster(300, 280);
 
-        ContainerElement container = ContainerElement.of(160, 240)
+        ContainerElement container = ContainerElement.of(200, 240)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(20)))
                 .setBackgroundColor(new Color(250, 250, 240))
                 .setBorderColor(new Color(150, 150, 150))
@@ -141,11 +141,11 @@ public class ContainerFloatClassicTest {
                 .setGap(10);
 
         // 框1 - 向左浮动
-        container.addChild(createBox("框1", new Color(245, 245, 220)).setFloatType(FloatType.LEFT));
+        container.addChild(createBox("框1", new Color(13, 45, 221)).setFloatType(FloatType.LEFT));
         // 框2 - 向左浮动
-        container.addChild(createBox("框2", new Color(245, 245, 220)).setFloatType(FloatType.LEFT));
+        container.addChild(createBox("框2", new Color(13, 45, 221)).setFloatType(FloatType.LEFT));
         // 框3 - 清除左浮动，换行显示
-        container.addChild(createBox("框3", new Color(245, 245, 220)).setClearType(ClearType.LEFT));
+        container.addChild(createBox("框3", new Color(13, 45, 221)).setClearType(ClearType.LEFT));
 
         poster.addElement(container);
         poster.asFile("png", "out_float_two_left_one_clear.png");
@@ -168,19 +168,19 @@ public class ContainerFloatClassicTest {
 
         // 框1 - 向左浮动（较大）
         container.addChild(new RectangleElement(90, 80)
-                .setColor(new Color(245, 245, 220))
+                .setColor(new Color(13, 45, 221))
                 .setBorderSize(2)
                 .setFloatType(FloatType.LEFT));
         
         // 框2 - 向左浮动
         container.addChild(new RectangleElement(50, 60)
-                .setColor(new Color(245, 245, 220))
+                .setColor(new Color(13, 45, 221))
                 .setBorderSize(2)
                 .setFloatType(FloatType.LEFT));
         
         // 框3 - 向左浮动（会被框1卡住）
         container.addChild(new RectangleElement(60, 70)
-                .setColor(new Color(245, 245, 220))
+                .setColor(new Color(13, 45, 221))
                 .setBorderSize(2)
                 .setFloatType(FloatType.LEFT));
 

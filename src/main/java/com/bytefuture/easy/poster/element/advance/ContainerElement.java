@@ -3,12 +3,9 @@ package com.bytefuture.easy.poster.element.advance;
 import com.bytefuture.easy.poster.element.AbstractElement;
 import com.bytefuture.easy.poster.element.AbstractRepeatableElement;
 import com.bytefuture.easy.poster.element.IElement;
-import com.bytefuture.easy.poster.geometry.AbsolutePosition;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.model.ContainerAlign;
-import com.bytefuture.easy.poster.model.ContainerLayoutMode;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.FloatType;
 import com.bytefuture.easy.poster.model.ClearType;
@@ -90,24 +87,9 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
     private int arcHeight = 0;
 
     /**
-     * 容器布局模式
-     */
-    private ContainerLayoutMode layoutMode = ContainerLayoutMode.FREE;
-
-    /**
      * 子元素间距
      */
     private int gap = 0;
-
-    /**
-     * 主轴对齐方式
-     */
-    private ContainerAlign justifyContent = ContainerAlign.START;
-
-    /**
-     * 交叉轴对齐方式
-     */
-    private ContainerAlign alignItems = ContainerAlign.START;
 
     /**
      * 浮动布局的行信息
@@ -272,17 +254,7 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
         return this;
     }
 
-    /**
-     * 设置布局模式
-     *
-     * @param layoutMode 布局模式
-     * @return 当前容器
-     */
-    public ContainerElement setLayoutMode(ContainerLayoutMode layoutMode) {
-        this.layoutMode = layoutMode;
-        return this;
-    }
-
+    
     /**
      * 设置子元素间距
      *
@@ -294,37 +266,10 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
         return this;
     }
 
-    /**
-     * 设置主轴对齐方式
-     *
-     * @param justifyContent 主轴对齐方式
-     * @return 当前容器
-     */
-    public ContainerElement setJustifyContent(ContainerAlign justifyContent) {
-        this.justifyContent = justifyContent;
-        return this;
-    }
-
-    /**
-     * 设置交叉轴对齐方式
-     *
-     * @param alignItems 交叉轴对齐方式
-     * @return 当前容器
-     */
-    public ContainerElement setAlignItems(ContainerAlign alignItems) {
-        this.alignItems = alignItems;
-        return this;
-    }
-
     @Override
     public Dimension calculateDimension(PosterContext context, int posterWidth, int posterHeight) {
         childDimensionMap.clear();
-        if (layoutMode == ContainerLayoutMode.FREE) {
-            return calculateFreeDimension(context, posterWidth, posterHeight);
-        } else if (layoutMode == ContainerLayoutMode.VERTICAL || layoutMode == ContainerLayoutMode.HORIZONTAL) {
-            return calculateFlowDimension(context, posterWidth, posterHeight);
-        }
-        return calculateFlowDimension(context, posterWidth, posterHeight);
+        return calculateFloatDimension(context, posterWidth, posterHeight);
     }
 
     @Override
@@ -353,110 +298,6 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
             graphics.setClip(oldClip);
         }
         return point;
-    }
-
-    /**
-     * 计算自由布局尺寸
-     *
-     * @param context 上下文
-     * @param posterWidth 可用宽度
-     * @param posterHeight 可用高度
-     * @return 容器尺寸
-     */
-    private Dimension calculateFreeDimension(PosterContext context, int posterWidth, int posterHeight) {
-        int realWidth = width == 0 ? posterWidth : width;
-        int realHeight = height == 0 ? posterHeight : height;
-        Point point = position == null ? Point.ORIGIN_COORDINATE
-                : position.calculate(posterWidth, posterHeight, realWidth, realHeight);
-        Dimension dimension = Dimension.builder()
-                .width(realWidth)
-                .height(realHeight)
-                .point(Point.of(point.getX(), point.getY()))
-                .build();
-
-        int contentWidth = getContentWidth(realWidth);
-        int contentHeight = getContentHeight(realHeight);
-        int contentStartX = point.getX() + padding.getMarginLeft();
-        int contentStartY = point.getY() + padding.getMarginTop();
-        for (AbstractElement child : children) {
-            Dimension childDimension = child.calculateDimension(context, contentWidth, contentHeight);
-            normalizeChildPoint(child, childDimension, contentStartX, contentStartY);
-            childDimensionMap.put(child, childDimension);
-        }
-        return dimension;
-    }
-
-    /**
-     * 计算流式布局尺寸
-     *
-     * @param context 上下文
-     * @param posterWidth 可用宽度
-     * @param posterHeight 可用高度
-     * @return 容器尺寸
-     */
-    private Dimension calculateFlowDimension(PosterContext context, int posterWidth, int posterHeight) {
-        boolean hasFloatElements = children.stream().anyMatch(child -> child.getFloatType() != FloatType.NONE);
-        
-        if (hasFloatElements) {
-            return calculateFloatDimension(context, posterWidth, posterHeight);
-        }
-        
-        boolean vertical = layoutMode == ContainerLayoutMode.VERTICAL;
-        int tentativeWidth = resolveTentativeWidth(vertical, posterWidth);
-        int tentativeHeight = resolveTentativeHeight(vertical, posterHeight);
-        int contentWidth = getContentWidth(tentativeWidth);
-        int contentHeight = getContentHeight(tentativeHeight);
-
-        List<Dimension> measuredChildren = new ArrayList<>();
-        int totalMainAxisSize = 0;
-        for (AbstractElement child : children) {
-            Dimension childDimension = child.calculateDimension(context, contentWidth, contentHeight);
-            childDimension.setPoint(Point.of(0, 0));
-            measuredChildren.add(childDimension);
-            Margin childMargin = getChildMargin(child);
-            int childMainAxisSize = vertical
-                    ? childMargin.getMarginTop() + childDimension.getHeight() + childMargin.getMarginBottom()
-                    : childMargin.getMarginLeft() + childDimension.getWidth() + childMargin.getMarginRight();
-            int childCrossAxisSize = vertical
-                    ? childMargin.getMarginLeft() + childDimension.getWidth() + childMargin.getMarginRight()
-                    : childMargin.getMarginTop() + childDimension.getHeight() + childMargin.getMarginBottom();
-            totalMainAxisSize += childMainAxisSize;
-        }
-        if (!children.isEmpty()) {
-            totalMainAxisSize += gap * (children.size() - 1);
-        }
-
-        int realWidth = width;
-        int realHeight = height;
-        if (vertical) {
-            if (realWidth == 0) {
-                realWidth = posterWidth;
-            }
-            if (realHeight == 0) {
-                realHeight = padding.getMarginTop() + padding.getMarginBottom() + totalMainAxisSize;
-            }
-        } else {
-            if (realWidth == 0) {
-                realWidth = padding.getMarginLeft() + padding.getMarginRight() + totalMainAxisSize;
-            }
-            if (realHeight == 0) {
-                realHeight = posterHeight;
-            }
-        }
-
-        Point point = position == null ? Point.ORIGIN_COORDINATE
-                : position.calculate(posterWidth, posterHeight, realWidth, realHeight);
-        Dimension dimension = Dimension.builder()
-                .width(realWidth)
-                .height(realHeight)
-                .point(Point.of(point.getX(), point.getY()))
-                .build();
-
-        layoutMeasuredChildren(measuredChildren, dimension, totalMainAxisSize, vertical);
-        for (int i = 0; i < children.size(); i++) {
-            childDimensionMap.put(children.get(i), measuredChildren.get(i));
-        }
-        return dimension;
     }
 
     /**
@@ -498,11 +339,11 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
      * @param contentStartY 内容区起始 Y
      * @param dimension 容器尺寸（用于更新高度）
      */
-    private void layoutFloatChildren(PosterContext context, int contentWidth, int contentHeight, 
+    private void layoutFloatChildren(PosterContext context, int contentWidth, int contentHeight,
                                      int contentStartX, int contentStartY, Dimension dimension) {
         List<FloatRow> rows = new ArrayList<>();
         rows.add(new FloatRow(contentStartY, contentWidth));
-        
+
         int currentY = contentStartY;
         int maxBottomY = 0;
 
@@ -515,7 +356,7 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
             FloatType floatType = child.getFloatType();
             ClearType clearType = child.getClearType();
 
-            FloatRow currentRow = findSuitableRow(rows, child, floatType, clearType, childWidth, currentY);
+            FloatRow currentRow = findSuitableRow(rows, contentWidth, floatType, clearType, childWidth, currentY);
 
             int x, y;
             if (floatType == FloatType.LEFT) {
@@ -527,7 +368,7 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
                 x = contentStartX + currentRow.rightAvailable + childMargin.getMarginLeft();
                 y = currentRow.y + childMargin.getMarginTop();
             } else {
-                x = contentStartX + childMargin.getMarginLeft();
+                x = contentStartX + currentRow.leftAvailable + childMargin.getMarginLeft();
                 y = currentRow.y + childMargin.getMarginTop();
             }
 
@@ -541,8 +382,10 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
 
             currentRow.height = Math.max(currentRow.height, childHeight);
 
-            if (currentRow.leftAvailable + currentRow.rightAvailable < contentWidth - gap) {
-                currentY += currentRow.height + gap;
+            boolean rowFull = currentRow.rightAvailable - currentRow.leftAvailable <= gap;
+            boolean isBlockElement = floatType == FloatType.NONE;
+            if (rowFull || isBlockElement) {
+                currentY = Math.max(currentY, currentRow.y + currentRow.height + gap);
                 if (currentY < bottomY) {
                     currentY = bottomY;
                 }
@@ -559,34 +402,45 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
      * 查找适合当前元素的行
      *
      * @param rows 行列表
-     * @param child 子元素
+     * @param contentWidth 内容区宽度
      * @param floatType 浮动类型
      * @param clearType 清除浮动类型
      * @param childWidth 子元素宽度
      * @param currentY 当前 Y 坐标
      * @return 合适的行
      */
-    private FloatRow findSuitableRow(List<FloatRow> rows, AbstractElement child, 
-                                     FloatType floatType, ClearType clearType, 
+    private FloatRow findSuitableRow(List<FloatRow> rows, int contentWidth,
+                                     FloatType floatType, ClearType clearType,
                                      int childWidth, int currentY) {
         FloatRow lastRow = rows.get(rows.size() - 1);
 
-        if (clearType == ClearType.LEFT || clearType == ClearType.BOTH) {
+        if (clearType == ClearType.LEFT) {
             currentY = Math.max(currentY, lastRow.y + lastRow.height + gap);
-            FloatRow newRow = new FloatRow(currentY, lastRow.rightAvailable - lastRow.leftAvailable);
+            FloatRow newRow = new FloatRow(currentY, contentWidth);
             newRow.leftAvailable = 0;
-            newRow.rightAvailable = lastRow.rightAvailable;
+            newRow.rightAvailable = contentWidth;
             rows.add(newRow);
             return newRow;
         }
 
         if (clearType == ClearType.RIGHT) {
             currentY = Math.max(currentY, lastRow.y + lastRow.height + gap);
-            FloatRow newRow = new FloatRow(currentY, lastRow.rightAvailable - lastRow.leftAvailable);
-            newRow.leftAvailable = 0;
-            newRow.rightAvailable = lastRow.rightAvailable;
+            FloatRow newRow = new FloatRow(currentY, contentWidth);
+            newRow.leftAvailable = lastRow.leftAvailable;
+            newRow.rightAvailable = contentWidth;
             rows.add(newRow);
             return newRow;
+        }
+
+        if (clearType == ClearType.BOTH) {
+            currentY = Math.max(currentY, lastRow.y + lastRow.height + gap);
+            FloatRow newRow = new FloatRow(currentY, contentWidth);
+            rows.add(newRow);
+            return newRow;
+        }
+
+        if (floatType == FloatType.NONE) {
+            return lastRow;
         }
 
         if (floatType == FloatType.LEFT) {
@@ -597,56 +451,12 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
             if (lastRow.rightAvailable - childWidth >= lastRow.leftAvailable) {
                 return lastRow;
             }
-        } else {
-            return lastRow;
         }
 
         currentY = Math.max(currentY, lastRow.y + lastRow.height + gap);
-        FloatRow newRow = new FloatRow(currentY, lastRow.rightAvailable - lastRow.leftAvailable);
-        newRow.leftAvailable = 0;
-        newRow.rightAvailable = lastRow.rightAvailable;
+        FloatRow newRow = new FloatRow(currentY, contentWidth);
         rows.add(newRow);
         return newRow;
-    }
-
-    /**
-     * 布局测量后的子元素
-     *
-     * @param measuredChildren 子元素尺寸集合
-     * @param dimension 容器尺寸
-     * @param totalMainAxisSize 主轴总尺寸
-     * @param vertical 是否垂直布局
-     */
-    private void layoutMeasuredChildren(List<Dimension> measuredChildren, Dimension dimension, int totalMainAxisSize,
-                                        boolean vertical) {
-        int contentWidth = getContentWidth(dimension.getWidth());
-        int contentHeight = getContentHeight(dimension.getHeight());
-        int contentStartX = dimension.getPoint().getX() + padding.getMarginLeft();
-        int contentStartY = dimension.getPoint().getY() + padding.getMarginTop();
-        int availableMainAxisSize = vertical ? contentHeight : contentWidth;
-        int mainAxisOffset = resolveMainAxisOffset(availableMainAxisSize, totalMainAxisSize);
-        int currentOffset = mainAxisOffset;
-
-        for (int i = 0; i < measuredChildren.size(); i++) {
-            Dimension childDimension = measuredChildren.get(i);
-            Margin childMargin = getChildMargin(children.get(i));
-            int childWidth = childDimension.getWidth();
-            int childHeight = childDimension.getHeight();
-            int x = contentStartX;
-            int y = contentStartY;
-            if (vertical) {
-                x += childMargin.getMarginLeft() + resolveCrossAxisOffset(
-                        contentWidth - childMargin.getMarginLeft() - childMargin.getMarginRight(), childWidth);
-                y += currentOffset + childMargin.getMarginTop();
-                currentOffset += childMargin.getMarginTop() + childHeight + childMargin.getMarginBottom() + gap;
-            } else {
-                x += currentOffset + childMargin.getMarginLeft();
-                y += childMargin.getMarginTop() + resolveCrossAxisOffset(
-                        contentHeight - childMargin.getMarginTop() - childMargin.getMarginBottom(), childHeight);
-                currentOffset += childMargin.getMarginLeft() + childWidth + childMargin.getMarginRight() + gap;
-            }
-            childDimension.setPoint(Point.of(x, y));
-        }
     }
 
     /**
@@ -657,68 +467,6 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
      */
     private Margin getChildMargin(AbstractElement child) {
         return childMarginMap.getOrDefault(child, Margin.of(0));
-    }
-
-    /**
-     * 解析垂直布局时的临时宽度
-     *
-     * @param vertical 是否垂直布局
-     * @param posterWidth 可用宽度
-     * @return 临时宽度
-     */
-    private int resolveTentativeWidth(boolean vertical, int posterWidth) {
-        if (vertical) {
-            return width == 0 ? posterWidth : width;
-        }
-        return width == 0 ? posterWidth : width;
-    }
-
-    /**
-     * 解析水平布局时的临时高度
-     *
-     * @param vertical 是否垂直布局
-     * @param posterHeight 可用高度
-     * @return 临时高度
-     */
-    private int resolveTentativeHeight(boolean vertical, int posterHeight) {
-        if (vertical) {
-            return height == 0 ? posterHeight : height;
-        }
-        return height == 0 ? posterHeight : height;
-    }
-
-    /**
-     * 计算主轴偏移量
-     *
-     * @param availableMainAxisSize 主轴可用尺寸
-     * @param totalMainAxisSize 子元素主轴总尺寸
-     * @return 主轴偏移量
-     */
-    private int resolveMainAxisOffset(int availableMainAxisSize, int totalMainAxisSize) {
-        if (justifyContent == ContainerAlign.CENTER) {
-            return Math.max(0, (availableMainAxisSize - totalMainAxisSize) / 2);
-        }
-        if (justifyContent == ContainerAlign.END) {
-            return Math.max(0, availableMainAxisSize - totalMainAxisSize);
-        }
-        return 0;
-    }
-
-    /**
-     * 计算交叉轴偏移量
-     *
-     * @param availableCrossAxisSize 交叉轴可用尺寸
-     * @param childCrossAxisSize 子元素交叉轴尺寸
-     * @return 交叉轴偏移量
-     */
-    private int resolveCrossAxisOffset(int availableCrossAxisSize, int childCrossAxisSize) {
-        if (alignItems == ContainerAlign.CENTER) {
-            return Math.max(0, (availableCrossAxisSize - childCrossAxisSize) / 2);
-        }
-        if (alignItems == ContainerAlign.END) {
-            return Math.max(0, availableCrossAxisSize - childCrossAxisSize);
-        }
-        return 0;
     }
 
     /**
@@ -739,23 +487,6 @@ public class ContainerElement extends AbstractRepeatableElement<ContainerElement
      */
     private int getContentHeight(int outerHeight) {
         return Math.max(0, outerHeight - padding.getMarginTop() - padding.getMarginBottom());
-    }
-
-    /**
-     * 标准化子元素坐标到全局坐标系
-     *
-     * @param child 子元素
-     * @param childDimension 子元素尺寸
-     * @param contentStartX 内容区起始 X
-     * @param contentStartY 内容区起始 Y
-     */
-    private void normalizeChildPoint(AbstractElement child, Dimension childDimension, int contentStartX, int contentStartY) {
-        if (child.getPosition() instanceof AbsolutePosition) {
-            return;
-        }
-        Point point = childDimension.getPoint();
-        point.setX(point.getX() + contentStartX);
-        point.setY(point.getY() + contentStartY);
     }
 
     /**
