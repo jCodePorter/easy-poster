@@ -7,11 +7,9 @@ import com.bytefuture.easy.poster.element.basic.CircleElement;
 import com.bytefuture.easy.poster.element.basic.RectangleElement;
 import com.bytefuture.easy.poster.element.special.QrCodeElement;
 import com.bytefuture.easy.poster.element.v2.TextElement;
-import com.bytefuture.easy.poster.geometry.Direction;
-import com.bytefuture.easy.poster.geometry.LocalAbsolutePosition;
-import com.bytefuture.easy.poster.geometry.Margin;
+import com.bytefuture.easy.poster.element.v2.text.style.TextOverflow;
+import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.geometry.RelativePosition;
 import com.bytefuture.easy.poster.model.FloatType;
 import com.bytefuture.easy.poster.model.TextSpan;
 import org.junit.Test;
@@ -58,7 +56,8 @@ public class ContainerComboTest {
         headerCard.addChild(TextElement.of("数据\n报告")
                 .setColor(Color.WHITE)
                 .setFontSize(16)
-                .setFontStyle(Font.BOLD));
+                .setFontStyle(Font.BOLD))
+                .setFloatType(FloatType.LEFT);
 
         // 外层右浮动：统计数字卡片
         ContainerElement statsCard = ContainerElement.of(200, 120)
@@ -135,6 +134,7 @@ public class ContainerComboTest {
         container.addChild(TextElement.of("专注品牌设计、海报制作、视觉传达。让每一张海报都成为品牌故事的一部分。")
                 .setColor(new Color(90, 90, 90))
                 .setFontSize(14)
+                .setTextOverflow(TextOverflow.ELLIPSIS)
                 .setLetterSpacing(1));
 
         // NONE 块级：ComposeElement（二维码 + 标签）

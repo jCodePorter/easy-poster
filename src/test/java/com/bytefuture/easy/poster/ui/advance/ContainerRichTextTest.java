@@ -123,6 +123,7 @@ public class ContainerRichTextTest {
     @Test
     public void testProfileCard() {
         EasyPoster poster = new EasyPoster(600, 360);
+        poster.getConfig().setFontName("仿宋");
 
         ContainerElement container = ContainerElement.of(480, 280)
                 .setPosition(RelativePosition.of(Direction.CENTER))

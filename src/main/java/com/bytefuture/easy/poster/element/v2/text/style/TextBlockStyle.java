@@ -152,6 +152,14 @@ public class TextBlockStyle extends BaseTextStyle {
     }
 
     /**
+     * 重置 maxTextWidth 为默认值（0，即不限制宽度）
+     * 仅用于容器布局阶段恢复子元素原始状态，不应在用户 API 中使用
+     */
+    public void resetMaxTextWidth() {
+        this.maxTextWidth = 0;
+    }
+
+    /**
      * 设置块级行高。
      *
      * @param lineHeight 行高，单位为像素，必须大于 0
