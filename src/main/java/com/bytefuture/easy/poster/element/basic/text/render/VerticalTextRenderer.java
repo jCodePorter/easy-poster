@@ -1,8 +1,8 @@
-package com.bytefuture.easy.poster.element.v2.text.render;
+package com.bytefuture.easy.poster.element.basic.text.render;
 
-import com.bytefuture.easy.poster.element.v2.text.layout.CharCell;
-import com.bytefuture.easy.poster.element.v2.text.layout.TextColumn;
-import com.bytefuture.easy.poster.element.v2.text.layout.VerticalTextLayoutResult;
+import com.bytefuture.easy.poster.element.basic.text.layout.CharCell;
+import com.bytefuture.easy.poster.element.basic.text.layout.TextColumn;
+import com.bytefuture.easy.poster.element.basic.text.layout.VerticalTextLayoutResult;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.ColumnDirection;

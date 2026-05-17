@@ -32,7 +32,6 @@ public class Test {
                         new QrCodeElement(qrCodeMsg, 500, 500)
                                 .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 635))))
                 .bottom(new TextElement(textMsg).setFontSize(36).setFontName("微软雅黑")
-                        .setAutoWrapText(600)
                         .setColor("#566C91")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(35))));
 

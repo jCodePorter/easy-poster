@@ -1,7 +1,7 @@
 package com.bytefuture.easy.poster.ui.v2;
 
 import com.bytefuture.easy.poster.EasyPoster;
-import com.bytefuture.easy.poster.element.v2.TextElement;
+import com.bytefuture.easy.poster.element.basic.TextElement;
 import com.bytefuture.easy.poster.geometry.AbsolutePosition;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.TextAlign;

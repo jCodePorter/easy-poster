@@ -52,24 +52,4 @@ public class BaseLineTest {
         poster.asFile("png", "out_text_absolute_base_line.png");
     }
 
-    /**
-     * 绝对定位，并自动换行
-     */
-    @Test
-    public void testBaseLineAutoNewline() {
-        EasyPoster poster = new EasyPoster(500, 500);
-        poster.getConfig().setFont(new Font("华文新魏", Font.PLAIN, 25));
-
-        poster.addTextElement("测试顶部对齐并自动换行，这是一个全新的测试")
-                .setLineHeight(40)
-                .setAutoWrapText(320)
-                .setBaseLine(BaseLine.TOP)
-                .setPosition(AbsolutePosition.of(Point.of(150, 250), Direction.LEFT_CENTER));
-
-        poster.addLineElement(Point.of(0, 250), Point.of(500, 250))
-                .setColor(Color.BLUE);
-
-        poster.asFile("png", "out_text_absolute_base_line_auto_newline.png");
-    }
-
 }

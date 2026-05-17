@@ -1,6 +1,6 @@
-package com.bytefuture.easy.poster.element.v2.text.style;
+package com.bytefuture.easy.poster.element.basic.text.style;
 
-import com.bytefuture.easy.poster.element.v2.TextElement;
+import com.bytefuture.easy.poster.element.basic.TextElement;
 import com.bytefuture.easy.poster.model.Config;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.TextSpan;

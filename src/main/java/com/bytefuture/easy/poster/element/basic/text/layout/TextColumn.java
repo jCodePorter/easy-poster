@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.v2.text.layout;
+package com.bytefuture.easy.poster.element.basic.text.layout;
 
 import lombok.Getter;
 

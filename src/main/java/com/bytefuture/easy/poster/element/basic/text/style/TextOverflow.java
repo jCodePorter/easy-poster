@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.v2.text.style;
+package com.bytefuture.easy.poster.element.basic.text.style;
 
 /**
  * 文本超出最大行数后的处理方式

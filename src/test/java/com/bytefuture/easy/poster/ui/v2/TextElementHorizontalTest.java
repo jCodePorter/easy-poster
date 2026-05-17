@@ -1,8 +1,8 @@
 package com.bytefuture.easy.poster.ui.v2;
 
 import com.bytefuture.easy.poster.EasyPoster;
-import com.bytefuture.easy.poster.element.v2.TextElement;
-import com.bytefuture.easy.poster.element.v2.text.style.TextOverflow;
+import com.bytefuture.easy.poster.element.basic.TextElement;
+import com.bytefuture.easy.poster.element.basic.text.style.TextOverflow;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.RelativePosition;

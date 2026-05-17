@@ -1,7 +1,7 @@
-package com.bytefuture.easy.poster.element.v2.text.render;
+package com.bytefuture.easy.poster.element.basic.text.render;
 
-import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
-import com.bytefuture.easy.poster.element.v2.text.layout.TextLine;
+import com.bytefuture.easy.poster.element.basic.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.element.basic.text.layout.TextLine;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.Gradient;
@@ -18,7 +18,7 @@ import java.text.AttributedString;
  * @author biaoy
  * @since 2026/04/26
  */
-public class TextRenderer {
+public class HorizontalTextRenderer {
 
     /**
      * 将布局结果绘制到当前画布

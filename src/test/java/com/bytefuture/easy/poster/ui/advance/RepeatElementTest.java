@@ -88,7 +88,6 @@ public class RepeatElementTest {
                 .bottom(new TextElement("叮有鱼科技有限公司专注于无人自助场景")
                         .setColor(Color.red)
                         .setFontSize(18)
-                        .setAutoWrapText(200)
                         .setFontName("仿宋")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))));
 

@@ -127,6 +127,7 @@ public void testRelativePosition() throws Exception {
   - 渐变色
   - 最大行数以及文本缩略
 - 移除全局配置的debug参数
+- 移除老版本TextElement，将v2包TextElement升级为正式版
 
 ### 0.0.7
 

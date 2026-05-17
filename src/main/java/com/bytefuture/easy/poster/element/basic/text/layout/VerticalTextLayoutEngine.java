@@ -1,8 +1,8 @@
-package com.bytefuture.easy.poster.element.v2.text.layout;
+package com.bytefuture.easy.poster.element.basic.text.layout;
 
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedStyleContext;
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextSpan;
-import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
+import com.bytefuture.easy.poster.element.basic.text.style.ResolvedStyleContext;
+import com.bytefuture.easy.poster.element.basic.text.style.ResolvedTextSpan;
+import com.bytefuture.easy.poster.element.basic.text.style.TextBlockStyle;
 import com.bytefuture.easy.poster.geometry.AbsolutePosition;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;

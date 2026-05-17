@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.v2.text.style;
+package com.bytefuture.easy.poster.element.basic.text.style;
 
 import cn.augrain.easy.tool.support.ColorUtils;
 import com.bytefuture.easy.poster.exception.PosterException;

@@ -1,15 +1,15 @@
-package com.bytefuture.easy.poster.element.v2.text.pipeline;
+package com.bytefuture.easy.poster.element.basic.text.pipeline;
 
-import com.bytefuture.easy.poster.element.v2.TextElement;
-import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutEngine;
-import com.bytefuture.easy.poster.element.v2.text.layout.TextLayoutResult;
-import com.bytefuture.easy.poster.element.v2.text.layout.VerticalTextLayoutEngine;
-import com.bytefuture.easy.poster.element.v2.text.layout.VerticalTextLayoutResult;
-import com.bytefuture.easy.poster.element.v2.text.render.TextRenderer;
-import com.bytefuture.easy.poster.element.v2.text.render.VerticalTextRenderer;
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedStyleContext;
-import com.bytefuture.easy.poster.element.v2.text.style.ResolvedTextSpan;
-import com.bytefuture.easy.poster.element.v2.text.style.TextStyleResolver;
+import com.bytefuture.easy.poster.element.basic.TextElement;
+import com.bytefuture.easy.poster.element.basic.text.layout.TextLayoutEngine;
+import com.bytefuture.easy.poster.element.basic.text.layout.TextLayoutResult;
+import com.bytefuture.easy.poster.element.basic.text.layout.VerticalTextLayoutEngine;
+import com.bytefuture.easy.poster.element.basic.text.layout.VerticalTextLayoutResult;
+import com.bytefuture.easy.poster.element.basic.text.render.HorizontalTextRenderer;
+import com.bytefuture.easy.poster.element.basic.text.render.VerticalTextRenderer;
+import com.bytefuture.easy.poster.element.basic.text.style.ResolvedStyleContext;
+import com.bytefuture.easy.poster.element.basic.text.style.ResolvedTextSpan;
+import com.bytefuture.easy.poster.element.basic.text.style.TextStyleResolver;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.geometry.Position;
@@ -49,7 +49,7 @@ public class TextPipeline {
     /**
      * 横排渲染器
      */
-    private final TextRenderer renderer = new TextRenderer();
+    private final HorizontalTextRenderer renderer = new HorizontalTextRenderer();
 
     /**
      * 竖排渲染器

@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.model;
 
-import com.bytefuture.easy.poster.element.v2.text.style.BaseTextStyle;
+import com.bytefuture.easy.poster.element.basic.text.style.BaseTextStyle;
 import com.bytefuture.easy.poster.exception.PosterException;
 import lombok.Getter;
 
