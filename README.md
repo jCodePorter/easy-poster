@@ -122,7 +122,6 @@ public void testRelativePosition() throws Exception {
 
 ### 0.1.0
 
-- 增加容器元素
 - 文本元素
   - 纵向绘制
   - 渐变色
