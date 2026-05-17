@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.ui.v2;
+package com.bytefuture.easy.poster.ui.basic.text;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.basic.TextElement;
@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import java.awt.*;
 
-public class V2VerticalPunctuationUiPngTest {
+public class VerticalPunctuationTest {
 
     @Test
     public void shouldOutputVerticalWithAvoidHeadPunctuation() {

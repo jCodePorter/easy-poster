@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.model;
 
-import cn.augrain.easy.tool.support.ColorUtils;
+import com.bytefuture.easy.tool.support.ColorUtils;
 import lombok.Getter;
 import lombok.Setter;
 

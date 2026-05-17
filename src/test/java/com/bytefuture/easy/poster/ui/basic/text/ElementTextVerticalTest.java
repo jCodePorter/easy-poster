@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.ui.v2;
+package com.bytefuture.easy.poster.ui.basic.text;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.basic.TextElement;

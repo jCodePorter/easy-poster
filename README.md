@@ -26,7 +26,7 @@
 ## 1.3 项目引用
 ```xml
 <dependency>
-    <groupId>cn.augrain</groupId>
+    <groupId>com.bytefuture</groupId>
     <artifactId>easy-poster</artifactId>
     <version>0.0.5.2</version>
 </dependency>

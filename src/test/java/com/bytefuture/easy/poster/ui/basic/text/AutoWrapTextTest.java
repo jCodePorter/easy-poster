@@ -24,7 +24,7 @@ public class AutoWrapTextTest {
                 .setFontSize(15)
                 .setColor(Color.red)
                 .setLineHeight(50)
-                .setAutoWrapText(400)
+                .maxTextWidth(400)
                 .setPosition(AbsolutePosition.of(Point.of(30, 50), Direction.TOP_LEFT));
 
         poster.asFile("png", "out_text_auto_split.png");

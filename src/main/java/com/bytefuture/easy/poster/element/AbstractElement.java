@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.element;
 
-import cn.augrain.easy.tool.support.ColorUtils;
+import com.bytefuture.easy.tool.support.ColorUtils;
 import com.bytefuture.easy.poster.element.advance.ComposeElement;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Dimension;

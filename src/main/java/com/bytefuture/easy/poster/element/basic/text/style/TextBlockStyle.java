@@ -1,12 +1,8 @@
 package com.bytefuture.easy.poster.element.basic.text.style;
 
-import cn.augrain.easy.tool.support.ColorUtils;
 import com.bytefuture.easy.poster.exception.PosterException;
-import com.bytefuture.easy.poster.model.BaseLine;
-import com.bytefuture.easy.poster.model.ColumnDirection;
-import com.bytefuture.easy.poster.model.TextAlign;
-import com.bytefuture.easy.poster.model.VerticalAlign;
-import com.bytefuture.easy.poster.model.WritingMode;
+import com.bytefuture.easy.poster.model.*;
+import com.bytefuture.easy.tool.support.ColorUtils;
 import lombok.Getter;
 
 import java.awt.*;

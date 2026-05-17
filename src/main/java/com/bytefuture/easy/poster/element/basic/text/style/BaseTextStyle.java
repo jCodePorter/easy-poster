@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.element.basic.text.style;
 
-import cn.augrain.easy.tool.support.ColorUtils;
+import com.bytefuture.easy.tool.support.ColorUtils;
 import lombok.Getter;
 
 import java.awt.*;
