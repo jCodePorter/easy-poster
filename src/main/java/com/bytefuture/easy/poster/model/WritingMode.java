@@ -7,8 +7,12 @@ package com.bytefuture.easy.poster.model;
  * @since 2026/05/07
  */
 public enum WritingMode {
-    /** 横排（默认） */
+    /**
+     * 横排（默认）
+     */
     HORIZONTAL,
-    /** 竖排 */
+    /**
+     * 竖排
+     */
     VERTICAL
 }

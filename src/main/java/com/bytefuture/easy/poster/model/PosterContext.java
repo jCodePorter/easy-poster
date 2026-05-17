@@ -16,9 +16,18 @@ import java.awt.*;
 @Setter
 public class PosterContext {
 
+    /**
+     * 当前poster对象
+     */
     private EasyPoster easyPoster;
 
+    /**
+     * 图形对象
+     */
     private Graphics2D graphics;
 
+    /**
+     * 全局配置
+     */
     private Config config;
 }
