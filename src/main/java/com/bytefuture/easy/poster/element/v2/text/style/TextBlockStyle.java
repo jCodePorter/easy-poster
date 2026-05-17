@@ -78,6 +78,21 @@ public class TextBlockStyle extends BaseTextStyle {
      */
     private VerticalAlign verticalAlign = VerticalAlign.TOP;
 
+    /**
+     * 是否启用自适应文本（仅对单 TextSpan 横排文本生效）
+     */
+    private boolean autoFitText = false;
+
+    /**
+     * 自适应文本的目标宽度
+     */
+    private int autoFitTargetWidth;
+
+    /**
+     * 自适应文本的最小字体大小
+     */
+    private int autoFitMinFontSize;
+
     public TextBlockStyle setColor(Color color) {
         if (color == null) {
             throw new PosterException("text color can not be null");
@@ -304,6 +319,27 @@ public class TextBlockStyle extends BaseTextStyle {
             throw new PosterException("columnSpacing must be greater than or equal to 0");
         }
         this.columnSpacing = columnSpacing;
+        return this;
+    }
+
+    /**
+     * 设置自适应调整文本大小以适应指定宽度
+     * 仅对单 TextSpan 的横排文本生效
+     *
+     * @param targetWidth 目标宽度，必须大于 0
+     * @param minFontSize 最小字体大小，必须大于 0
+     * @return 当前文本块样式
+     */
+    public TextBlockStyle setAutoFitText(int targetWidth, int minFontSize) {
+        if (targetWidth <= 0) {
+            throw new PosterException("targetWidth must be greater than 0");
+        }
+        if (minFontSize <= 0) {
+            throw new PosterException("minFontSize must be greater than 0");
+        }
+        this.autoFitText = true;
+        this.autoFitTargetWidth = targetWidth;
+        this.autoFitMinFontSize = minFontSize;
         return this;
     }
 }

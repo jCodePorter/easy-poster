@@ -82,4 +82,16 @@ public class ResolvedTextStyle {
         this.backgroundPadding = backgroundPadding;
         this.backgroundRadius = backgroundRadius;
     }
+
+    /**
+     * 返回仅字体不同、其余属性相同的新样式对象
+     *
+     * @param font 新字体
+     * @return 新样式对象
+     */
+    public ResolvedTextStyle withFont(Font font) {
+        return new ResolvedTextStyle(font, this.color, this.spanColorOverride,
+                this.underline, this.strikeThrough, this.letterSpacing,
+                this.backgroundColor, this.backgroundPadding, this.backgroundRadius);
+    }
 }

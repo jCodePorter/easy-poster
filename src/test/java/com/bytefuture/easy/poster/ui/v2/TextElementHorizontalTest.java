@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import java.awt.*;
 
-public class V2TextElementUiPngTest {
+public class TextElementHorizontalTest {
 
     @Test
     public void shouldOutputPlainAsRichPreviewPng() {
@@ -621,6 +621,101 @@ public class V2TextElementUiPngTest {
         );
 
         poster.asFile("png", "out_v2_text_showcase.png");
+    }
+
+    /**
+     * 自适应文本：单 TextSpan 自动缩小字体以适应目标宽度
+     */
+    @Test
+    public void shouldOutputAutoFitPreviewPng() {
+        EasyPoster poster = createPoster(720, 480);
+
+        poster.addElement(
+                TextElement.of("AutoFit / 自适应文本")
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(28)
+                        .setColor(new Color(40, 40, 40))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 24, 0, 0)))
+        );
+
+        // 场景1：长文本，目标宽度 400px，最小字体 12pt → 字体应被缩小
+        poster.addElement(
+                TextElement.of("HelloWorldThisIsALongEnglishTextThatNeedsAutoFitToShrinkFontSize")
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(36)
+                        .setColor(new Color(220, 56, 56))
+                        .setAutoFitText(400, 12)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 80, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("↑ autoFit(400, 12) | 原始字号 36pt")
+                        .setFontName("Dialog")
+                        .setFontSize(16)
+                        .setColor(new Color(140, 140, 140))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(444, 80, 0, 0)))
+        );
+
+        // 场景2：短文本，目标宽度充裕 → 字体不变
+        poster.addElement(
+                TextElement.of("Short")
+                        .setFontName("Dialog")
+                        .setFontStyle(Font.BOLD)
+                        .setFontSize(36)
+                        .setColor(new Color(35, 110, 235))
+                        .setAutoFitText(400, 12)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 160, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("↑ autoFit(400, 12) | 原始字号 36pt，文本短无需缩放")
+                        .setFontName("Dialog")
+                        .setFontSize(16)
+                        .setColor(new Color(140, 140, 140))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(444, 160, 0, 0)))
+        );
+
+        // 场景3：中文长文本，最小字体兜底后触发自动换行
+        poster.addElement(
+                TextElement.of("这是一段非常长的中文文本内容用于测试自适应换行兜底机制")
+                        .setFontName("Dialog")
+                        .setFontSize(30)
+                        .setColor(new Color(20, 160, 90))
+                        .setAutoFitText(300, 20)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 240, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("↑ autoFit(300, 20) | 最小字号下仍超宽，触发自动换行")
+                        .setFontName("Dialog")
+                        .setFontSize(16)
+                        .setColor(new Color(140, 140, 140))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 340, 0, 0)))
+        );
+
+        // 场景4：多 TextSpan 富文本 → autoFit 不生效
+        poster.addElement(
+                TextElement.of(
+                                TextSpan.of("Red ").setColor(Color.RED),
+                                TextSpan.of("Green ").setColor(new Color(20, 160, 90)),
+                                TextSpan.of("Blue").setColor(new Color(35, 110, 235)))
+                        .setFontName("Dialog")
+                        .setFontSize(36)
+                        .setAutoFitText(200, 12)
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(32, 400, 0, 0)))
+        );
+
+        poster.addElement(
+                TextElement.of("↑ 多 TextSpan autoFit 不生效，保持原始字号 36pt")
+                        .setFontName("Dialog")
+                        .setFontSize(16)
+                        .setColor(new Color(140, 140, 140))
+                        .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(444, 400, 0, 0)))
+        );
+
+        poster.asFile("png", "out_v2_text_autofit.png");
     }
 
     private EasyPoster createPoster(int width, int height) {

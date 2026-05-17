@@ -18,28 +18,44 @@ import java.util.List;
  */
 @Getter
 public class VerticalTextLayoutResult {
-    /** 文本布局起点 */
+    /**
+     * 文本布局起点
+     */
     private final Point point;
 
-    /** 布局宽度（所有列宽度之和） */
+    /**
+     * 布局宽度（所有列宽度之和）
+     */
     private final int width;
 
-    /** 布局高度（最高列的高度，或 maxVerticalWidth） */
+    /**
+     * 布局高度（最高列的高度，或 maxVerticalWidth）
+     */
     private final int height;
 
-    /** 统一列宽/列间距（= lineHeight） */
+    /**
+     * 统一列宽/列间距（= lineHeight）
+     */
     private final int lineHeight;
 
-    /** 列间距（列与列之间的左右留白） */
+    /**
+     * 列间距（列与列之间的左右留白）
+     */
     private final int columnSpacing;
 
-    /** 列内基线偏移 */
+    /**
+     * 列内基线偏移
+     */
     private final int baselineOffset;
 
-    /** 绘制时的 Y 轴偏移 */
+    /**
+     * 绘制时的 Y 轴偏移
+     */
     private final int yOffset;
 
-    /** 布局后的文本列列表 */
+    /**
+     * 布局后的文本列列表
+     */
     private final List<TextColumn> columns;
 
     public VerticalTextLayoutResult(Point point, int width, int height, int lineHeight,
@@ -54,13 +70,17 @@ public class VerticalTextLayoutResult {
         this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
     }
 
-    /** 创建空布局结果 */
+    /**
+     * 创建空布局结果
+     */
     public static VerticalTextLayoutResult empty(Position position) {
         Point point = position == null ? Point.ORIGIN_COORDINATE : position.calculate(0, 0, 0, 0);
         return new VerticalTextLayoutResult(point, 0, 0, 0, 0, 0, 0, Collections.emptyList());
     }
 
-    /** 转换为元素尺寸对象 */
+    /**
+     * 转换为元素尺寸对象
+     */
     public Dimension toDimension(int rotate) {
         Dimension.DimensionBuilder builder = Dimension.builder()
                 .width(this.width)

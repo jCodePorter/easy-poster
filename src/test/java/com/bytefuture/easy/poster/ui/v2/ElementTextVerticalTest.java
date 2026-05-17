@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.awt.*;
 
-public class V2VerticalTextUiPngTest {
+public class ElementTextVerticalTest {
 
     @Test
     public void shouldOutputVerticalRightToLeftPng() {

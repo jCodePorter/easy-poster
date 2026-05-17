@@ -8,13 +8,7 @@ import com.bytefuture.easy.poster.element.v2.text.style.TextBlockStyle;
 import com.bytefuture.easy.poster.element.v2.text.style.TextOverflow;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.model.BaseLine;
-import com.bytefuture.easy.poster.model.ColumnDirection;
-import com.bytefuture.easy.poster.model.PosterContext;
-import com.bytefuture.easy.poster.model.TextAlign;
-import com.bytefuture.easy.poster.model.TextSpan;
-import com.bytefuture.easy.poster.model.VerticalAlign;
-import com.bytefuture.easy.poster.model.WritingMode;
+import com.bytefuture.easy.poster.model.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -58,15 +52,6 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      */
     @Getter(AccessLevel.NONE)
     private transient Object lastLayout;
-
-    /**
-     * 获取横排布局结果（仅在 HORIZONTAL 模式下有效）
-     *
-     * @return 横排布局结果
-     */
-    public TextLayoutResult getLastLayout() {
-        return (TextLayoutResult) lastLayout;
-    }
 
     /**
      * 使用纯文本内容创建文本元素
@@ -390,6 +375,19 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      */
     public TextElement columnSpacing(int columnSpacing) {
         this.blockStyle.setColumnSpacing(columnSpacing);
+        return this;
+    }
+
+    /**
+     * 设置自适应调整文本大小以适应指定宽度
+     * 仅对单 TextSpan 的横排文本生效
+     *
+     * @param targetWidth 目标宽度
+     * @param minFontSize 最小字体大小
+     * @return 当前元素
+     */
+    public TextElement setAutoFitText(int targetWidth, int minFontSize) {
+        this.blockStyle.setAutoFitText(targetWidth, minFontSize);
         return this;
     }
 }
