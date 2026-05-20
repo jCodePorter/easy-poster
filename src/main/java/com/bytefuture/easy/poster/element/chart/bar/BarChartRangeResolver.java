@@ -1,6 +1,6 @@
 package com.bytefuture.easy.poster.element.chart.bar;
 
-import com.bytefuture.easy.poster.element.chart.BarChartSeries;
+import com.bytefuture.easy.poster.element.chart.base.ChartSeries;
 import com.bytefuture.easy.poster.element.chart.base.ChartValueRange;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class BarChartRangeResolver {
 
-    public ChartValueRange resolve(List<String> categories, List<BarChartSeries> seriesList,
+    public ChartValueRange resolve(List<String> categories, List<ChartSeries> seriesList,
                                    boolean stacked, boolean percentStacked,
                                    Double minValue, Double maxValue) {
         if (stacked) {
@@ -19,7 +19,7 @@ public class BarChartRangeResolver {
 
         double dataMin = Double.MAX_VALUE;
         double dataMax = -Double.MAX_VALUE;
-        for (BarChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             for (Double value : series.getValues()) {
                 dataMin = Math.min(dataMin, value);
                 dataMax = Math.max(dataMax, value);
@@ -33,7 +33,7 @@ public class BarChartRangeResolver {
         return createRange(minValue, maxValue, dataMin, dataMax);
     }
 
-    private ChartValueRange resolveStackedRange(List<String> categories, List<BarChartSeries> seriesList,
+    private ChartValueRange resolveStackedRange(List<String> categories, List<ChartSeries> seriesList,
                                                 boolean percentStacked, Double minValue, Double maxValue) {
         if (percentStacked) {
             return resolvePercentStackedRange(categories, seriesList, minValue, maxValue);
@@ -44,7 +44,7 @@ public class BarChartRangeResolver {
         for (int i = 0; i < categories.size(); i++) {
             double positiveSum = 0D;
             double negativeSum = 0D;
-            for (BarChartSeries series : seriesList) {
+            for (ChartSeries series : seriesList) {
                 double value = series.getValues().get(i);
                 if (value >= 0) {
                     positiveSum += value;
@@ -63,7 +63,7 @@ public class BarChartRangeResolver {
         return createRange(minValue, maxValue, dataMin, dataMax);
     }
 
-    private ChartValueRange resolvePercentStackedRange(List<String> categories, List<BarChartSeries> seriesList,
+    private ChartValueRange resolvePercentStackedRange(List<String> categories, List<ChartSeries> seriesList,
                                                        Double minValue, Double maxValue) {
         boolean hasPositive = false;
         boolean hasNegative = false;
@@ -84,9 +84,9 @@ public class BarChartRangeResolver {
         return new ChartValueRange(finalMin, finalMax);
     }
 
-    private double getCategoryPositiveTotal(List<BarChartSeries> seriesList, int categoryIndex) {
+    private double getCategoryPositiveTotal(List<ChartSeries> seriesList, int categoryIndex) {
         double total = 0D;
-        for (BarChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             double value = series.getValues().get(categoryIndex);
             if (value > 0) {
                 total += value;
@@ -95,9 +95,9 @@ public class BarChartRangeResolver {
         return total;
     }
 
-    private double getCategoryNegativeTotal(List<BarChartSeries> seriesList, int categoryIndex) {
+    private double getCategoryNegativeTotal(List<ChartSeries> seriesList, int categoryIndex) {
         double total = 0D;
-        for (BarChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             double value = series.getValues().get(categoryIndex);
             if (value < 0) {
                 total += value;

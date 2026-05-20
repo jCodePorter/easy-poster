@@ -2,7 +2,6 @@ package com.bytefuture.easy.poster.ui.chart;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.chart.FunnelChartElement;
-import com.bytefuture.easy.poster.element.chart.FunnelChartStage;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
 import org.junit.Assert;
@@ -24,10 +23,10 @@ public class FunnelChartBasicTest {
                 .setTitle("Sales Funnel")
                 .setLegendDisplayMode(FunnelChartElement.DisplayMode.NAME_VALUE)
                 .setLabelDisplayMode(FunnelChartElement.DisplayMode.NAME_PERCENT)
-                .addStage("Leads", 1000, new Color(59, 130, 246))
-                .addStage("Qualified", 500, new Color(16, 185, 129))
-                .addStage("Negotiation", 250, new Color(245, 158, 11))
-                .addStage("Won", 100, new Color(168, 85, 247))
+                .addData("Leads", 1000, new Color(59, 130, 246))
+                .addData("Qualified", 500, new Color(16, 185, 129))
+                .addData("Negotiation", 250, new Color(245, 158, 11))
+                .addData("Won", 100, new Color(168, 85, 247))
                 .setPosition(RelativePosition.of(Direction.CENTER));
         poster.asFile("png", "out_funnel_basic.png");
     }
@@ -40,9 +39,9 @@ public class FunnelChartBasicTest {
                 .setShowLabel(false)
                 .setShowLegend(false)
                 .setPalette(Arrays.asList(Color.BLUE, Color.GREEN, Color.ORANGE))
-                .addStage("Stage A", 100, customColor)
-                .addStage("Stage B", 50)
-                .addStage("Stage C", 25)
+                .addData("Stage A", 100, customColor)
+                .addData("Stage B", 50)
+                .addData("Stage C", 25)
                 .setPosition(RelativePosition.of(Direction.CENTER));
         poster.asFile("png", "out_funnel_custom_color.png");
     }
@@ -54,22 +53,22 @@ public class FunnelChartBasicTest {
         poster.addFunnelChartElement(300, 240)
                 .setTitle("Name Only")
                 .setLabelDisplayMode(FunnelChartElement.DisplayMode.NAME)
-                .addStage("Stage 1", 100)
-                .addStage("Stage 2", 50)
+                .addData("Stage 1", 100)
+                .addData("Stage 2", 50)
                 .setPosition(RelativePosition.of(Direction.TOP_LEFT));
 
         poster.addFunnelChartElement(300, 240)
                 .setTitle("Value Only")
                 .setLabelDisplayMode(FunnelChartElement.DisplayMode.VALUE)
-                .addStage("Stage 1", 100)
-                .addStage("Stage 2", 50)
+                .addData("Stage 1", 100)
+                .addData("Stage 2", 50)
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
         poster.addFunnelChartElement(300, 240)
                 .setTitle("Percent Only")
                 .setLabelDisplayMode(FunnelChartElement.DisplayMode.PERCENT)
-                .addStage("Stage 1", 100)
-                .addStage("Stage 2", 50)
+                .addData("Stage 1", 100)
+                .addData("Stage 2", 50)
                 .setPosition(RelativePosition.of(Direction.TOP_RIGHT));
 
         poster.asFile("png", "out_funnel_label_modes.png");
@@ -81,11 +80,11 @@ public class FunnelChartBasicTest {
         poster.addFunnelChartElement(480, 360)
                 .setTitle("Legend Wrap")
                 .setLegendDisplayMode(FunnelChartElement.DisplayMode.NAME)
-                .addStage("Very Long Stage Name 1", 100)
-                .addStage("Very Long Stage Name 2", 80)
-                .addStage("Very Long Stage Name 3", 60)
-                .addStage("Very Long Stage Name 4", 40)
-                .addStage("Very Long Stage Name 5", 20)
+                .addData("Very Long Stage Name 1", 100)
+                .addData("Very Long Stage Name 2", 80)
+                .addData("Very Long Stage Name 3", 60)
+                .addData("Very Long Stage Name 4", 40)
+                .addData("Very Long Stage Name 5", 20)
                 .setPosition(RelativePosition.of(Direction.CENTER));
         poster.asFile("png", "out_funnel_legend_wrap.png");
     }
@@ -96,10 +95,10 @@ public class FunnelChartBasicTest {
         poster.addFunnelChartElement(600, 480)
                 .setTitle("Equal Value Stages")
                 .setLabelDisplayMode(FunnelChartElement.DisplayMode.NAME_VALUE)
-                .addStage("Stage A", 100)
-                .addStage("Stage B", 100)
-                .addStage("Stage C", 100)
-                .addStage("Stage D", 100)
+                .addData("Stage A", 100)
+                .addData("Stage B", 100)
+                .addData("Stage C", 100)
+                .addData("Stage D", 100)
                 .setPosition(RelativePosition.of(Direction.CENTER));
         poster.asFile("png", "out_funnel_equal_values.png");
     }
@@ -110,9 +109,9 @@ public class FunnelChartBasicTest {
         poster.addFunnelChartElement(300, 200)
                 .setTitle("Small Stage Labels")
                 .setLabelDisplayMode(FunnelChartElement.DisplayMode.NAME_PERCENT)
-                .addStage("Large Stage", 1000)
-                .addStage("Small Stage", 1)
-                .addStage("Tiny Stage", 0.1)
+                .addData("Large Stage", 1000)
+                .addData("Small Stage", 1)
+                .addData("Tiny Stage", 0.1)
                 .setPosition(RelativePosition.of(Direction.CENTER));
         poster.asFile("png", "out_funnel_small_labels.png");
     }
@@ -120,9 +119,9 @@ public class FunnelChartBasicTest {
     @Test
     public void testResolveRenderStagesShouldComputePercentAndMaxValue() throws Exception {
         FunnelChartElement chart = new FunnelChartElement(300, 240)
-                .addStage("Visit", 100)
-                .addStage("Qualified", 60)
-                .addStage("Won", 40);
+                .addData("Visit", 100)
+                .addData("Qualified", 60)
+                .addData("Won", 40);
 
         List<?> renderStages = (List<?>) invokeNoArg(chart, "resolveRenderStages");
 
@@ -136,7 +135,7 @@ public class FunnelChartBasicTest {
     @Test
     public void testDrawStageLabelShouldUseExternalLeaderLineWhenStageHeightIsTooSmall() throws Exception {
         FunnelChartElement chart = new FunnelChartElement(300, 240)
-                .addStage("Tiny", 100, new Color(59, 130, 246));
+                .addData("Tiny", 100, new Color(59, 130, 246));
         List<?> renderStages = (List<?>) invokeNoArg(chart, "resolveRenderStages");
         Object renderStage = renderStages.get(0);
 

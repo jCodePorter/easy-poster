@@ -1,17 +1,17 @@
-package com.bytefuture.easy.poster.element.chart.base;
+package com.bytefuture.easy.poster.element.chart;
 
 import com.bytefuture.easy.poster.element.AbstractDimensionElement;
+import com.bytefuture.easy.poster.element.chart.base.ChartLayoutBox;
+import com.bytefuture.easy.poster.element.chart.base.ChartStyle;
+import com.bytefuture.easy.poster.element.chart.base.ChartTextSupport;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.PosterContext;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Insets;
+import java.awt.*;
 
 /**
- * Shared rendering shell for chart elements.
+ * 图表抽象类
  */
 public abstract class AbstractChartElement<T extends AbstractChartElement<T>> extends AbstractDimensionElement<T> {
 

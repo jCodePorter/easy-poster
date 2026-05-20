@@ -1,9 +1,6 @@
 package com.bytefuture.easy.poster.element.chart;
 
-import com.bytefuture.easy.poster.element.chart.base.AbstractChartElement;
-import com.bytefuture.easy.poster.element.chart.base.ChartLayoutBox;
-import com.bytefuture.easy.poster.element.chart.base.ChartLegendRenderer;
-import com.bytefuture.easy.poster.element.chart.base.NamedColorValue;
+import com.bytefuture.easy.poster.element.chart.base.*;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.model.PosterContext;
 
@@ -34,7 +31,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     /**
      * 原始阶段列表。
      */
-    private final List<FunnelChartStage> stages = new ArrayList<FunnelChartStage>();
+    private final List<ChartData> chartData = new ArrayList<>();
 
     /**
      * 数值格式化器。
@@ -248,26 +245,26 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     /**
      * 添加单个阶段对象。
      */
-    public FunnelChartElement addStage(FunnelChartStage stage) {
+    public FunnelChartElement addData(ChartData stage) {
         if (stage == null) {
             throw new PosterException("stage can not be null");
         }
-        this.stages.add(stage);
+        this.chartData.add(stage);
         return this;
     }
 
     /**
      * 通过名称和值添加阶段。
      */
-    public FunnelChartElement addStage(String name, Number value) {
-        return addStage(FunnelChartStage.of(name, value));
+    public FunnelChartElement addData(String name, Number value) {
+        return addData(ChartData.of(name, value));
     }
 
     /**
      * 通过名称、值和颜色添加阶段。
      */
-    public FunnelChartElement addStage(String name, Number value, Color color) {
-        return addStage(FunnelChartStage.of(name, value, color));
+    public FunnelChartElement addData(String name, Number value, Color color) {
+        return addData(ChartData.of(name, value, color));
     }
 
     /**
@@ -307,10 +304,10 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
         if (showLabel && labelDisplayMode == null) {
             throw new PosterException("labelDisplayMode can not be null");
         }
-        if (stages.isEmpty()) {
+        if (chartData.isEmpty()) {
             throw new PosterException("stages can not be empty");
         }
-        for (FunnelChartStage stage : stages) {
+        for (ChartData stage : chartData) {
             if (stage == null) {
                 throw new PosterException("stage can not be null");
             }
@@ -330,7 +327,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
         double maxValue = 0D;
         int colorIndex = 0;
 
-        for (FunnelChartStage stage : stages) {
+        for (ChartData stage : chartData) {
             Color resolvedColor = resolveStageColor(stage, colorIndex);
             renderStages.add(new StageRenderInfo(stage, resolvedColor));
             total += stage.getValue();
@@ -352,7 +349,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     /**
      * 解析单个阶段最终使用的颜色。
      */
-    private Color resolveStageColor(FunnelChartStage stage, int colorIndex) {
+    private Color resolveStageColor(ChartData stage, int colorIndex) {
         return Optional.ofNullable(stage.getColor()).orElse(palette.get(colorIndex % palette.size()));
     }
 
@@ -535,19 +532,12 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
     }
 
     /**
-     * 返回只读阶段列表。
-     */
-    public List<FunnelChartStage> getStages() {
-        return Collections.unmodifiableList(stages);
-    }
-
-    /**
      * 批量替换阶段数据。
      */
-    public FunnelChartElement setStages(List<FunnelChartStage> stages) {
-        this.stages.clear();
-        if (stages != null) {
-            this.stages.addAll(stages);
+    public FunnelChartElement setChartData(List<ChartData> chartData) {
+        this.chartData.clear();
+        if (chartData != null) {
+            this.chartData.addAll(chartData);
         }
         return this;
     }
@@ -595,17 +585,15 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
         }
     }
 
-
     /**
      * 渲染阶段缓存的派生数据。
      */
     private static class StageRenderInfo {
 
-
         /**
          * 原始阶段对象。
          */
-        private final FunnelChartStage stage;
+        private final ChartData stage;
 
         /**
          * 当前阶段最终使用的颜色。
@@ -622,7 +610,7 @@ public class FunnelChartElement extends AbstractChartElement<FunnelChartElement>
          */
         private double maxValue;
 
-        private StageRenderInfo(FunnelChartStage stage, Color color) {
+        private StageRenderInfo(ChartData stage, Color color) {
             this.stage = stage;
             this.color = color;
         }

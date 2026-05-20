@@ -1,7 +1,7 @@
 package com.bytefuture.easy.poster.element.chart;
 
-import com.bytefuture.easy.poster.element.chart.base.AbstractChartElement;
 import com.bytefuture.easy.poster.element.chart.base.ChartLayoutBox;
+import com.bytefuture.easy.poster.element.chart.base.ChartSeries;
 import com.bytefuture.easy.poster.element.chart.base.ChartValueRange;
 import com.bytefuture.easy.poster.element.chart.line.LinePathBuilder;
 import com.bytefuture.easy.poster.element.chart.line.LinePathBuilderFactory;
@@ -37,7 +37,7 @@ public class LineChartElement extends AbstractChartElement<LineChartElement> {
 
     private final List<String> categories = new ArrayList<String>();
 
-    private final List<LineChartSeries> seriesList = new ArrayList<LineChartSeries>();
+    private final List<ChartSeries> seriesList = new ArrayList<>();
 
     private final DecimalFormat decimalFormat = new DecimalFormat("0.##");
 
@@ -246,7 +246,7 @@ public class LineChartElement extends AbstractChartElement<LineChartElement> {
         return this;
     }
 
-    public LineChartElement addSeries(LineChartSeries series) {
+    public LineChartElement addSeries(ChartSeries series) {
         if (series != null) {
             this.seriesList.add(series);
         }
@@ -254,11 +254,11 @@ public class LineChartElement extends AbstractChartElement<LineChartElement> {
     }
 
     public LineChartElement addSeries(String name, List<? extends Number> values) {
-        return addSeries(LineChartSeries.of(name, values));
+        return addSeries(ChartSeries.of(name, values));
     }
 
     public LineChartElement addSeries(String name, List<? extends Number> values, Color color) {
-        return addSeries(LineChartSeries.of(name, values).setColor(color));
+        return addSeries(ChartSeries.of(name, values).setColor(color));
     }
 
     @Override
@@ -313,7 +313,7 @@ public class LineChartElement extends AbstractChartElement<LineChartElement> {
         if (seriesList.isEmpty()) {
             throw new PosterException("chart series can not be empty");
         }
-        for (LineChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             if (series.getValues().size() != categories.size()) {
                 throw new PosterException("series value size must match category size");
             }
@@ -342,7 +342,7 @@ public class LineChartElement extends AbstractChartElement<LineChartElement> {
         int rowHeight = Math.max(metrics.getHeight(), legendMarkerSize) + 6;
         int rows = 1;
         for (int i = 0; i < seriesList.size(); i++) {
-            LineChartSeries series = seriesList.get(i);
+            ChartSeries series = seriesList.get(i);
             String text = Optional.ofNullable(series.getName()).orElse("");
             int itemWidth = legendMarkerSize + 8 + metrics.stringWidth(text) + legendItemGap;
             if (x > left && x + itemWidth > right) {
@@ -401,7 +401,7 @@ public class LineChartElement extends AbstractChartElement<LineChartElement> {
         Stroke oldStroke = g.getStroke();
         LinePathBuilder pathBuilder = LINE_PATH_BUILDER_FACTORY.resolve(smoothTension, smoothAlgorithm);
         for (int seriesIndex = 0; seriesIndex < seriesList.size(); seriesIndex++) {
-            LineChartSeries series = seriesList.get(seriesIndex);
+            ChartSeries series = seriesList.get(seriesIndex);
             Color color = resolveSeriesColor(series, seriesIndex);
             List<Point2D.Double> points = new ArrayList<Point2D.Double>();
             int[] xPoints = new int[categories.size()];
@@ -467,14 +467,14 @@ public class LineChartElement extends AbstractChartElement<LineChartElement> {
         return (int) Math.round(plotLeft + step * index);
     }
 
-    private Color resolveSeriesColor(LineChartSeries series, int index) {
+    private Color resolveSeriesColor(ChartSeries series, int index) {
         return Optional.ofNullable(series.getColor()).orElse(DEFAULT_PALETTE.get(index % DEFAULT_PALETTE.size()));
     }
 
     private ChartValueRange resolveValueRange() {
         double dataMin = Double.MAX_VALUE;
         double dataMax = -Double.MAX_VALUE;
-        for (LineChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             for (Double value : series.getValues()) {
                 dataMin = Math.min(dataMin, value);
                 dataMax = Math.max(dataMax, value);

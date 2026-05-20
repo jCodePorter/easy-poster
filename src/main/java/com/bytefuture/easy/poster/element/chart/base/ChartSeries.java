@@ -1,4 +1,4 @@
-package com.bytefuture.easy.poster.element.chart;
+package com.bytefuture.easy.poster.element.chart.base;
 
 import lombok.Getter;
 
@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 柱状图数据系列。
+ * 数据系列
  */
 @Getter
-public class BarChartSeries {
+public class ChartSeries {
 
     /**
      * 系列名称，用于图例展示。
@@ -30,7 +30,7 @@ public class BarChartSeries {
     /**
      * 使用系列名称和值列表创建数据系列。
      */
-    public BarChartSeries(String name, List<? extends Number> values) {
+    public ChartSeries(String name, List<? extends Number> values) {
         this.name = name;
         if (values != null) {
             // 统一将外部 Number 转成 double，并把 null 当成 0 处理。
@@ -43,14 +43,14 @@ public class BarChartSeries {
     /**
      * 快速创建柱状图数据系列。
      */
-    public static BarChartSeries of(String name, List<? extends Number> values) {
-        return new BarChartSeries(name, values);
+    public static ChartSeries of(String name, List<? extends Number> values) {
+        return new ChartSeries(name, values);
     }
 
     /**
      * 设置系列颜色。
      */
-    public BarChartSeries setColor(Color color) {
+    public ChartSeries setColor(Color color) {
         this.color = color;
         return this;
     }

@@ -2,7 +2,7 @@ package com.bytefuture.easy.poster.ui.chart;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.chart.BarChartElement;
-import com.bytefuture.easy.poster.element.chart.BarChartSeries;
+import com.bytefuture.easy.poster.element.chart.base.ChartSeries;
 import com.bytefuture.easy.poster.element.chart.bar.BarChartLayoutCalculator;
 import com.bytefuture.easy.poster.element.chart.bar.BarChartRangeResolver;
 import com.bytefuture.easy.poster.element.chart.base.ChartValueRange;
@@ -140,8 +140,8 @@ public class BarChartBasicTest {
         ChartValueRange range = new BarChartRangeResolver().resolve(
                 Arrays.asList("A", "B"),
                 Arrays.asList(
-                        new BarChartSeries("Series-1", Arrays.asList(-12, 40)),
-                        new BarChartSeries("Series-2", Arrays.asList(18, 24))
+                        new ChartSeries("Series-1", Arrays.asList(-12, 40)),
+                        new ChartSeries("Series-2", Arrays.asList(18, 24))
                 ),
                 false,
                 false,
@@ -158,9 +158,9 @@ public class BarChartBasicTest {
         ChartValueRange range = new BarChartRangeResolver().resolve(
                 Arrays.asList("A", "B"),
                 Arrays.asList(
-                        new BarChartSeries("Income", Arrays.asList(60, 30)),
-                        new BarChartSeries("Bonus", Arrays.asList(20, 15)),
-                        new BarChartSeries("Refund", Arrays.asList(-10, -25))
+                        new ChartSeries("Income", Arrays.asList(60, 30)),
+                        new ChartSeries("Bonus", Arrays.asList(20, 15)),
+                        new ChartSeries("Refund", Arrays.asList(-10, -25))
                 ),
                 true,
                 false,
@@ -177,8 +177,8 @@ public class BarChartBasicTest {
         ChartValueRange range = new BarChartRangeResolver().resolve(
                 Arrays.asList("A", "B"),
                 Arrays.asList(
-                        new BarChartSeries("Positive", Arrays.asList(60, 40)),
-                        new BarChartSeries("Negative", Arrays.asList(-20, -10))
+                        new ChartSeries("Positive", Arrays.asList(60, 40)),
+                        new ChartSeries("Negative", Arrays.asList(-20, -10))
                 ),
                 true,
                 true,

@@ -4,6 +4,7 @@ import com.bytefuture.easy.poster.element.AbstractDimensionElement;
 import com.bytefuture.easy.poster.element.chart.bar.BarChartLabelRenderer;
 import com.bytefuture.easy.poster.element.chart.bar.BarChartLayoutCalculator;
 import com.bytefuture.easy.poster.element.chart.bar.BarChartRangeResolver;
+import com.bytefuture.easy.poster.element.chart.base.ChartSeries;
 import com.bytefuture.easy.poster.element.chart.base.ChartValueRange;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Dimension;
@@ -60,7 +61,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
     /**
      * 图表中的数据系列列表。
      */
-    private final List<BarChartSeries> seriesList = new ArrayList<BarChartSeries>();
+    private final List<ChartSeries> seriesList = new ArrayList<ChartSeries>();
 
     /**
      * 统一的数值格式化器。
@@ -528,7 +529,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
     /**
      * 添加数据系列对象。
      */
-    public BarChartElement addSeries(BarChartSeries series) {
+    public BarChartElement addSeries(ChartSeries series) {
         if (series == null) {
             return this;
         }
@@ -540,14 +541,14 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
      * 通过名称和值列表添加数据系列。
      */
     public BarChartElement addSeries(String name, List<? extends Number> values) {
-        return addSeries(BarChartSeries.of(name, values));
+        return addSeries(ChartSeries.of(name, values));
     }
 
     /**
      * 通过名称、值列表和颜色添加数据系列。
      */
     public BarChartElement addSeries(String name, List<? extends Number> values, Color color) {
-        return addSeries(BarChartSeries.of(name, values).setColor(color));
+        return addSeries(ChartSeries.of(name, values).setColor(color));
     }
 
     /**
@@ -634,7 +635,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         if (seriesList.isEmpty()) {
             throw new PosterException("chart series can not be empty");
         }
-        for (BarChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             if (series.getValues().size() != categories.size()) {
                 throw new PosterException("series value size must match category size");
             }
@@ -670,7 +671,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         int rowHeight = Math.max(metrics.getHeight(), legendMarkerSize) + 6;
         int usedHeight = rowHeight;
         for (int i = 0; i < seriesList.size(); i++) {
-            BarChartSeries series = seriesList.get(i);
+            ChartSeries series = seriesList.get(i);
             String text = Optional.ofNullable(series.getName()).orElse(String.valueOf((i + 1)));
             int textWidth = metrics.stringWidth(text);
             int itemWidth = legendMarkerSize + 6 + textWidth + legendItemGap;
@@ -771,7 +772,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
         );
         for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
             for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                BarChartSeries series = seriesList.get(seriesIndex);
+                ChartSeries series = seriesList.get(seriesIndex);
                 double value = series.getValues().get(categoryIndex);
                 // 柱高始终按值域跨度归一化，负值仅改变起点，不改变高度绝对值。
                 double normalized = Math.abs(value) / (valueRange.getMax() - valueRange.getMin());
@@ -814,7 +815,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
             int negativeIndex = 0;
 
             for (int seriesIndex = 0; seriesIndex < seriesList.size(); seriesIndex++) {
-                BarChartSeries series = seriesList.get(seriesIndex);
+                ChartSeries series = seriesList.get(seriesIndex);
                 double value = series.getValues().get(categoryIndex);
                 if (Double.compare(value, 0D) == 0) {
                     continue;
@@ -906,7 +907,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
      */
     private int countVisibleSegments(int categoryIndex, boolean positive) {
         int count = 0;
-        for (BarChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             double value = series.getValues().get(categoryIndex);
             if (positive && value > 0) {
                 count++;
@@ -922,7 +923,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
      */
     private double getCategoryPositiveTotal(int categoryIndex) {
         double total = 0D;
-        for (BarChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             double value = series.getValues().get(categoryIndex);
             if (value > 0) {
                 total += value;
@@ -936,7 +937,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
      */
     private double getCategoryNegativeTotal(int categoryIndex) {
         double total = 0D;
-        for (BarChartSeries series : seriesList) {
+        for (ChartSeries series : seriesList) {
             double value = series.getValues().get(categoryIndex);
             if (value < 0) {
                 total += value;
@@ -1015,7 +1016,7 @@ public class BarChartElement extends AbstractDimensionElement<BarChartElement> {
     /**
      * 解析系列最终颜色。
      */
-    private Color resolveSeriesColor(BarChartSeries series, int index) {
+    private Color resolveSeriesColor(ChartSeries series, int index) {
         return Optional.ofNullable(series.getColor()).orElse(DEFAULT_PALETTE.get(index % DEFAULT_PALETTE.size()));
     }
 
