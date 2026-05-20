@@ -28,7 +28,7 @@ public class LetterSpacingTest {
                         .setFontSize(36)
                         .setPosition(AbsolutePosition.of(Point.of(50, 50)))
         );
-        poster.asFile("png", "output/v2_letter_spacing_block.png");
+        poster.asFile("png", "output/text_letter_spacing_block.png");
     }
 
     @Test
@@ -40,7 +40,7 @@ public class LetterSpacingTest {
                         TextSpan.of("稀疏").setLetterSpacing(8).setColor(Color.RED).setFontSize(24)
                 ).setPosition(AbsolutePosition.of(Point.of(50, 100)))
         );
-        poster.asFile("png", "output/v2_letter_spacing_span.png");
+        poster.asFile("png", "output/text_letter_spacing_span.png");
     }
 
     @Test
@@ -51,10 +51,10 @@ public class LetterSpacingTest {
                         .setLetterSpacing(5)
                         .setColor(Color.BLACK)
                         .setFontSize(20)
-                        .maxTextWidth(300)
+                        .setMaxTextWidth(240)
                         .setTextAlign(TextAlign.LEFT)
                         .setPosition(AbsolutePosition.of(Point.of(50, 50)))
         );
-        poster.asFile("png", "output/v2_letter_spacing_wrap.png");
+        poster.asFile("png", "output/text_letter_spacing_wrap.png");
     }
 }

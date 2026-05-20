@@ -169,7 +169,7 @@ public class TextPipeline {
 
         // 如果即使使用最小字体仍然超出宽度，则启用自动换行作为兜底
         if (optimalFontSize == minFontSize && adjustedWidth > targetWidth) {
-            styleContext.getBlockStyle().maxTextWidth(targetWidth);
+            styleContext.getBlockStyle().setMaxTextWidth(targetWidth);
         }
 
         // 更新块级字体大小

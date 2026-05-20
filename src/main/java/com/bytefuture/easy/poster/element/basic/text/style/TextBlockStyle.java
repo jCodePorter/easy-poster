@@ -154,20 +154,12 @@ public class TextBlockStyle extends BaseTextStyle {
         return this;
     }
 
-    public TextBlockStyle maxTextWidth(int maxWidth) {
+    public TextBlockStyle setMaxTextWidth(int maxWidth) {
         if (maxWidth <= 0) {
             throw new PosterException("maxWidth must be greater than 0");
         }
         this.maxTextWidth = maxWidth;
         return this;
-    }
-
-    /**
-     * 重置 maxTextWidth 为默认值（0，即不限制宽度）
-     * 仅用于容器布局阶段恢复子元素原始状态，不应在用户 API 中使用
-     */
-    public void resetMaxTextWidth() {
-        this.maxTextWidth = 0;
     }
 
     /**
@@ -282,7 +274,7 @@ public class TextBlockStyle extends BaseTextStyle {
      * @param maxVerticalWidth 最大列高，必须大于 0
      * @return 当前文本块样式
      */
-    public TextBlockStyle maxVerticalWidth(Integer maxVerticalWidth) {
+    public TextBlockStyle setMaxVerticalWidth(Integer maxVerticalWidth) {
         if (maxVerticalWidth != null && maxVerticalWidth <= 0) {
             throw new PosterException("maxVerticalWidth must be greater than 0");
         }

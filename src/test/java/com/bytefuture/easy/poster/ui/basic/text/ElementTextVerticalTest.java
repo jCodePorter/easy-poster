@@ -27,7 +27,7 @@ public class ElementTextVerticalTest {
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_rl.png");
+        poster.asFile("png", "out_text_vertical_rl.png");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ElementTextVerticalTest {
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_lr.png");
+        poster.asFile("png", "out_text_vertical_lr.png");
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ElementTextVerticalTest {
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_line_height.png");
+        poster.asFile("png", "out_text_vertical_line_height.png");
     }
 
     @Test
@@ -74,13 +74,13 @@ public class ElementTextVerticalTest {
                         .vertical()
                         .columnRightToLeft()
                         .maxVerticalWidth(400)
-                        .verticalAlign(VerticalAlign.CENTER)
+                        .setVerticalAlign(VerticalAlign.CENTER)
                         .setFontSize(28)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_center_align.png");
+        poster.asFile("png", "out_text_vertical_center_align.png");
     }
 
     @Test
@@ -90,8 +90,7 @@ public class ElementTextVerticalTest {
         poster.addElement(
                 TextElement.of(
                         TextSpan.of("春眠不觉晓").setColor(Color.RED),
-                        TextSpan.of("处处闻啼鸟").setColor(new Color(30, 120, 255))
-                )
+                        TextSpan.of("处处闻啼鸟").setColor(new Color(30, 120, 255)))
                         .vertical()
                         .columnRightToLeft()
                         .maxVerticalWidth(400)
@@ -99,7 +98,7 @@ public class ElementTextVerticalTest {
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_rich_span.png");
+        poster.asFile("png", "out_text_vertical_rich_span.png");
     }
 
     @Test
@@ -116,7 +115,7 @@ public class ElementTextVerticalTest {
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_auto_wrap.png");
+        poster.asFile("png", "out_text_vertical_auto_wrap.png");
     }
 
     @Test
@@ -132,7 +131,7 @@ public class ElementTextVerticalTest {
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_newline.png");
+        poster.asFile("png", "out_text_vertical_newline.png");
     }
 
     @Test
@@ -144,13 +143,13 @@ public class ElementTextVerticalTest {
                         .vertical()
                         .columnRightToLeft()
                         .maxVerticalWidth(400)
-                        .columnSpacing(20)
+                        .setColumnSpacing(20)
                         .setFontSize(28)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_column_spacing.png");
+        poster.asFile("png", "out_text_vertical_column_spacing.png");
     }
 
     @Test
@@ -162,13 +161,13 @@ public class ElementTextVerticalTest {
                         .vertical()
                         .columnLeftToRight()
                         .maxVerticalWidth(400)
-                        .columnSpacing(20)
+                        .setColumnSpacing(20)
                         .setFontSize(28)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
 
-        poster.asFile("png", "out_v2_vertical_column_spacing_lr.png");
+        poster.asFile("png", "out_text_vertical_column_spacing_lr.png");
     }
 
     private EasyPoster createPoster(int width, int height) {

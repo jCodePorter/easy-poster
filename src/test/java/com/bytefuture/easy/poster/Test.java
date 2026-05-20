@@ -6,6 +6,7 @@ import com.bytefuture.easy.poster.element.special.QrCodeElement;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
+import com.bytefuture.easy.poster.model.TextAlign;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,9 +32,13 @@ public class Test {
         ComposeElement composeElement = ComposeElement.of(
                         new QrCodeElement(qrCodeMsg, 500, 500)
                                 .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(0, 635))))
-                .bottom(new TextElement(textMsg).setFontSize(36).setFontName("微软雅黑")
+                .bottom(new TextElement(textMsg)
+                        .setFontSize(36)
+                        .setFontName("微软雅黑")
                         .setColor("#566C91")
-                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(35))));
+                        .setMaxTextWidth(480)
+                        .setTextAlign(TextAlign.CENTER)
+                        .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of(25))));
 
         poster.addElement(composeElement);
         poster.asFile("png", "out_juhuo.png");

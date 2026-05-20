@@ -22,7 +22,7 @@ public class VerticalPunctuationTest {
                         .maxVerticalWidth(400)
                         .setFontSize(28)
                         .setLineHeight(36)
-                        .columnSpacing(10)
+                        .setColumnSpacing(10)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
@@ -41,7 +41,7 @@ public class VerticalPunctuationTest {
                         .maxVerticalWidth(400)
                         .setFontSize(28)
                         .setLineHeight(36)
-                        .columnSpacing(10)
+                        .setColumnSpacing(10)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
@@ -60,7 +60,7 @@ public class VerticalPunctuationTest {
                         .maxVerticalWidth(400)
                         .setFontSize(28)
                         .setLineHeight(36)
-                        .columnSpacing(10)
+                        .setColumnSpacing(10)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
@@ -79,7 +79,7 @@ public class VerticalPunctuationTest {
                         .maxVerticalWidth(400)
                         .setFontSize(28)
                         .setLineHeight(36)
-                        .columnSpacing(10)
+                        .setColumnSpacing(10)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );
@@ -98,7 +98,7 @@ public class VerticalPunctuationTest {
                         .maxVerticalWidth(400)
                         .setFontSize(28)
                         .setLineHeight(36)
-                        .columnSpacing(10)
+                        .setColumnSpacing(10)
                         .setColor(Color.BLACK)
                         .setPosition(RelativePosition.of(Direction.TOP_LEFT, Margin.of(24)))
         );

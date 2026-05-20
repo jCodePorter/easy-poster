@@ -235,8 +235,8 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @param maxWidth 最大布局宽度
      * @return 当前元素
      */
-    public TextElement maxTextWidth(int maxWidth) {
-        this.blockStyle.maxTextWidth(maxWidth);
+    public TextElement setMaxTextWidth(int maxWidth) {
+        this.blockStyle.setMaxTextWidth(maxWidth);
         return this;
     }
 
@@ -353,7 +353,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @return 当前元素
      */
     public TextElement maxVerticalWidth(int maxVerticalWidth) {
-        this.blockStyle.maxVerticalWidth(maxVerticalWidth);
+        this.blockStyle.setMaxVerticalWidth(maxVerticalWidth);
         return this;
     }
 
@@ -363,7 +363,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @param verticalAlign 列内对齐方式
      * @return 当前元素
      */
-    public TextElement verticalAlign(VerticalAlign verticalAlign) {
+    public TextElement setVerticalAlign(VerticalAlign verticalAlign) {
         this.blockStyle.setVerticalAlign(verticalAlign);
         return this;
     }
@@ -374,7 +374,7 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      * @param columnSpacing 列间距，单位为像素
      * @return 当前元素
      */
-    public TextElement columnSpacing(int columnSpacing) {
+    public TextElement setColumnSpacing(int columnSpacing) {
         this.blockStyle.setColumnSpacing(columnSpacing);
         return this;
     }

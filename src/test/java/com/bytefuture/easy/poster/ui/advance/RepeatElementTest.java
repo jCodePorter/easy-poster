@@ -11,6 +11,7 @@ import com.bytefuture.easy.poster.geometry.Margin;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
 import com.bytefuture.easy.poster.model.RelativeDirection;
 import com.bytefuture.easy.poster.model.Scale;
+import com.bytefuture.easy.poster.model.TextAlign;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -26,14 +27,16 @@ public class RepeatElementTest {
 
         InputStream inputStream = RepeatElementTest.class.getClassLoader().getResourceAsStream("logo.png");
         BufferedImage inputImg = ImageIO.read(inputStream);
-        AbstractElement imageElement = new ImageElement(inputImg)
+        ImageElement imageElement = new ImageElement(inputImg)
+                // 图片缩放到450px
                 .scale(Scale.byWidth(500))
                 .setPosition(RelativePosition.of(Direction.CENTER));
 
+        // 元素尺寸是根据子元素排版布局自动计算
         ComposeElement composeElement = new ComposeElement(imageElement);
         for (Direction position : Direction.values()) {
             Margin margin = Margin.of(30);
-            AbstractElement textElement = new TextElement("叮有鱼科技")
+            TextElement textElement = new TextElement("ByteFuture")
                     .setColor(Color.red)
                     .setFontSize(25)
                     .setPosition(RelativePosition.of(position, margin));
@@ -88,6 +91,8 @@ public class RepeatElementTest {
                 .bottom(new TextElement("叮有鱼科技有限公司专注于无人自助场景")
                         .setColor(Color.red)
                         .setFontSize(18)
+                        .setMaxTextWidth(200)
+                        .setTextAlign(TextAlign.CENTER)
                         .setFontName("仿宋")
                         .setPosition(RelativePosition.of(Direction.TOP_CENTER, Margin.of().setMarginTop(10))));
 

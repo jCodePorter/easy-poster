@@ -20,11 +20,11 @@ public class AutoWrapTextTest {
     public void testAutoWrapText() {
         EasyPoster poster = new EasyPoster(500, 200);
 
-        poster.addTextElement("这是一段测试的超长文本，用来测试自动换行，目前是simple impletion 一版，用于验证自动换行功能逻辑，自动换行的算法目前处于Alpha版")
+        poster.addTextElement("这是一段测试的超长文本，用来测试自动换行，目前是simple impletion 一版，用于验证自动换行功能逻辑，当前功能趋于完善，基本生产可用")
                 .setFontSize(15)
                 .setColor(Color.red)
                 .setLineHeight(50)
-                .maxTextWidth(400)
+                .setMaxTextWidth(400)
                 .setPosition(AbsolutePosition.of(Point.of(30, 50), Direction.TOP_LEFT));
 
         poster.asFile("png", "out_text_auto_split.png");

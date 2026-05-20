@@ -40,7 +40,7 @@ public class AutoFitTextTest {
                 .setFontSize(30)
                 .setColor(Color.red)
                 .setPosition(RelativePosition.of(Direction.CENTER))
-                .setAutoFitText(200, 20);
+                .setAutoFitText(200, 15);
 
         poster.asFile("png", "out_text_auto_fit_min_limit.png");
     }
@@ -96,7 +96,7 @@ public class AutoFitTextTest {
         EasyPoster poster = new EasyPoster(500, 200);
 
         // 先设置字体样式为加粗，再设置自适应文本
-        poster.addTextElement("这是一段加粗的自适应文本")
+        poster.addTextElement("这是一段加粗的自适应文本呀")
                 .setFontSize(30)
                 .setFontStyle(Font.BOLD)
                 .setColor(Color.green)

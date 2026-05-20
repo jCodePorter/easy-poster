@@ -55,16 +55,16 @@ public class TextBasicTest {
         poster.getConfig().setFontSize(25);
 
         poster.addTextElement("正常文字")
-                .setPosition(AbsolutePosition.of(Point.of(30, 0)));
+                .setPosition(AbsolutePosition.of(Point.of(30, 50)));
 
         poster.addTextElement("旋转文字")
                 .setRotate(-30)
                 .setColor(Color.red)
-                .setPosition(AbsolutePosition.of(Point.of(30, 50)));
+                .setPosition(AbsolutePosition.of(Point.of(30, 100)));
 
         poster.addTextElement("透明度为50%")
                 .setAlpha(0.5f)
-                .setPosition(AbsolutePosition.of(Point.of(30, 100)));
+                .setPosition(AbsolutePosition.of(Point.of(30, 180)));
 
         poster.asFile("png", "out_text_global.png");
     }
