@@ -1,13 +1,13 @@
 package com.bytefuture.easy.poster.element.chart;
 
-import com.bytefuture.easy.poster.element.chart.base.ChartDataPoint;
+import com.bytefuture.easy.poster.element.chart.base.ChartData;
 
 import java.awt.Color;
 
 /**
  * Funnel chart stage data.
  */
-public class FunnelChartStage extends ChartDataPoint {
+public class FunnelChartStage extends ChartData {
 
     public FunnelChartStage(String name, Number value) {
         super(name, value);

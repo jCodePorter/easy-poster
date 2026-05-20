@@ -1,8 +1,13 @@
 package com.bytefuture.easy.poster.element.chart.base;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Mutable chart layout box used during title/legend/plot layout.
  */
+@Getter
+@Setter
 public class ChartLayoutBox {
 
     private final int left;
@@ -20,28 +25,8 @@ public class ChartLayoutBox {
         this.bottom = bottom;
     }
 
-    public int getLeft() {
-        return left;
-    }
-
-    public int getTop() {
-        return top;
-    }
-
-    public void setTop(int top) {
-        this.top = top;
-    }
-
     public void shiftTop(int delta) {
         this.top += delta;
-    }
-
-    public int getRight() {
-        return right;
-    }
-
-    public int getBottom() {
-        return bottom;
     }
 
     public int width() {

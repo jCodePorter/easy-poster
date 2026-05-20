@@ -1,9 +1,6 @@
 package com.bytefuture.easy.poster.element.chart;
 
-import com.bytefuture.easy.poster.element.chart.base.AbstractChartElement;
-import com.bytefuture.easy.poster.element.chart.base.ChartLayoutBox;
-import com.bytefuture.easy.poster.element.chart.base.ChartLegendRenderer;
-import com.bytefuture.easy.poster.element.chart.base.NamedColorValue;
+import com.bytefuture.easy.poster.element.chart.base.*;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.model.PosterContext;
 import lombok.AllArgsConstructor;
@@ -37,7 +34,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     /**
      * 原始切片列表。
      */
-    private final List<PieChartSlice> slices = new ArrayList<PieChartSlice>();
+    private final List<ChartData> slices = new ArrayList<>();
 
     /**
      * 数值格式化器。
@@ -308,7 +305,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     /**
      * 添加单个切片对象。
      */
-    public PieChartElement addSlice(PieChartSlice slice) {
+    public PieChartElement addSlice(ChartData slice) {
         if (slice == null) {
             throw new PosterException("slice can not be null");
         }
@@ -320,14 +317,14 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
      * 通过名称和值添加切片。
      */
     public PieChartElement addSlice(String name, Number value) {
-        return addSlice(PieChartSlice.of(name, value));
+        return addSlice(ChartData.of(name, value));
     }
 
     /**
      * 通过名称、值和颜色添加切片。
      */
     public PieChartElement addSlice(String name, Number value, Color color) {
-        return addSlice(PieChartSlice.of(name, value, color));
+        return addSlice(ChartData.of(name, value, color));
     }
 
     /**
@@ -388,7 +385,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
         double total = 0D;
         double maxValue = 0D;
         int colorIndex = 0;
-        for (PieChartSlice slice : slices) {
+        for (ChartData slice : slices) {
             // null 或非正值切片不参与绘制，也不计入总和。
             if (slice == null) {
                 continue;
@@ -415,7 +412,7 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     /**
      * 解析单个切片最终使用的颜色。
      */
-    private Color resolveSliceColor(PieChartSlice slice, int colorIndex) {
+    private Color resolveSliceColor(ChartData slice, int colorIndex) {
         return Optional.ofNullable(slice.getColor()).orElse(palette.get(colorIndex % palette.size()));
     }
 
@@ -617,16 +614,9 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
     }
 
     /**
-     * 返回只读切片列表。
-     */
-    public List<PieChartSlice> getSlices() {
-        return Collections.unmodifiableList(slices);
-    }
-
-    /**
      * 批量替换切片数据。
      */
-    public PieChartElement setSlices(List<PieChartSlice> slices) {
+    public PieChartElement setSlices(List<ChartData> slices) {
         this.slices.clear();
         if (slices != null) {
             this.slices.addAll(slices);
@@ -688,31 +678,27 @@ public class PieChartElement extends AbstractChartElement<PieChartElement> {
      */
     private static class SliceRenderInfo {
 
-
         /**
          * 原始切片对象。
          */
-        private final PieChartSlice slice;
-
+        private final ChartData slice;
 
         /**
          * 当前切片最终使用的颜色。
          */
         private final Color color;
 
-
         /**
          * 当前切片占全部有效值的百分比。
          */
         private double percent;
-
 
         /**
          * 所有有效切片中的最大值。
          */
         private double maxValue;
 
-        private SliceRenderInfo(PieChartSlice slice, Color color) {
+        private SliceRenderInfo(ChartData slice, Color color) {
             this.slice = slice;
             this.color = color;
         }

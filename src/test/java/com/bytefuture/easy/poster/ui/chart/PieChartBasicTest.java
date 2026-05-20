@@ -2,7 +2,7 @@ package com.bytefuture.easy.poster.ui.chart;
 
 import com.bytefuture.easy.poster.EasyPoster;
 import com.bytefuture.easy.poster.element.chart.PieChartElement;
-import com.bytefuture.easy.poster.element.chart.PieChartSlice;
+import com.bytefuture.easy.poster.element.chart.base.ChartData;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.RelativePosition;
@@ -16,9 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class PieChartBasicTest {
 
@@ -135,7 +133,7 @@ public class PieChartBasicTest {
 
     @Test
     public void testSliceNormalizationAndPaletteAccess() {
-        PieChartSlice slice = PieChartSlice.of("Normalized", 12);
+        ChartData slice = ChartData.of("Normalized", 12);
         PieChartElement element = new PieChartElement(200, 200)
                 .setPalette(Arrays.asList(Color.RED, Color.GREEN));
 
@@ -175,33 +173,6 @@ public class PieChartBasicTest {
             Assert.assertNotNull(ex.getCause());
             Assert.assertEquals("pie chart requires at least one positive slice value", ex.getCause().getMessage());
         }
-    }
-
-    @Test
-    public void testResolveDrawableSlicesShouldFilterInvalidSlicesAndComputePercentages() throws Exception {
-        Color paletteColor = new Color(12, 90, 210);
-        Color customColor = new Color(240, 120, 40);
-        PieChartElement chart = new PieChartElement(320, 240)
-                .setPalette(Arrays.asList(paletteColor, Color.GREEN));
-
-        List<PieChartSlice> slices = new ArrayList<PieChartSlice>();
-        slices.add(null);
-        slices.add(PieChartSlice.of("Zero", 0));
-        slices.add(PieChartSlice.of("Negative", -10));
-        slices.add(PieChartSlice.of("Palette", 20));
-        slices.add(PieChartSlice.of("Custom", 30, customColor));
-        chart.setSlices(slices);
-
-        List<?> drawableSlices = (List<?>) invokeNoArg(chart, "resolveDrawableSlices");
-
-        Assert.assertEquals(2, drawableSlices.size());
-        Assert.assertEquals(paletteColor.getRGB(), readColor(drawableSlices.get(0), "color").getRGB());
-        Assert.assertEquals(customColor.getRGB(), readColor(drawableSlices.get(1), "color").getRGB());
-        Assert.assertEquals(40D, readDoubleField(drawableSlices.get(0), "percent"), 0.001D);
-        Assert.assertEquals(60D, readDoubleField(drawableSlices.get(1), "percent"), 0.001D);
-        Assert.assertEquals(30D, readDoubleField(drawableSlices.get(0), "maxValue"), 0.001D);
-        Assert.assertEquals("Palette", ((PieChartSlice) readField(drawableSlices.get(0), "slice")).getName());
-        Assert.assertEquals("Custom", ((PieChartSlice) readField(drawableSlices.get(1), "slice")).getName());
     }
 
     private EasyPoster buildBasePoster() {

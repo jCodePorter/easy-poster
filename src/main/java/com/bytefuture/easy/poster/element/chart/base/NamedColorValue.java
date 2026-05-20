@@ -1,10 +1,15 @@
 package com.bytefuture.easy.poster.element.chart.base;
 
-import java.awt.Color;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.awt.*;
 
 /**
  * Shared legend item view model.
  */
+@Getter
+@Setter
 public class NamedColorValue {
 
     private final String name;
@@ -17,17 +22,5 @@ public class NamedColorValue {
         this.name = name;
         this.color = color;
         this.displayText = displayText;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Color getColor() {
-        return color;
-    }
-
-    public String getDisplayText() {
-        return displayText;
     }
 }

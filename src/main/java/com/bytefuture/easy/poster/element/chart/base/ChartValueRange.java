@@ -1,8 +1,13 @@
 package com.bytefuture.easy.poster.element.chart.base;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Shared numeric value range for cartesian charts.
  */
+@Getter
+@Setter
 public class ChartValueRange {
 
     private final double min;
@@ -12,13 +17,5 @@ public class ChartValueRange {
     public ChartValueRange(double min, double max) {
         this.min = min;
         this.max = max;
-    }
-
-    public double getMin() {
-        return min;
-    }
-
-    public double getMax() {
-        return max;
     }
 }

@@ -20,7 +20,7 @@ public class BarChartSeries {
     /**
      * 与分类一一对应的数值列表。
      */
-    private final List<Double> values = new ArrayList<Double>();
+    private final List<Double> values = new ArrayList<>();
 
     /**
      * 当前系列的显示颜色，未设置时由图表调色板补足。
