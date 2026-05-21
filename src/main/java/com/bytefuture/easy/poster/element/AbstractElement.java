@@ -1,6 +1,5 @@
 package com.bytefuture.easy.poster.element;
 
-import com.bytefuture.easy.tool.support.ColorUtils;
 import com.bytefuture.easy.poster.element.advance.ComposeElement;
 import com.bytefuture.easy.poster.exception.PosterException;
 import com.bytefuture.easy.poster.geometry.Dimension;
@@ -9,6 +8,7 @@ import com.bytefuture.easy.poster.geometry.Position;
 import com.bytefuture.easy.poster.model.Gradient;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.RelativeDirection;
+import com.bytefuture.easy.tool.support.ColorUtils;
 import lombok.Getter;
 
 import java.awt.*;
@@ -74,6 +74,12 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
         return (T) this;
     }
 
+    /**
+     * 位置，有相对位置和绝对位置，本质上都是通过算法计算出绘制的起始点
+     *
+     * @param position 位置
+     * @return
+     */
     public T setPosition(Position position) {
         this.position = position;
         return (T) this;

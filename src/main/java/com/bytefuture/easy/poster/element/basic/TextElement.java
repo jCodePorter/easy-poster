@@ -7,7 +7,9 @@ import com.bytefuture.easy.poster.element.basic.text.pipeline.TextPipeline;
 import com.bytefuture.easy.poster.element.basic.text.render.HorizontalTextRenderer;
 import com.bytefuture.easy.poster.element.basic.text.style.TextBlockStyle;
 import com.bytefuture.easy.poster.element.basic.text.style.TextOverflow;
+import com.bytefuture.easy.poster.geometry.AbsolutePosition;
 import com.bytefuture.easy.poster.geometry.Dimension;
+import com.bytefuture.easy.poster.geometry.Direction;
 import com.bytefuture.easy.poster.geometry.Point;
 import com.bytefuture.easy.poster.model.*;
 import lombok.AccessLevel;
@@ -389,6 +391,16 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
      */
     public TextElement setAutoFitText(int targetWidth, int minFontSize) {
         this.blockStyle.setAutoFitText(targetWidth, minFontSize);
+        return this;
+    }
+
+    /**
+     * 设置绘制的其实位置，复用父类提供的 setPosition 方法，简化配置
+     *
+     * @param point 起始坐标点
+     */
+    public TextElement setPosition(Point point) {
+        super.setPosition(AbsolutePosition.of(point, Direction.TOP_LEFT));
         return this;
     }
 }
