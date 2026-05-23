@@ -47,6 +47,8 @@ public class TextSplitter {
         }
 
         List<TextLine> lines = new ArrayList<>();
+        List<Token> lastCommittedTokens = null;
+        int lastCommittedWidth = 0;
         List<Token> current = new ArrayList<>();
         int currentWidth = 0;
 
@@ -55,6 +57,8 @@ public class TextSplitter {
             if (token.type == TokenType.NEWLINE) {
                 TrimResult trim = trimTrailingSpaces(current, currentWidth);
                 lines.add(buildLine(trim.tokens, trim.width));
+                lastCommittedTokens = new ArrayList<>(trim.tokens);
+                lastCommittedWidth = trim.width;
                 current = new ArrayList<>();
                 currentWidth = 0;
                 continue;
@@ -77,6 +81,8 @@ public class TextSplitter {
                 if (!current.isEmpty()) {
                     TrimResult trim = trimTrailingSpaces(current, currentWidth);
                     lines.add(buildLine(trim.tokens, trim.width));
+                    lastCommittedTokens = new ArrayList<>(trim.tokens);
+                    lastCommittedWidth = trim.width;
                     current = new ArrayList<>();
                     currentWidth = 0;
                 }
@@ -88,15 +94,30 @@ public class TextSplitter {
                         currentWidth = piece.width;
                     } else {
                         lines.add(buildLine(Collections.singletonList(piece), piece.width));
+                        lastCommittedTokens = new ArrayList<>(Collections.singletonList(piece));
+                        lastCommittedWidth = piece.width;
                     }
                 }
                 continue;
             }
 
-            // 当前 token 加入后仍未超宽，或者当前行还是空行时，直接吸收
-            if (currentWidth + token.width <= widthLimit || current.isEmpty()) {
+            // 当前 token 加入后仍未超宽时，直接吸收
+            if (currentWidth + token.width <= widthLimit) {
                 current.add(token);
                 currentWidth += token.width;
+                continue;
+            }
+
+            // 空行时至少放一个字符，但行首禁则字符需要回退到上一行
+            if (current.isEmpty()) {
+                if (isLineStartProhibited(token) && lastCommittedTokens != null) {
+                    lastCommittedTokens.add(token);
+                    lastCommittedWidth += token.width;
+                    lines.set(lines.size() - 1, buildLine(lastCommittedTokens, lastCommittedWidth));
+                    continue;
+                }
+                current.add(token);
+                currentWidth = token.width;
                 continue;
             }
 
@@ -104,14 +125,25 @@ public class TextSplitter {
             if (token.type == TokenType.SPACE) {
                 TrimResult trim = trimTrailingSpaces(current, currentWidth);
                 lines.add(buildLine(trim.tokens, trim.width));
+                lastCommittedTokens = new ArrayList<>(trim.tokens);
+                lastCommittedWidth = trim.width;
                 current = new ArrayList<>();
                 currentWidth = 0;
+                continue;
+            }
+
+            // 行首禁则：标点符号不应出现在行首，强制将其留在当前行（允许微幅超宽）
+            if (isLineStartProhibited(token)) {
+                current.add(token);
+                currentWidth += token.width;
                 continue;
             }
 
             // 普通单词导致超宽：先提交当前行，再把该单词作为下一行的起点
             TrimResult trim = trimTrailingSpaces(current, currentWidth);
             lines.add(buildLine(trim.tokens, trim.width));
+            lastCommittedTokens = new ArrayList<>(trim.tokens);
+            lastCommittedWidth = trim.width;
             current = new ArrayList<>();
             current.add(token);
             currentWidth = token.width;
@@ -157,16 +189,116 @@ public class TextSplitter {
                     continue;
                 }
 
-                TokenType tokenType = Character.isWhitespace(codePoint) ? TokenType.SPACE : TokenType.WORD;
-                if (currentType != null && currentType != tokenType) {
+                // 空白字符归为 SPACE token
+                if (Character.isWhitespace(codePoint)) {
+                    if (currentType != null && currentType != TokenType.SPACE) {
+                        flushBufferedToken(tokens, buffer, currentType, run, graphics);
+                    }
+                    currentType = TokenType.SPACE;
+                    buffer.append(ch);
+                    continue;
+                }
+
+                // CJK 字符各自成为独立 token，避免混合文本中英文单词被 mid-word 断开
+                if (isCJK(codePoint)) {
+                    flushBufferedToken(tokens, buffer, currentType, run, graphics);
+                    currentType = null;
+                    int letterSpacing = run.getStyle().getLetterSpacing();
+                    int width = textMeasurer.measureWidthWithSpacing(graphics, ch, run.getStyle().getFont(), letterSpacing) + letterSpacing;
+                    tokens.add(new Token(TokenType.WORD, ch, run.getStyle(), width, letterSpacing));
+                    continue;
+                }
+
+                // 其他非空白字符累积为一个 WORD token
+                if (currentType != null && currentType != TokenType.WORD) {
                     flushBufferedToken(tokens, buffer, currentType, run, graphics);
                 }
-                currentType = tokenType;
+                currentType = TokenType.WORD;
                 buffer.append(ch);
             }
             flushBufferedToken(tokens, buffer, currentType, run, graphics);
         }
         return tokens;
+    }
+
+    /**
+     * 判断 token 是否为行首禁则字符（不应出现在行首的标点符号）
+     *
+     * @param token 待判断的 token
+     * @return 是否为行首禁则字符
+     */
+    private boolean isLineStartProhibited(Token token) {
+        if (token.type != TokenType.WORD || token.text.isEmpty()) {
+            return false;
+        }
+        return isLineStartProhibitedChar(token.text.codePointAt(0));
+    }
+
+    /**
+     * 判断 Unicode 码点是否为行首禁则字符
+     * 中文排版中，关闭类标点（逗号、句号、右括号等）不应出现在行首
+     *
+     * @param codePoint Unicode 码点
+     * @return 是否为行首禁则字符
+     */
+    private boolean isLineStartProhibitedChar(int codePoint) {
+        // CJK Symbols and Punctuation - 关闭类标点与右括号
+        if (codePoint == 0x3001) return true; // 、
+        if (codePoint == 0x3002) return true; // 。
+        if (codePoint == 0x300B) return true; // 》
+        if (codePoint == 0x300D) return true; // 」
+        if (codePoint == 0x300F) return true; // 』
+        if (codePoint == 0x3011) return true; // 】
+        if (codePoint == 0x3015) return true; // 〕
+        if (codePoint == 0x3017) return true; // 〗
+
+        // Fullwidth Forms - 关闭类标点与右括号
+        if (codePoint == 0xFF01) return true; // ！
+        if (codePoint == 0xFF09) return true; // ）
+        if (codePoint == 0xFF0C) return true; // ，
+        if (codePoint == 0xFF0E) return true; // ．
+        if (codePoint == 0xFF1A) return true; // ：
+        if (codePoint == 0xFF1B) return true; // ；
+        if (codePoint == 0xFF1D) return true; // 〉
+        if (codePoint == 0xFF1F) return true; // ？
+
+        // General Punctuation - 右引号
+        if (codePoint == 0x2019) return true; // '
+        if (codePoint == 0x201D) return true; // "
+
+        return false;
+    }
+
+    /**
+     * 判断字符是否属于 CJK（中日韩）字符集
+     * CJK 字符在排版中可在任意两个字符之间换行，因此需要各自成为独立 token，
+     * 防止英文单词在混合文本中被 mid-word 断开。
+     *
+     * @param codePoint Unicode 码点
+     * @return 是否为 CJK 字符
+     */
+    private boolean isCJK(int codePoint) {
+        // CJK Unified Ideographs
+        if (codePoint >= 0x4E00 && codePoint <= 0x9FFF) return true;
+        // CJK Extension A
+        if (codePoint >= 0x3400 && codePoint <= 0x4DBF) return true;
+        // CJK Extension B
+        if (codePoint >= 0x20000 && codePoint <= 0x2A6DF) return true;
+        // CJK Compatibility Ideographs
+        if (codePoint >= 0xF900 && codePoint <= 0xFAFF) return true;
+        // CJK Symbols and Punctuation
+        if (codePoint >= 0x3000 && codePoint <= 0x303F) return true;
+        // Fullwidth Forms
+        if (codePoint >= 0xFF00 && codePoint <= 0xFFEF) return true;
+        // Hiragana
+        if (codePoint >= 0x3040 && codePoint <= 0x309F) return true;
+        // Katakana
+        if (codePoint >= 0x30A0 && codePoint <= 0x30FF) return true;
+        // Hangul Syllables
+        if (codePoint >= 0xAC00 && codePoint <= 0xD7AF) return true;
+        // Hangul Jamo
+        if (codePoint >= 0x1100 && codePoint <= 0x11FF) return true;
+        return false;
     }
 
     /**
