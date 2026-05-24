@@ -393,14 +393,4 @@ public class TextElement extends AbstractRepeatableElement<TextElement> {
         this.blockStyle.setAutoFitText(targetWidth, minFontSize);
         return this;
     }
-
-    /**
-     * 设置绘制的其实位置，复用父类提供的 setPosition 方法，简化配置
-     *
-     * @param point 起始坐标点
-     */
-    public TextElement setPosition(Point point) {
-        super.setPosition(AbsolutePosition.of(point, Direction.TOP_LEFT));
-        return this;
-    }
 }

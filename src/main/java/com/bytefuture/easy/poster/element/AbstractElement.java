@@ -1,10 +1,11 @@
 package com.bytefuture.easy.poster.element;
 
 import com.bytefuture.easy.poster.element.advance.ComposeElement;
+import com.bytefuture.easy.poster.element.basic.TextElement;
 import com.bytefuture.easy.poster.exception.PosterException;
+import com.bytefuture.easy.poster.geometry.*;
 import com.bytefuture.easy.poster.geometry.Dimension;
 import com.bytefuture.easy.poster.geometry.Point;
-import com.bytefuture.easy.poster.geometry.Position;
 import com.bytefuture.easy.poster.model.Gradient;
 import com.bytefuture.easy.poster.model.PosterContext;
 import com.bytefuture.easy.poster.model.RelativeDirection;
@@ -82,6 +83,16 @@ public abstract class AbstractElement<T extends AbstractElement> implements IEle
      */
     public T setPosition(Position position) {
         this.position = position;
+        return (T) this;
+    }
+
+    /**
+     * 设置绘制的其实位置，复用父类提供的 setPosition 方法，简化配置
+     *
+     * @param point 起始坐标点
+     */
+    public T setPosition(Point point) {
+        setPosition(AbsolutePosition.of(point, Direction.TOP_LEFT));
         return (T) this;
     }
 

@@ -4,11 +4,8 @@ import com.bytefuture.easy.poster.element.basic.text.style.ResolvedTextSpan;
 import com.bytefuture.easy.poster.element.basic.text.style.ResolvedTextStyle;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 文本拆分，将输入的TextSpan逐行拆分
@@ -347,7 +344,7 @@ public class TextSplitter {
     /**
      * 去除行尾空白 token 并计算去除后的宽度
      *
-     * @param tokens token 列表
+     * @param tokens     token 列表
      * @param totalWidth 包含空白在内的总宽度
      * @return trim 结果
      */
@@ -360,7 +357,7 @@ public class TextSplitter {
         return new TrimResult(result, width);
     }
 
-    
+
     /**
      * 将一行 token 重新组装为 TextLine
      */
@@ -419,10 +416,13 @@ public class TextSplitter {
         return width;
     }
 
-    /** trimTrailingSpaces 的返回结果 */
+    /**
+     * trimTrailingSpaces 的返回结果
+     */
     private static class TrimResult {
         final List<Token> tokens;
         final int width;
+
         TrimResult(List<Token> tokens, int width) {
             this.tokens = tokens;
             this.width = width;

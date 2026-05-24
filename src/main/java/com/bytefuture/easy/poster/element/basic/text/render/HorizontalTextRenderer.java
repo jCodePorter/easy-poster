@@ -119,10 +119,10 @@ public class HorizontalTextRenderer {
     /**
      * 绘制单行文本背景
      *
-     * @param graphics 图形上下文
-     * @param line 当前文本行
+     * @param graphics   图形上下文
+     * @param line       当前文本行
      * @param lineStartX 当前行起点 X 坐标
-     * @param baselineY 当前绘制基线 Y 坐标
+     * @param baselineY  当前绘制基线 Y 坐标
      * @param lineHeight 当前行高
      */
     private void drawLineBackgrounds(Graphics2D graphics, TextLine line, int lineStartX, int baselineY, int lineHeight) {
@@ -145,22 +145,12 @@ public class HorizontalTextRenderer {
     }
 
     /**
-     * 绘制文本并可选添加装饰线
-     *
-     * @param graphics      图形上下文
-     * @param text          文本内容
-     * @param x             X 坐标
-     * @param baselineY     基线 Y 坐标
-     * @param underline     是否绘制下划线
-     * @param strikeThrough 是否绘制删除线
-     */
-    /**
      * 绘制文本背景
      *
-     * @param graphics 图形上下文
-     * @param segment 文本片段
-     * @param currentX 当前绘制起点 X 坐标
-     * @param baselineY 当前绘制基线 Y 坐标
+     * @param graphics   图形上下文
+     * @param segment    文本片段
+     * @param currentX   当前绘制起点 X 坐标
+     * @param baselineY  当前绘制基线 Y 坐标
      * @param lineHeight 当前行高
      */
     private BackgroundBox resolveBackgroundBox(Graphics2D graphics, TextLine.Segment segment, int currentX,
@@ -190,12 +180,12 @@ public class HorizontalTextRenderer {
      * 绘制背景矩形
      *
      * @param graphics 图形上下文
-     * @param x 背景 X 坐标
-     * @param y 背景 Y 坐标
-     * @param width 背景宽度
-     * @param height 背景高度
-     * @param radius 背景圆角半径
-     * @param color 背景颜色
+     * @param x        背景 X 坐标
+     * @param y        背景 Y 坐标
+     * @param width    背景宽度
+     * @param height   背景高度
+     * @param radius   背景圆角半径
+     * @param color    背景颜色
      */
     private void drawBackground(Graphics2D graphics, int x, int y, int width, int height, int radius, Color color) {
         Color originalColor = graphics.getColor();
@@ -211,7 +201,7 @@ public class HorizontalTextRenderer {
     /**
      * 绘制背景盒
      *
-     * @param graphics 图形上下文
+     * @param graphics   图形上下文
      * @param background 背景盒
      */
     private void drawBackground(Graphics2D graphics, BackgroundBox background) {
